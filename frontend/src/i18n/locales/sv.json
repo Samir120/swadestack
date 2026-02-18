@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "Hem",
+    "portfolio": "Portfolio",
+    "services": "Tjänster",
+    "features": "Funktioner",
+    "contact": "Kontakt"
+  },
+  "theme": {
+    "light": "Ljust Tema",
+    "dark": "Mörkt Tema"
+  },
+  "admin": {
+    "dashboard": "Instrumentpanel",
+    "portfolio": "Portfolio Hantering",
+    "services": "Tjänster Hantering",
+    "features": "Funktioner Hantering",
+    "orders": "Beställningar Hantering",
+    "logout": "Logga ut",
+    "viewSite": "Visa Webbplats"
+  },
+  "features": {
+    "title": "Vad Vi Erbjuder",
+    "subtitle": "Utforska våra kärnkompetenser och se hur vi kan hjälpa dig.",
+    "loading": "Laddar funktioner..."
+  }
+}

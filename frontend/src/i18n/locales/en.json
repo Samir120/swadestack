@@ -1,0 +1,27 @@
+{
+  "nav": {
+    "home": "Home",
+    "portfolio": "Portfolio",
+    "services": "Services",
+    "features": "Features",
+    "contact": "Contact"
+  },
+  "theme": {
+    "light": "Light Mode",
+    "dark": "Dark Mode"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "portfolio": "Portfolio Management",
+    "services": "Services Management",
+    "features": "Features Management",
+    "orders": "Orders Management",
+    "logout": "Logout",
+    "viewSite": "View Site"
+  },
+  "features": {
+    "title": "What We Offer",
+    "subtitle": "Explore our core capabilities and see how we can help you.",
+    "loading": "Loading features..."
+  }
+}
