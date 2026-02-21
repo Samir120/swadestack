@@ -2,6 +2,7 @@ import React, { useEffect, Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from './store/hooks';
 import { rehydrateSession, logout } from './store/slices/authSlice';
+import { fetchServerCart } from './store/slices/cartSlice';
 import apiClient from './models/api/apiClient';
 import { fetchPublicSettings } from './store/slices/siteSettingsSlice';
 import { fetchLegalSettings } from './store/slices/legalSettingsSlice';
@@ -34,11 +35,16 @@ const FooterPage = lazy(() => import('./pages/FooterPage'));
 const PCBuilder = lazy(() => import('./pages/PCBuilder'));
 const PreConfiguredPCList = lazy(() => import('./pages/PreConfiguredPCList'));
 const PreConfiguredPCDetail = lazy(() => import('./pages/PreConfiguredPCDetail'));
+const NewsletterVerify = lazy(() => import('./pages/NewsletterVerify'));
+const NewsletterUnsubscribe = lazy(() => import('./pages/NewsletterUnsubscribe'));
+const ComponentsShop = lazy(() => import('./pages/ComponentsShop'));
+const ComponentDetail = lazy(() => import('./pages/ComponentDetail'));
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
   const { settings } = useAppSelector((state) => state.siteSettings);
   const theme = useAppSelector((state) => state.ui.theme);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   // Check if Gaming PC section is enabled (default true while settings load)
   const gamingPcEnabled = settings?.gamingPcSectionVisible !== false;
@@ -72,6 +78,21 @@ const App: React.FC = () => {
       dispatch(rehydrateSession());
     }
   }, [dispatch]);
+
+  // After auth rehydration succeeds, fetch server cart to detect admin force-clears
+  // Also re-check when tab regains visibility (user might have been away while admin cleared)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    dispatch(fetchServerCart());
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        dispatch(fetchServerCart());
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, [isAuthenticated, dispatch]);
 
   // Load site settings on mount
   useEffect(() => {
@@ -107,6 +128,8 @@ const App: React.FC = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+            <Route path="/newsletter/verify/:token" element={<NewsletterVerify />} />
+            <Route path="/newsletter/unsubscribe/:token" element={<NewsletterUnsubscribe />} />
 
             {/* User Dashboard - No Header/Footer */}
             <Route path="/dashboard" element={<UserDashboard />} />
@@ -117,6 +140,8 @@ const App: React.FC = () => {
                 <Route path="/pc-builder" element={<PCBuilder />} />
                 <Route path="/pre-configured-pcs" element={<PreConfiguredPCList />} />
                 <Route path="/pre-configured-pcs/:id" element={<PreConfiguredPCDetail />} />
+                <Route path="/components" element={<ComponentsShop />} />
+                <Route path="/components/:id" element={<ComponentDetail />} />
               </>
             )}
 

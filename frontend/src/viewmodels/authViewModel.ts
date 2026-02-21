@@ -11,6 +11,7 @@ import {
   forgotPassword,
   resetPassword,
 } from '../store/slices/authSlice';
+import { fetchServerCart, mergeServerCart, syncCartToServer } from '../store/slices/cartSlice';
 import { authApi } from '../models/api/authApi';
 import { LoginData, RegisterData } from '../models/types/user.types';
 
@@ -32,6 +33,18 @@ export const useAuthViewModel = () => {
   const loginUser = async (data: LoginData) => {
     const result = await dispatch(login(data));
     if (login.fulfilled.match(result)) {
+      // Merge server cart with local cart after login
+      try {
+        const cartResult = await dispatch(fetchServerCart());
+        if (fetchServerCart.fulfilled.match(cartResult) && cartResult.payload.items.length > 0) {
+          dispatch(mergeServerCart(cartResult.payload.items));
+        }
+        // Sync merged cart back to server (await to ensure it completes before navigation)
+        await dispatch(syncCartToServer());
+      } catch {
+        // Cart sync failure is non-critical
+      }
+
       // Check if user is admin and redirect accordingly
       const userData = result.payload.user;
       if (userData.role === 'admin') {

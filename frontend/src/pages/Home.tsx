@@ -37,6 +37,7 @@ const ChevronRight: React.FC<{ className?: string }> = ({ className }) => (
 const FeatureFocus = lazy(() => import('../components/sections/FeatureFocus'));
 const OurTeam = lazy(() => import('../components/sections/OurTeam'));
 const PreConfiguredPCSection = lazy(() => import('../components/pcbuilder/PreConfiguredPCSection'));
+const ComponentsShopSection = lazy(() => import('../components/sections/ComponentsShopSection'));
 
 // Lazy-load Lottie (heavy library) — only needed for empty states and send animation
 const Lottie = lazy(() => import('lottie-react'));
@@ -277,7 +278,7 @@ const Home: React.FC = () => {
     const baseSections = ['home', 'features', 'portfolio', 'services'];
     const sections = [
       ...baseSections,
-      ...(gamingPcVisible ? ['pc-configurations'] : []),
+      ...(gamingPcVisible ? ['pc-configurations', 'components-shop'] : []),
       ...(hasTeamMembers ? ['team'] : []),
       'contact'
     ];
@@ -326,6 +327,7 @@ const Home: React.FC = () => {
     { id: 'portfolio', label: language === 'en' ? 'Work' : 'Arbete' },
     { id: 'services', label: language === 'en' ? 'Services' : 'Tjänster' },
     ...(showGamingPcSection ? [{ id: 'pc-configurations', label: language === 'en' ? 'Gaming PCs' : 'Speldatorer' }] : []),
+    ...(showGamingPcSection ? [{ id: 'components-shop', label: language === 'en' ? 'Components' : 'Komponenter' }] : []),
     ...(hasTeamMembers ? [{ id: 'team', label: language === 'en' ? 'Our Team' : 'Vårt Team' }] : []),
     { id: 'contact', label: language === 'en' ? 'Contact' : 'Kontakt' },
   ];
@@ -773,6 +775,17 @@ const Home: React.FC = () => {
                 <PreConfiguredPCSection />
               </Suspense>
             </section>
+          </LazySection>
+        </div>
+      )}
+
+      {showGamingPcSection && (
+        <div id="components-shop">
+          <div className="relative h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" />
+          <LazySection minHeight="300px" rootMargin="400px">
+            <Suspense fallback={<div className="flex justify-center items-center py-16"><LoadingSpinner /></div>}>
+              <ComponentsShopSection />
+            </Suspense>
           </LazySection>
         </div>
       )}

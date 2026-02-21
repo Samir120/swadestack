@@ -23,6 +23,15 @@ import LegalSettingsManager from '../components/admin/LegalSettingsManager';
 import CouponsManager from '../components/admin/CouponsManager';
 import NotificationBannerManager from '../components/admin/NotificationBannerManager';
 import VatSettingsManager from '../components/admin/VatSettingsManager';
+import CustomerList from '../components/admin/CustomerList';
+import CustomerProfile from '../components/admin/CustomerProfile';
+import AdminOrderDetail from '../components/admin/AdminOrderDetail';
+import NewsletterDashboard from '../components/admin/NewsletterDashboard';
+import NewsletterCampaigns from '../components/admin/NewsletterCampaigns';
+import NewsletterSubscribers from '../components/admin/NewsletterSubscribers';
+import NewsletterTemplates from '../components/admin/NewsletterTemplates';
+import NewsletterTemplateEditor from '../components/admin/NewsletterTemplateEditor';
+import CampaignReport from '../components/admin/CampaignReport';
 
 const AdminRoutes: React.FC = () => {
   const { isAuthenticated, isLoading, isAdmin } = useAuthViewModel();
@@ -51,6 +60,9 @@ const AdminRoutes: React.FC = () => {
         <Route path="service-categories" element={<ServiceCategoriesManager />} />
         <Route path="features" element={<FeaturesManager />} />
         <Route path="orders" element={<OrderList />} />
+        <Route path="orders/:id" element={<AdminOrderDetail />} />
+        <Route path="customers" element={<CustomerList />} />
+        <Route path="customers/:id" element={<CustomerProfile />} />
         <Route path="coupons" element={<CouponsManager />} />
         <Route path="contact-messages" element={<ContactMessagesManager />} />
         <Route path="settings" element={<SiteSettingsManager />} />
@@ -65,6 +77,12 @@ const AdminRoutes: React.FC = () => {
         <Route path="pc-build-services" element={<PCBuildServicesManager />} />
         <Route path="pre-configured-pcs" element={<PreConfiguredPCManager />} />
         <Route path="notification-banners" element={<NotificationBannerManager />} />
+        <Route path="newsletters" element={<NewsletterDashboard />} />
+        <Route path="newsletters/campaigns" element={<NewsletterCampaigns />} />
+        <Route path="newsletters/campaigns/:id/report" element={<CampaignReport />} />
+        <Route path="newsletters/subscribers" element={<NewsletterSubscribers />} />
+        <Route path="newsletters/templates" element={<NewsletterTemplates />} />
+        <Route path="newsletters/templates/:id" element={<NewsletterTemplateEditor />} />
       </Route>
     </Routes>
   );

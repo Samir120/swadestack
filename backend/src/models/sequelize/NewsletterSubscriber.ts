@@ -1,12 +1,18 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../../config/database';
 
+export type SubscriberStatus = 'active' | 'unsubscribed' | 'bounced' | 'pending_confirmation';
+export type SubscriberSource = 'registration' | 'website_signup' | 'checkout' | 'admin_manual' | 'csv_import';
+
 export interface NewsletterSubscriberAttributes {
   id: string;
   email: string;
   firstName?: string;
   lastName?: string;
+  userId?: string;
   isActive: boolean;
+  status: SubscriberStatus;
+  source?: SubscriberSource;
   verificationToken?: string;
   verifiedAt?: Date;
   unsubscribedAt?: Date;
@@ -17,8 +23,8 @@ export interface NewsletterSubscriberAttributes {
   updatedAt?: Date;
 }
 
-interface NewsletterSubscriberCreationAttributes 
-  extends Optional<NewsletterSubscriberAttributes, 'id' | 'isActive' | 'language' | 'createdAt' | 'updatedAt'> {}
+interface NewsletterSubscriberCreationAttributes
+  extends Optional<NewsletterSubscriberAttributes, 'id' | 'isActive' | 'status' | 'language' | 'createdAt' | 'updatedAt'> {}
 
 class NewsletterSubscriber 
   extends Model<NewsletterSubscriberAttributes, NewsletterSubscriberCreationAttributes> 
@@ -27,7 +33,10 @@ class NewsletterSubscriber
   public email!: string;
   public firstName?: string;
   public lastName?: string;
+  public userId?: string;
   public isActive!: boolean;
+  public status!: SubscriberStatus;
+  public source?: SubscriberSource;
   public verificationToken?: string;
   public verifiedAt?: Date;
   public unsubscribedAt?: Date;
@@ -62,10 +71,27 @@ NewsletterSubscriber.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    userId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'Users',
+        key: 'id',
+      },
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
+    },
+    status: {
+      type: DataTypes.ENUM('active', 'unsubscribed', 'bounced', 'pending_confirmation'),
+      allowNull: false,
+      defaultValue: 'active',
+    },
+    source: {
+      type: DataTypes.ENUM('registration', 'website_signup', 'checkout', 'admin_manual', 'csv_import'),
+      allowNull: true,
     },
     verificationToken: {
       type: DataTypes.STRING,
@@ -112,6 +138,15 @@ NewsletterSubscriber.init(
       },
       {
         fields: ['unsubscribeToken'],
+      },
+      {
+        fields: ['userId'],
+      },
+      {
+        fields: ['status'],
+      },
+      {
+        fields: ['source'],
       },
     ],
   }

@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchFooterStructure } from '../../store/slices/footerSlice';
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaGithub } from 'react-icons/fa';
 import { HiMail, HiPhone, HiLocationMarker } from 'react-icons/hi';
+import NewsletterSubscription from './NewsletterSubscription';
 
 const DynamicFooter: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -131,6 +132,7 @@ const DynamicFooter: React.FC = () => {
                   })}
                 </div>
               )}
+              <NewsletterSubscription />
             </div>
 
             {/* Contact Column */}

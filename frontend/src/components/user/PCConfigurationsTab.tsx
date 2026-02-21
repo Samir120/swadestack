@@ -11,6 +11,8 @@ import { PCConfiguration, ConfigurationStatus } from '../../models/types/pcConfi
 import { useToast } from '../common/Toast';
 import { useConfirm } from '../common/ConfirmDialog';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { useVatRate } from '../../hooks/useVatRate';
+import { netToGross, vatPercent } from '../../utils/vat';
 
 /**
  * PC Configurations Tab Component
@@ -23,6 +25,7 @@ const PCConfigurationsTab: React.FC = () => {
   const navigate = useNavigate();
   const confirm = useConfirm();
   const language = useAppSelector((state) => state.ui.language);
+  const vatRate = useVatRate();
   const { configurations = [], isLoading, error, total = 0 } = useAppSelector(
     (state) => state.savedConfigurations
   );
@@ -272,13 +275,14 @@ const PCConfigurationsTab: React.FC = () => {
     return calculateTotalFromComponents(config);
   };
 
-  // Format price
-  const formatPrice = (price: number, currency: string = 'SEK') => {
+  // Format price — converts NET to GROSS (inkl. moms) for display
+  const formatPrice = (netPrice: number, currency: string = 'SEK') => {
+    const gross = netToGross(netPrice, vatRate);
     return new Intl.NumberFormat(language === 'en' ? 'en-SE' : 'sv-SE', {
       style: 'currency',
       currency,
       minimumFractionDigits: 0,
-    }).format(price);
+    }).format(gross);
   };
 
   if (isLoading && configurations.length === 0) {
@@ -637,7 +641,7 @@ const PCConfigurationsTab: React.FC = () => {
                 )}
                 <div className="flex justify-between pt-2 sm:pt-3 border-t border-gray-300 dark:border-surface-600">
                   <span className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
-                    {language === 'en' ? 'Total' : 'Totalt'}
+                    {language === 'en' ? 'Total' : 'Totalt'} <span className="font-normal text-[10px] text-gray-500 dark:text-neutral-500">({language === 'en' ? `incl. VAT ${vatPercent(vatRate)}%` : `inkl. moms ${vatPercent(vatRate)}%`})</span>
                   </span>
                   <span className="font-bold text-base sm:text-lg text-gray-900 dark:text-white">
                     {formatPrice(

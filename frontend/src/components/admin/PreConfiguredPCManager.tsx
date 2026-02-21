@@ -5,6 +5,8 @@ import { useConfirm } from '../common/ConfirmDialog';
 import { preConfiguredPCApi } from '../../models/api/preConfiguredPCApi';
 import { pcBuildServiceApi } from '../../models/api/pcBuildServiceApi';
 import { PCConfiguration, PCTier, PreConfiguredStats, UpdatePreConfiguredPCRequest, PCBuildServiceOption, BuildServiceSnapshot } from '../../models/types/pcConfiguration.types';
+import AdminPriceDisplay, { formatAdminCurrency } from './common/AdminPriceDisplay';
+import AdminPriceInput from './common/AdminPriceInput';
 import { FaDesktop, FaPlus, FaEdit, FaTrash, FaStar, FaRegStar, FaTimes, FaExternalLinkAlt, FaImage, FaWrench } from 'react-icons/fa';
 import MultiImageUpload from '../common/MultiImageUpload';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -125,6 +127,45 @@ const PreConfiguredPCManager: React.FC = () => {
     }
   };
 
+  // Generate key specs string from components (same logic as PreConfiguredPCCard)
+  const generateSpecsSummary = (config: PCConfiguration, lang: 'en' | 'sv'): string => {
+    const specs: string[] = [];
+    const comps = config.components;
+    if (!comps) return '';
+
+    if (comps.cpu) {
+      const cpuName = lang === 'en' ? comps.cpu.name_en : comps.cpu.name_sv;
+      const short = cpuName?.split(' ').slice(0, 4).join(' ') || '';
+      if (short) specs.push(short);
+    }
+    if (comps.gpus && comps.gpus.length > 0) {
+      const gpuName = lang === 'en' ? comps.gpus[0].name_en : comps.gpus[0].name_sv;
+      const short = gpuName?.split(' ').slice(0, 3).join(' ') || '';
+      if (short) specs.push(short);
+    }
+    if (comps.rams && comps.rams.length > 0) {
+      const totalRam = comps.rams.reduce((sum: number, ram: any) => {
+        const cap = (ram.specifications as any)?.capacity || 0;
+        return sum + cap;
+      }, 0);
+      if (totalRam > 0) specs.push(`${totalRam}GB RAM`);
+    }
+    let totalStorage = 0;
+    let storageType = 'SSD';
+    if (comps.ssds && comps.ssds.length > 0) {
+      comps.ssds.forEach((ssd: any) => { totalStorage += (ssd.specifications as any)?.capacity || 0; });
+    }
+    if (comps.hdds && comps.hdds.length > 0) {
+      comps.hdds.forEach((hdd: any) => { totalStorage += (hdd.specifications as any)?.capacity || 0; });
+      if (!comps.ssds?.length) storageType = 'HDD';
+    }
+    if (totalStorage > 0) {
+      const str = totalStorage >= 1000 ? `${totalStorage / 1000}TB` : `${totalStorage}GB`;
+      specs.push(`${str} ${storageType}`);
+    }
+    return specs.join(' \u00B7 ');
+  };
+
   // Open edit modal
   const handleOpenEdit = (config: PCConfiguration) => {
     setSelectedConfig(config);
@@ -136,6 +177,11 @@ const PreConfiguredPCManager: React.FC = () => {
         : [];
     // Get selected build service ID from snapshot
     const selectedBuildServiceId = config.buildServiceSnapshot?.id || '';
+
+    // Auto-generate specs if descriptions are empty
+    const specsEn = generateSpecsSummary(config, 'en');
+    const specsSv = generateSpecsSummary(config, 'sv');
+
     setEditForm({
       name_en: config.name_en,
       name_sv: config.name_sv,
@@ -145,13 +191,14 @@ const PreConfiguredPCManager: React.FC = () => {
       imageUrl: config.imageUrl,
       imageFile: '',
       editImageUrls: initialImageUrls,
-      shortDescription_en: config.shortDescription_en,
-      shortDescription_sv: config.shortDescription_sv,
+      shortDescription_en: config.shortDescription_en || specsEn,
+      shortDescription_sv: config.shortDescription_sv || specsSv,
       isFeatured: config.isFeatured,
       displayOrder: config.displayOrder,
       includesBuildService: config.includesBuildService,
       buildServiceCharge: config.buildServiceCharge,
       selectedBuildServiceId,
+      stock: config.stock || 0,
     });
     setIsEditModalOpen(true);
   };
@@ -201,6 +248,7 @@ const PreConfiguredPCManager: React.FC = () => {
         includesBuildService: editForm.includesBuildService,
         buildServiceCharge: editForm.buildServiceCharge,
         buildServiceSnapshot,
+        stock: editForm.stock,
       };
 
       const response = await preConfiguredPCApi.update(selectedConfig.id, submitData);
@@ -215,14 +263,7 @@ const PreConfiguredPCManager: React.FC = () => {
     }
   };
 
-  // Format price
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const formatPrice = formatAdminCurrency;
 
   // Get tier color
   const getTierColor = (tier?: PCTier) => {
@@ -263,7 +304,7 @@ const PreConfiguredPCManager: React.FC = () => {
           </div>
           <div className="bg-surface-850 rounded-xl border border-surface-700 p-4">
             <p className="text-sm text-neutral-400 font-medium">Avg. Price</p>
-            <p className="text-2xl font-bold text-green-600">{formatPrice(stats.averagePrice)}</p>
+            <AdminPriceDisplay price={stats.averagePrice} primaryClassName="text-2xl font-bold text-green-600" />
           </div>
           <div className="bg-surface-850 rounded-xl border border-surface-700 p-4">
             <p className="text-sm text-neutral-400 font-medium">By Tier</p>
@@ -377,18 +418,15 @@ const PreConfiguredPCManager: React.FC = () => {
                         {hasDiscount ? (
                           <>
                             <span className="text-neutral-500 line-through text-sm">{formatPrice(originalTotal)}</span>
-                            <span className="text-red-600 font-bold text-lg">{formatPrice(grandTotal)}</span>
+                            <AdminPriceDisplay price={grandTotal} primaryClassName="text-red-600 font-bold text-lg" />
                           </>
                         ) : (
-                          <span className="text-white font-bold text-lg">{formatPrice(grandTotal)}</span>
+                          <AdminPriceDisplay price={grandTotal} primaryClassName="text-white font-bold text-lg" />
                         )}
                       </div>
                       {config.includesBuildService && (
                         <p className="text-purple-600 text-xs mt-1 flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
+                          <FaWrench size={10} />
                           Build service: +{formatPrice(buildServiceCharge)}
                         </p>
                       )}
@@ -524,37 +562,47 @@ const PreConfiguredPCManager: React.FC = () => {
 
               {/* Prices */}
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-1">Price (SEK)</label>
-                  <input
-                    type="number"
-                    value={editForm.totalPrice || ''}
-                    onChange={(e) => setEditForm({ ...editForm, totalPrice: parseFloat(e.target.value) || undefined })}
-                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-1">Discounted Price</label>
-                  <input
-                    type="number"
-                    value={editForm.discountedPrice || ''}
-                    onChange={(e) => setEditForm({ ...editForm, discountedPrice: parseFloat(e.target.value) || undefined })}
-                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
-                    placeholder="Optional"
-                  />
-                </div>
+                <AdminPriceInput
+                  label="Price"
+                  value={editForm.totalPrice || ''}
+                  onChange={(v) => setEditForm({ ...editForm, totalPrice: parseFloat(v) || undefined })}
+                  labelClassName="block text-sm font-medium text-neutral-300 mb-1"
+                  inputClassName="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                />
+                <AdminPriceInput
+                  label="Discounted Price"
+                  value={editForm.discountedPrice || ''}
+                  onChange={(v) => setEditForm({ ...editForm, discountedPrice: parseFloat(v) || undefined })}
+                  placeholder="Optional"
+                  labelClassName="block text-sm font-medium text-neutral-300 mb-1"
+                  inputClassName="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                />
               </div>
 
-              {/* Display Order */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-1">Display Order</label>
-                <input
-                  type="number"
-                  value={editForm.displayOrder || 0}
-                  onChange={(e) => setEditForm({ ...editForm, displayOrder: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
-                />
-                <p className="text-xs text-neutral-400 mt-1">Lower numbers appear first</p>
+              {/* Stock & Display Order */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-300 mb-1">Stock Quantity</label>
+                  <input
+                    type="number"
+                    value={editForm.stock ?? 0}
+                    onChange={(e) => setEditForm({ ...editForm, stock: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                    min={0}
+                  />
+                  <p className="text-xs text-neutral-400 mt-1">Units available for sale</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-300 mb-1">Display Order</label>
+                  <input
+                    type="number"
+                    value={editForm.displayOrder || 0}
+                    onChange={(e) => setEditForm({ ...editForm, displayOrder: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                    min={0}
+                  />
+                  <p className="text-xs text-neutral-400 mt-1">Lower numbers appear first</p>
+                </div>
               </div>
 
               {/* Featured Toggle */}

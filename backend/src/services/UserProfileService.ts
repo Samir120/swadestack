@@ -1,4 +1,5 @@
 import User, { UserAttributes } from '../models/sequelize/User';
+import Address from '../models/sequelize/Address';
 import { validatePassword } from '../utils/passwordValidator';
 
 /**
@@ -93,6 +94,53 @@ export class UserProfileService {
     });
 
     await user.update(updateData);
+
+    // Sync address fields to the Address table so admin panel sees them
+    const addressFields = ['address', 'city', 'postalCode', 'country'];
+    const hasAddressUpdate = addressFields.some(f => f in updateData);
+    if (hasAddressUpdate) {
+      const updatedUser = user.toJSON() as UserAttributes;
+      const streetAddress = updatedUser.address;
+      const city = updatedUser.city;
+      const postalCode = updatedUser.postalCode;
+
+      if (streetAddress && city && postalCode) {
+        const fullName = [updatedUser.firstName, updatedUser.lastName].filter(Boolean).join(' ') || '';
+        const country = updatedUser.country || 'Sweden';
+
+        // Find existing default shipping address or create one
+        const existingAddress = await Address.findOne({
+          where: { userId, type: 'shipping', isDefault: true } as any,
+        });
+
+        if (existingAddress) {
+          await existingAddress.update({
+            fullName,
+            streetAddress,
+            city,
+            postalCode,
+            country,
+            phone: updatedUser.phone || undefined,
+            company: updatedUser.company || undefined,
+            organizationNumber: updatedUser.organizationNumber || undefined,
+          });
+        } else {
+          await Address.create({
+            userId,
+            type: 'shipping',
+            isDefault: true,
+            fullName,
+            streetAddress,
+            city,
+            postalCode,
+            country,
+            phone: updatedUser.phone || undefined,
+            company: updatedUser.company || undefined,
+            organizationNumber: updatedUser.organizationNumber || undefined,
+          });
+        }
+      }
+    }
 
     // Return user without password
     const { password, ...userProfile } = user.toJSON() as UserAttributes;

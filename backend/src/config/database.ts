@@ -27,11 +27,9 @@ export const connectDatabase = async (): Promise<void> => {
     await sequelize.authenticate();
     console.log('Database connection established successfully');
 
-    // Only auto-sync schema in development — use migrations in production
-    if (config.env === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('Database synchronized (dev mode)');
-    }
+    // Auto-sync schema — Sequelize alter adds missing columns/tables
+    await sequelize.sync({ alter: true });
+    console.log('Database schema synchronized');
   } catch (error) {
     console.error('Unable to connect to database:', error);
     process.exit(1);

@@ -283,6 +283,15 @@ export class PartialPaymentService {
       return { valid: true };
     }
 
+    if (phase === 'additional') {
+      // Additional payment for balance due after order modification
+      const additionalPayment = payments.find(p => p.phase === 'additional' && p.status === 'pending');
+      if (!additionalPayment) {
+        return { valid: false, reason: 'No pending additional payment found' };
+      }
+      return { valid: true };
+    }
+
     return { valid: false, reason: 'Invalid payment phase' };
   }
 

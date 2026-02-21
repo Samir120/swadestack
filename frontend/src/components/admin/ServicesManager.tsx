@@ -7,7 +7,9 @@ import { Service } from '../../models/types/service.types';
 import { ServiceCategory } from '../../models/types/serviceCategory.types';
 import { serviceCategoryApi } from '../../models/api/serviceCategoryApi';
 import FileUpload from '../common/FileUpload';
-import { FaPlus, FaEdit, FaTrash, FaTimes, FaToggleOn, FaToggleOff, FaCheck, FaBan, FaTag, FaBox, FaStar } from 'react-icons/fa';
+import AdminPriceDisplay, { formatAdminCurrency } from './common/AdminPriceDisplay';
+import AdminPriceInput from './common/AdminPriceInput';
+import { FaPlus, FaEdit, FaTrash, FaTimes, FaToggleOn, FaToggleOff, FaCheck, FaBan, FaBox, FaStar } from 'react-icons/fa';
 import LoadingSpinner from '../common/LoadingSpinner';
 
 const ServicesManager: React.FC = () => {
@@ -243,13 +245,7 @@ const ServicesManager: React.FC = () => {
     });
   };
 
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const formatPrice = formatAdminCurrency;
 
   if (isLoading) {
     return (
@@ -308,18 +304,24 @@ const ServicesManager: React.FC = () => {
 
             <div className="mb-3">
               {service.discountPrice != null ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-neutral-500 line-through">
-                    {formatPrice(service.price, service.currency)}
-                  </span>
-                  <span className="text-base font-bold text-red-600">
-                    {formatPrice(service.discountPrice, service.currency)}
-                  </span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-neutral-500 line-through">
+                      {formatPrice(service.price, service.currency)}
+                    </span>
+                    <AdminPriceDisplay
+                      price={service.discountPrice}
+                      currency={service.currency}
+                      primaryClassName="text-base font-bold text-red-600"
+                    />
+                  </div>
                 </div>
               ) : (
-                <span className="text-base font-bold text-white">
-                  {formatPrice(service.price, service.currency)}
-                </span>
+                <AdminPriceDisplay
+                  price={service.price}
+                  currency={service.currency}
+                  primaryClassName="text-base font-bold text-white"
+                />
               )}
             </div>
 
@@ -390,16 +392,24 @@ const ServicesManager: React.FC = () => {
                 </td>
                 <td className="px-6 py-4 text-sm font-bold text-white">
                   {service.discountPrice != null ? (
-                    <div className="flex items-center gap-2">
-                      <span className="line-through text-neutral-500 text-xs">
-                        {formatPrice(service.price, service.currency)}
-                      </span>
-                      <span className="text-red-600 font-bold">
-                        {formatPrice(service.discountPrice, service.currency)}
-                      </span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="line-through text-neutral-500 text-xs">
+                          {formatPrice(service.price, service.currency)}
+                        </span>
+                        <AdminPriceDisplay
+                          price={service.discountPrice}
+                          currency={service.currency}
+                          primaryClassName="text-red-600 font-bold"
+                        />
+                      </div>
                     </div>
                   ) : (
-                    formatPrice(service.price, service.currency)
+                    <AdminPriceDisplay
+                      price={service.price}
+                      currency={service.currency}
+                      primaryClassName="font-bold text-white"
+                    />
                   )}
                 </td>
                 <td className="px-6 py-4">
@@ -550,38 +560,24 @@ const ServicesManager: React.FC = () => {
 
               {/* Price, Discount, Currency, Category */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-1.5">
-                    <span className="flex items-center gap-1">
-                      <FaTag className="text-neutral-500 text-[10px]" />
-                      Price
-                    </span>
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full px-3 py-2.5 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-1.5">
-                    Discount
-                    <span className="text-[10px] text-neutral-500 ml-1">(opt)</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="—"
-                    value={formData.discountPrice}
-                    onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value })}
-                    className="w-full px-3 py-2.5 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
-                  />
-                </div>
+                <AdminPriceInput
+                  label="Price"
+                  value={formData.price}
+                  onChange={(v) => setFormData({ ...formData, price: v })}
+                  currency={formData.currency}
+                  required
+                  min={0}
+                  step={0.01}
+                />
+                <AdminPriceInput
+                  label="Discount"
+                  value={formData.discountPrice}
+                  onChange={(v) => setFormData({ ...formData, discountPrice: v })}
+                  currency={formData.currency}
+                  min={0}
+                  step={0.01}
+                  placeholder="—"
+                />
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-1.5">
                     Currency

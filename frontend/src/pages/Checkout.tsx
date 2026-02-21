@@ -18,14 +18,14 @@ import emptyCartAnimation from '../assets/animations/empty-cart.json';
 import paymentFullAnimation from '../assets/animations/payment-full.json';
 import paymentSplitAnimation from '../assets/animations/payment-split.json';
 import { useVatRate } from '../hooks/useVatRate';
-import { netToGross, vatAmount as calcVatAmount, vatPercent } from '../utils/vat';
+import { netToGross, vatPercent } from '../utils/vat';
 
 const Checkout: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const language = useAppSelector((state) => state.ui.language);
-  const { items, pcItems, emptyCart, isEmpty, totalAmount } = useCartViewModel();
+  const { items, pcItems, componentItems, emptyCart, isEmpty, totalAmount } = useCartViewModel();
   const { createOrder, validateOrderData, isLoading } = useOrdersViewModel();
   const { isAuthenticated, user } = useAuthViewModel();
   const vatRate = useVatRate();
@@ -257,6 +257,14 @@ const Checkout: React.FC = () => {
       })),
     };
 
+    // Include component items
+    if (componentItems.length > 0) {
+      orderData.componentItems = componentItems.map(ci => ({
+        pcComponentId: ci.component.id,
+        quantity: ci.quantity,
+      }));
+    }
+
     // Include PC items
     if (hasPCItems) {
       orderData.pcItems = pcItems.map(pcItem => {
@@ -291,7 +299,7 @@ const Checkout: React.FC = () => {
       orderData.userId = user.id;
     }
 
-    // Skip service-item validation when cart has only PC items
+    // Skip service-item validation when cart has only PC/component items
     if (items.length > 0) {
       const validation = validateOrderData(orderData);
       if (!validation.isValid) {
@@ -935,6 +943,30 @@ const Checkout: React.FC = () => {
                   </div>
                 );
               })}
+
+              {/* Component Cart Items */}
+              {!isPCConfigMode && componentItems.map((ci) => {
+                const comp = ci.component;
+                const compName = language === 'en' ? comp.name_en : comp.name_sv;
+                return (
+                  <div key={comp.id} className="flex justify-between items-center pb-4 border-b border-gray-200 dark:border-surface-600 last:border-0 last:pb-0">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-lg text-gray-900 dark:text-white">{compName}</span>
+                        <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 uppercase">
+                          {comp.manufacturer}
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-500 dark:text-neutral-400">
+                        {language === 'en' ? 'PC Component' : 'Datorkomponent'} {ci.quantity > 1 ? `x${ci.quantity}` : ''}
+                      </span>
+                    </div>
+                    <span className="font-bold text-xl text-primary-600 dark:text-primary-400">
+                      {(netToGross(comp.price * ci.quantity, vatRate)).toLocaleString('sv-SE', { maximumFractionDigits: 0 })} {comp.currency}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
             {/* Coupon Discount Line */}
             {!isPCConfigMode && discountAmount > 0 && appliedCoupon && (
@@ -962,8 +994,8 @@ const Checkout: React.FC = () => {
               </div>
               <div className="text-sm text-gray-500 dark:text-neutral-400 text-right">
                 {language === 'en'
-                  ? `Incl. VAT (${vatPercent(vatRate)}%): ${calcVatAmount(isPCConfigMode ? configTotal : totalAmount, vatRate).toLocaleString('sv-SE', { maximumFractionDigits: 0 })} SEK`
-                  : `Varav moms (${vatPercent(vatRate)}%): ${calcVatAmount(isPCConfigMode ? configTotal : totalAmount, vatRate).toLocaleString('sv-SE', { maximumFractionDigits: 0 })} SEK`
+                  ? `Incl. VAT (${vatPercent(vatRate)}%): ${Math.round(displayGrossTotal * vatRate / (1 + vatRate)).toLocaleString('sv-SE', { maximumFractionDigits: 0 })} SEK`
+                  : `Varav moms (${vatPercent(vatRate)}%): ${Math.round(displayGrossTotal * vatRate / (1 + vatRate)).toLocaleString('sv-SE', { maximumFractionDigits: 0 })} SEK`
                 }
               </div>
 

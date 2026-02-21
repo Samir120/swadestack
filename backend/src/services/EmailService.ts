@@ -246,6 +246,18 @@ export class EmailService {
   }
 
   /**
+   * Send pre-rendered HTML email directly via SMTP (used by newsletter campaigns)
+   */
+  async sendRawHtml(options: { to: string; subject: string; html: string }): Promise<void> {
+    await this.transporter.sendMail({
+      from: `"${emailConfig.from.name}" <${emailConfig.from.address}>`,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+    });
+  }
+
+  /**
    * Test email configuration
    */
   async sendTestEmail(to: string): Promise<void> {

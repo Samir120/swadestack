@@ -82,6 +82,7 @@ export interface PCConfiguration {
   imageUrls?: string[]; // Multiple product images (array of base64 or URLs)
   shortDescription_en?: string;
   shortDescription_sv?: string;
+  stock: number;
   // Computed fields
   componentCount?: number;
   isComplete?: boolean;
@@ -457,6 +458,7 @@ export interface CreatePreConfiguredPCRequest {
   includesBuildService?: boolean;
   buildServiceCharge?: number;
   buildServiceSnapshot?: BuildServiceSnapshot;
+  stock?: number;
 }
 
 export interface UpdatePreConfiguredPCRequest {
@@ -474,6 +476,7 @@ export interface UpdatePreConfiguredPCRequest {
   includesBuildService?: boolean;
   buildServiceCharge?: number;
   buildServiceSnapshot?: BuildServiceSnapshot | null;
+  stock?: number;
 }
 
 export interface PromoteToPreConfiguredRequest {
@@ -490,6 +493,7 @@ export interface PromoteToPreConfiguredRequest {
   includesBuildService?: boolean;
   buildServiceCharge?: number;
   buildServiceSnapshot?: BuildServiceSnapshot;
+  stock?: number;
 }
 
 export interface ToggleFeaturedResponse {

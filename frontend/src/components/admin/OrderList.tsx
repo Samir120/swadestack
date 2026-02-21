@@ -5,6 +5,7 @@ import { ordersApi } from '../../models/api/ordersApi';
 import { Order, OrderStatus, PaymentSummary } from '../../models/types/order.types';
 import { FaTimes, FaEye, FaCheck, FaShoppingBag, FaUser, FaEnvelope, FaMapMarkerAlt, FaCreditCard, FaCalendarAlt } from 'react-icons/fa';
 import LoadingSpinner from '../common/LoadingSpinner';
+import AdminPriceDisplay, { formatAdminCurrency } from './common/AdminPriceDisplay';
 
 const OrderList: React.FC = () => {
   const toast = useToast();
@@ -96,13 +97,7 @@ const OrderList: React.FC = () => {
     }
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number, currency: string) => formatAdminCurrency(amount, currency);
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleString('sv-SE', {
@@ -206,9 +201,13 @@ const OrderList: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-between mb-3">
-              <span className="text-base font-bold text-white">
-                {formatCurrency(order.totalAmount, order.currency)}
-              </span>
+              <AdminPriceDisplay
+                price={order.totalAmount}
+                currency={order.currency}
+                className="text-base font-bold text-white"
+                primaryClassName=""
+                secondaryClassName="block text-[10px] text-neutral-500 font-normal"
+              />
               <span className="text-xs text-neutral-400">
                 {formatDateShort(order.createdAt)}
               </span>
@@ -274,9 +273,12 @@ const OrderList: React.FC = () => {
                     <div className="text-sm text-neutral-400 truncate max-w-[180px]">{order.email}</div>
                   </td>
                   <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-bold text-white">
-                      {formatCurrency(order.totalAmount, order.currency)}
-                    </div>
+                    <AdminPriceDisplay
+                      price={order.totalAmount}
+                      currency={order.currency}
+                      primaryClassName="text-sm font-bold text-white"
+                      secondaryClassName="block text-[10px] text-neutral-500 font-normal"
+                    />
                   </td>
                   <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                     <span
@@ -398,9 +400,12 @@ const OrderList: React.FC = () => {
                         <div className="text-xs text-neutral-400">Qty: {item.quantity}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-bold text-white">
-                          {formatCurrency(item.price * item.quantity, selectedOrder.currency)}
-                        </div>
+                        <AdminPriceDisplay
+                          price={item.price * item.quantity}
+                          currency={selectedOrder.currency}
+                          primaryClassName="text-sm font-bold text-white"
+                          secondaryClassName="block text-[10px] text-neutral-500 font-normal"
+                        />
                         <div className="text-[10px] text-neutral-400">
                           {formatCurrency(item.price, selectedOrder.currency)} each
                         </div>
@@ -410,9 +415,12 @@ const OrderList: React.FC = () => {
                 </div>
                 <div className="mt-4 pt-4 border-t border-surface-700 flex justify-between items-center">
                   <span className="text-sm font-bold text-white">Total</span>
-                  <span className="text-xl font-bold text-primary-400">
-                    {formatCurrency(selectedOrder.totalAmount, selectedOrder.currency)}
-                  </span>
+                  <AdminPriceDisplay
+                    price={selectedOrder.totalAmount}
+                    currency={selectedOrder.currency}
+                    primaryClassName="text-xl font-bold text-primary-400"
+                    secondaryClassName="block text-[10px] text-neutral-500 font-normal"
+                  />
                 </div>
               </div>
 

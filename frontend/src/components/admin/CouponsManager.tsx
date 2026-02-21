@@ -4,6 +4,8 @@ import { useConfirm } from '../common/ConfirmDialog';
 import apiClient from '../../models/api/apiClient';
 import { Coupon, ApplicableTo } from '../../models/types/coupon.types';
 import LoadingSpinner from '../common/LoadingSpinner';
+import AdminPriceDisplay, { formatAdminCurrency } from './common/AdminPriceDisplay';
+import AdminPriceInput from './common/AdminPriceInput';
 import {
   FaPlus,
   FaEdit,
@@ -204,11 +206,11 @@ const CouponsManager: React.FC = () => {
     if (coupon.discountType === 'percentage') {
       let display = `${coupon.discountValue}%`;
       if (coupon.maxDiscountAmount != null) {
-        display += ` (max ${coupon.maxDiscountAmount.toLocaleString('sv-SE', { maximumFractionDigits: 0 })} SEK)`;
+        display += ` (max ${formatAdminCurrency(coupon.maxDiscountAmount)})`;
       }
       return display;
     }
-    return `${coupon.discountValue.toLocaleString('sv-SE', { maximumFractionDigits: 0 })} SEK`;
+    return formatAdminCurrency(coupon.discountValue);
   };
 
   const formatDate = (dateStr?: string): string => {
@@ -303,7 +305,7 @@ const CouponsManager: React.FC = () => {
                         </span>
                         {coupon.totalDiscountGiven > 0 && (
                           <span className="text-[10px] text-neutral-500">
-                            Discount: {coupon.totalDiscountGiven.toLocaleString('sv-SE', { maximumFractionDigits: 0 })} SEK
+                            Discount: {formatAdminCurrency(coupon.totalDiscountGiven)}
                           </span>
                         )}
                         {coupon.applicableTo !== 'all' && (
@@ -380,7 +382,7 @@ const CouponsManager: React.FC = () => {
                     <td className="px-4 lg:px-6 py-4">
                       <span className="text-sm text-white font-medium">{formatDiscountDisplay(coupon)}</span>
                       {coupon.minimumOrderAmount != null && (
-                        <p className="text-xs text-neutral-500 mt-0.5">Min: {coupon.minimumOrderAmount} SEK</p>
+                        <p className="text-xs text-neutral-500 mt-0.5">Min: <AdminPriceDisplay price={coupon.minimumOrderAmount} className="inline" primaryClassName="inline" secondaryClassName="inline text-[10px] text-neutral-500 ml-1" /></p>
                       )}
                     </td>
                     <td className="px-4 lg:px-6 py-4">
@@ -392,7 +394,7 @@ const CouponsManager: React.FC = () => {
                       )}
                       {coupon.totalDiscountGiven > 0 && (
                         <p className="text-xs text-green-400 mt-0.5">
-                          {coupon.totalDiscountGiven.toLocaleString('sv-SE', { maximumFractionDigits: 0 })} SEK given
+                          {formatAdminCurrency(coupon.totalDiscountGiven)} given
                         </p>
                       )}
                     </td>
@@ -516,52 +518,71 @@ const CouponsManager: React.FC = () => {
                     <option value="fixed_amount">Fixed Amount (SEK)</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-1">
-                    Discount Value * {formData.discountType === 'percentage' ? '(%)' : '(SEK)'}
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0.01"
-                    step="0.01"
-                    max={formData.discountType === 'percentage' ? '100' : undefined}
-                    value={formData.discountValue}
-                    onChange={(e) => setFormData({ ...formData, discountValue: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-surface-800 border border-surface-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
-                </div>
+                {formData.discountType === 'fixed_amount' ? (
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-300 mb-1">
+                      Discount Value * <span className="text-neutral-500 text-xs">(flat off gross)</span>
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0.01"
+                      step="0.01"
+                      value={formData.discountValue}
+                      onChange={(e) => setFormData({ ...formData, discountValue: e.target.value })}
+                      className="w-full px-4 py-2.5 bg-surface-800 border border-surface-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-300 mb-1">
+                      Discount Value * (%)
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0.01"
+                      step="0.01"
+                      max="100"
+                      value={formData.discountValue}
+                      onChange={(e) => setFormData({ ...formData, discountValue: e.target.value })}
+                      className="w-full px-4 py-2.5 bg-surface-800 border border-surface-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Max Discount Amount - only for percentage type */}
               {formData.discountType === 'percentage' && (
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-1">Max Discount Amount (SEK)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.maxDiscountAmount}
-                    onChange={(e) => setFormData({ ...formData, maxDiscountAmount: e.target.value })}
-                    placeholder="No cap"
-                    className="w-full px-4 py-2.5 bg-surface-800 border border-surface-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-300 mb-1">
+                      Max Discount Amount <span className="text-neutral-500 text-xs">(flat off gross)</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="No cap"
+                      value={formData.maxDiscountAmount}
+                      onChange={(e) => setFormData({ ...formData, maxDiscountAmount: e.target.value })}
+                      className="w-full px-4 py-2.5 bg-surface-800 border border-surface-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
                   <p className="text-xs text-neutral-500 mt-1">Maximum discount cap for percentage coupons. Leave empty for no cap.</p>
                 </div>
               )}
 
-              <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-1">Minimum Order Amount (SEK)</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={formData.minimumOrderAmount}
-                  onChange={(e) => setFormData({ ...formData, minimumOrderAmount: e.target.value })}
-                  placeholder="No minimum"
-                  className="w-full px-4 py-2.5 bg-surface-800 border border-surface-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-              </div>
+              <AdminPriceInput
+                label="Minimum Order Amount"
+                value={formData.minimumOrderAmount}
+                onChange={(v) => setFormData({ ...formData, minimumOrderAmount: v })}
+                min={0}
+                step={0.01}
+                placeholder="No minimum"
+                labelClassName="block text-sm font-medium text-neutral-300 mb-1"
+                inputClassName="w-full px-4 py-2.5 bg-surface-800 border border-surface-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
 
               <div className="grid grid-cols-2 gap-4">
                 <div>

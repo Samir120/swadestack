@@ -2,10 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import { useAuthViewModel } from '../../viewmodels/authViewModel';
 
+interface NavItem {
+  name: string;
+  path: string;
+  icon: React.ReactNode;
+}
+
+interface NavGroup {
+  name: string;
+  icon: React.ReactNode;
+  children: NavItem[];
+}
+
+type NavEntry = NavItem | NavGroup;
+
+const isNavGroup = (entry: NavEntry): entry is NavGroup => 'children' in entry;
+
 const AdminLayout: React.FC = () => {
   const location = useLocation();
   const { user, logoutUser } = useAuthViewModel();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -89,6 +106,15 @@ const AdminLayout: React.FC = () => {
       ),
     },
     {
+      name: 'Customers',
+      path: '/admin/customers',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+        </svg>
+      ),
+    },
+    {
       name: 'Coupons',
       path: '/admin/coupons',
       icon: (
@@ -105,6 +131,52 @@ const AdminLayout: React.FC = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       ),
+    },
+    {
+      name: 'Newsletters',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+        </svg>
+      ),
+      children: [
+        {
+          name: 'Overview',
+          path: '/admin/newsletters',
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+          ),
+        },
+        {
+          name: 'Campaigns',
+          path: '/admin/newsletters/campaigns',
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+            </svg>
+          ),
+        },
+        {
+          name: 'Subscribers',
+          path: '/admin/newsletters/subscribers',
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+          ),
+        },
+        {
+          name: 'Templates',
+          path: '/admin/newsletters/templates',
+          icon: (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+          ),
+        },
+      ],
     },
     {
       name: 'Site Settings',
@@ -218,9 +290,40 @@ const AdminLayout: React.FC = () => {
     },
   ];
 
+  // Auto-expand groups when child route is active
+  useEffect(() => {
+    const newExpanded = new Set(expandedGroups);
+    for (const item of navigation) {
+      if (isNavGroup(item)) {
+        const hasActiveChild = item.children.some(child => {
+          if (child.path === '/admin/newsletters') {
+            return location.pathname === '/admin/newsletters';
+          }
+          return location.pathname.startsWith(child.path);
+        });
+        if (hasActiveChild) {
+          newExpanded.add(item.name);
+        }
+      }
+    }
+    if (newExpanded.size !== expandedGroups.size) {
+      setExpandedGroups(newExpanded);
+    }
+  }, [location.pathname]);
+
+  const toggleGroup = (name: string) => {
+    const next = new Set(expandedGroups);
+    if (next.has(name)) next.delete(name);
+    else next.add(name);
+    setExpandedGroups(next);
+  };
+
   const isActive = (path: string) => {
     if (path === '/admin') {
       return location.pathname === '/admin';
+    }
+    if (path === '/admin/newsletters') {
+      return location.pathname === '/admin/newsletters';
     }
     return location.pathname.startsWith(path);
   };
@@ -297,23 +400,83 @@ const AdminLayout: React.FC = () => {
         >
           {/* Scrollable nav area */}
           <nav className="flex-1 overflow-y-auto overscroll-contain px-3 py-4 space-y-1">
-            {navigation.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all ${
-                  isActive(item.path)
-                    ? 'bg-primary-600/10 text-primary-400 border border-primary-500/30 shadow-sm'
-                    : 'text-neutral-400 hover:bg-surface-700 hover:text-white border border-transparent'
-                }`}
-              >
-                <span className={`mr-3 ${isActive(item.path) ? 'text-primary-400' : 'text-neutral-400'}`}>
-                  {item.icon}
-                </span>
-                {item.name}
-              </Link>
-            ))}
+            {navigation.map((item) => {
+              if (isNavGroup(item)) {
+                const isExpanded = expandedGroups.has(item.name);
+                const hasActiveChild = item.children.some(child =>
+                  child.path === '/admin/newsletters'
+                    ? location.pathname === '/admin/newsletters'
+                    : location.pathname.startsWith(child.path)
+                );
+                return (
+                  <div key={item.name}>
+                    <button
+                      onClick={() => toggleGroup(item.name)}
+                      className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-xl transition-all ${
+                        hasActiveChild
+                          ? 'text-primary-400'
+                          : 'text-neutral-400 hover:bg-surface-700 hover:text-white'
+                      } border border-transparent`}
+                    >
+                      <span className="flex items-center">
+                        <span className={`mr-3 ${hasActiveChild ? 'text-primary-400' : 'text-neutral-400'}`}>
+                          {item.icon}
+                        </span>
+                        {item.name}
+                      </span>
+                      <svg
+                        className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                    {isExpanded && (
+                      <div className="ml-4 mt-1 space-y-1">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.path}
+                            to={child.path}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={`flex items-center px-4 py-2 text-sm font-medium rounded-xl transition-all ${
+                              isActive(child.path)
+                                ? 'bg-primary-600/10 text-primary-400 border border-primary-500/30 shadow-sm'
+                                : 'text-neutral-400 hover:bg-surface-700 hover:text-white border border-transparent'
+                            }`}
+                          >
+                            <span className={`mr-3 ${isActive(child.path) ? 'text-primary-400' : 'text-neutral-400'}`}>
+                              {child.icon}
+                            </span>
+                            {child.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              const navItem = item as NavItem;
+              return (
+                <Link
+                  key={navItem.path}
+                  to={navItem.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all ${
+                    isActive(navItem.path)
+                      ? 'bg-primary-600/10 text-primary-400 border border-primary-500/30 shadow-sm'
+                      : 'text-neutral-400 hover:bg-surface-700 hover:text-white border border-transparent'
+                  }`}
+                >
+                  <span className={`mr-3 ${isActive(navItem.path) ? 'text-primary-400' : 'text-neutral-400'}`}>
+                    {navItem.icon}
+                  </span>
+                  {navItem.name}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Pinned bottom — View Site link (mobile only) */}

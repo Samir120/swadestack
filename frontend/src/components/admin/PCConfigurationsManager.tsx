@@ -3,6 +3,8 @@ import { useToast } from '../common/Toast';
 import { useConfirm } from '../common/ConfirmDialog';
 import apiClient from '../../models/api/apiClient';
 import { PCConfiguration, ConfigurationStatus, PCTier, PromoteToPreConfiguredRequest, PCBuildServiceOption, BuildServiceSnapshot } from '../../models/types/pcConfiguration.types';
+import AdminPriceDisplay, { formatAdminCurrency } from './common/AdminPriceDisplay';
+import AdminPriceInput from './common/AdminPriceInput';
 import { FaEye, FaTrash, FaTimes, FaFilter, FaDesktop, FaCheckCircle, FaTimesCircle, FaWrench, FaBolt, FaExclamationTriangle, FaStar } from 'react-icons/fa';
 import { preConfiguredPCApi } from '../../models/api/preConfiguredPCApi';
 import { pcBuildServiceApi } from '../../models/api/pcBuildServiceApi';
@@ -49,6 +51,7 @@ const PCConfigurationsManager: React.FC = () => {
     includesBuildService: false,
     buildServiceCharge: 0,
     selectedBuildServiceId: '',
+    stock: 0,
   });
 
   useEffect(() => {
@@ -94,6 +97,49 @@ const PCConfigurationsManager: React.FC = () => {
     }
   };
 
+  // Generate key specs string from components (same logic as PreConfiguredPCCard)
+  const generateSpecsSummary = (config: PCConfiguration, lang: 'en' | 'sv'): string => {
+    const specs: string[] = [];
+    const comps = config.components;
+    if (!comps) return '';
+
+    if (comps.cpu) {
+      const cpuName = lang === 'en' ? comps.cpu.name_en : comps.cpu.name_sv;
+      const short = cpuName?.split(' ').slice(0, 4).join(' ') || '';
+      if (short) specs.push(short);
+    }
+
+    if (comps.gpus && comps.gpus.length > 0) {
+      const gpuName = lang === 'en' ? comps.gpus[0].name_en : comps.gpus[0].name_sv;
+      const short = gpuName?.split(' ').slice(0, 3).join(' ') || '';
+      if (short) specs.push(short);
+    }
+
+    if (comps.rams && comps.rams.length > 0) {
+      const totalRam = comps.rams.reduce((sum: number, ram: any) => {
+        const cap = (ram.specifications as any)?.capacity || 0;
+        return sum + cap;
+      }, 0);
+      if (totalRam > 0) specs.push(`${totalRam}GB RAM`);
+    }
+
+    let totalStorage = 0;
+    let storageType = 'SSD';
+    if (comps.ssds && comps.ssds.length > 0) {
+      comps.ssds.forEach((ssd: any) => { totalStorage += (ssd.specifications as any)?.capacity || 0; });
+    }
+    if (comps.hdds && comps.hdds.length > 0) {
+      comps.hdds.forEach((hdd: any) => { totalStorage += (hdd.specifications as any)?.capacity || 0; });
+      if (!comps.ssds?.length) storageType = 'HDD';
+    }
+    if (totalStorage > 0) {
+      const str = totalStorage >= 1000 ? `${totalStorage / 1000}TB` : `${totalStorage}GB`;
+      specs.push(`${str} ${storageType}`);
+    }
+
+    return specs.join(' \u00B7 ');
+  };
+
   const openPromoteModal = (config: PCConfiguration) => {
     setPromoteConfig(config);
     // Initialize promoteImageUrls from config - if imageUrls exists use it, otherwise fall back to imageUrl
@@ -104,6 +150,11 @@ const PCConfigurationsManager: React.FC = () => {
         : [];
     // Initialize build service from config if available
     const selectedBuildServiceId = config.buildServiceSnapshot?.id || '';
+
+    // Auto-generate specs summary from components
+    const specsEn = generateSpecsSummary(config, 'en');
+    const specsSv = generateSpecsSummary(config, 'sv');
+
     setPromoteForm({
       name_en: config.name_en || '',
       name_sv: config.name_sv || '',
@@ -111,14 +162,15 @@ const PCConfigurationsManager: React.FC = () => {
       imageUrl: config.imageUrl || '',
       imageUrls: initialImageUrls,
       promoteImageUrls: initialImageUrls,
-      shortDescription_en: '',
-      shortDescription_sv: '',
+      shortDescription_en: config.shortDescription_en || specsEn,
+      shortDescription_sv: config.shortDescription_sv || specsSv,
       isFeatured: false,
       displayOrder: 0,
       discountedPrice: undefined,
       includesBuildService: config.includesBuildService || false,
       buildServiceCharge: config.buildServiceCharge || 0,
       selectedBuildServiceId,
+      stock: 0,
     });
   };
 
@@ -167,6 +219,7 @@ const PCConfigurationsManager: React.FC = () => {
         includesBuildService: promoteForm.includesBuildService,
         buildServiceCharge: promoteForm.buildServiceCharge,
         buildServiceSnapshot,
+        stock: promoteForm.stock,
       };
 
       const response = await preConfiguredPCApi.promote(promoteConfig.id, submitData);
@@ -206,13 +259,7 @@ const PCConfigurationsManager: React.FC = () => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const formatPrice = formatAdminCurrency;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('sv-SE', {
@@ -285,9 +332,7 @@ const PCConfigurationsManager: React.FC = () => {
               <span className="text-primary-400">💰</span>
               <p className="text-xs sm:text-sm text-neutral-400 font-medium">Average Price</p>
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-primary-400">
-              {formatPrice(stats.averagePrice || 0)}
-            </p>
+            <AdminPriceDisplay price={stats.averagePrice || 0} primaryClassName="text-xl sm:text-2xl font-bold text-primary-400" />
           </div>
           <div className="bg-surface-850 rounded-2xl shadow-dark-md border border-surface-700 p-3 sm:p-4">
             <div className="flex items-center gap-2 mb-1">
@@ -351,7 +396,7 @@ const PCConfigurationsManager: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div>
                     <p className="text-[10px] text-neutral-400 font-medium">Total Price</p>
-                    <p className="text-sm font-bold text-primary-400">{formatPrice(config.totalPrice)}</p>
+                    <AdminPriceDisplay price={config.totalPrice} primaryClassName="text-sm font-bold text-primary-400" />
                   </div>
                   <div>
                     <p className="text-[10px] text-neutral-400 font-medium">Components</p>
@@ -465,9 +510,9 @@ const PCConfigurationsManager: React.FC = () => {
                       </td>
                       <td className="px-4 lg:px-6 py-4">
                         <div>
-                          <p className="font-bold text-primary-400 text-sm">{formatPrice(config.totalPrice)}</p>
+                          <AdminPriceDisplay price={config.totalPrice} primaryClassName="font-bold text-primary-400 text-sm" />
                           {config.includesBuildService && (
-                            <p className="text-xs text-purple-600 flex items-center gap-1">
+                            <p className="text-xs text-purple-600 flex items-center gap-1 mt-1">
                               <FaWrench size={10} />
                               +{formatPrice(config.buildServiceCharge)}
                             </p>
@@ -586,7 +631,7 @@ const PCConfigurationsManager: React.FC = () => {
                 </div>
                 <div className="bg-surface-800 p-3 rounded-lg">
                   <p className="text-xs text-neutral-400 font-medium">Total Price</p>
-                  <p className="mt-1 font-bold text-primary-400">{formatPrice(selectedConfig.totalPrice)}</p>
+                  <AdminPriceDisplay price={selectedConfig.totalPrice} className="mt-1" primaryClassName="font-bold text-primary-400" />
                 </div>
                 <div className="bg-surface-800 p-3 rounded-lg">
                   <p className="text-xs text-neutral-400 font-medium">Build Service</p>
@@ -622,7 +667,7 @@ const PCConfigurationsManager: React.FC = () => {
                             {(component as any).manufacturer}
                           </p>
                         </div>
-                        <p className="font-bold text-primary-400 text-sm">{formatPrice((component as any).price || 0)}</p>
+                        <AdminPriceDisplay price={(component as any).price || 0} primaryClassName="font-bold text-primary-400 text-sm" />
                       </div>
                     )
                   ))}
@@ -814,18 +859,15 @@ const PCConfigurationsManager: React.FC = () => {
               />
 
               {/* Discounted Price */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-1">Discounted Price (SEK)</label>
-                <input
-                  type="number"
-                  value={promoteForm.discountedPrice || ''}
-                  onChange={(e) => setPromoteForm({ ...promoteForm, discountedPrice: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="Leave empty for no discount"
-                  min={0}
-                />
-                <p className="text-xs text-neutral-400 mt-1">Original price: {formatPrice(promoteConfig.totalPrice)}</p>
-              </div>
+              <AdminPriceInput
+                label="Discounted Price"
+                value={promoteForm.discountedPrice || ''}
+                onChange={(v) => setPromoteForm({ ...promoteForm, discountedPrice: v ? Number(v) : undefined })}
+                min={0}
+                placeholder="Leave empty for no discount"
+                labelClassName="block text-sm font-medium text-neutral-300 mb-1"
+                inputClassName="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              />
 
               {/* Build Service Section */}
               <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4 space-y-3">
@@ -898,18 +940,33 @@ const PCConfigurationsManager: React.FC = () => {
                 )}
               </div>
 
-              {/* Display Order */}
-              <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-1">Display Order</label>
-                <input
-                  type="number"
-                  value={promoteForm.displayOrder || 0}
-                  onChange={(e) => setPromoteForm({ ...promoteForm, displayOrder: Number(e.target.value) })}
-                  className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  placeholder="0"
-                  min={0}
-                />
-                <p className="text-xs text-neutral-400 mt-1">Lower numbers appear first</p>
+              {/* Stock & Display Order */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-300 mb-1">Stock Quantity *</label>
+                  <input
+                    type="number"
+                    required
+                    value={promoteForm.stock || 0}
+                    onChange={(e) => setPromoteForm({ ...promoteForm, stock: parseInt(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="0"
+                    min={0}
+                  />
+                  <p className="text-xs text-neutral-400 mt-1">Number of units available for sale</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-300 mb-1">Display Order</label>
+                  <input
+                    type="number"
+                    value={promoteForm.displayOrder || 0}
+                    onChange={(e) => setPromoteForm({ ...promoteForm, displayOrder: Number(e.target.value) })}
+                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="0"
+                    min={0}
+                  />
+                  <p className="text-xs text-neutral-400 mt-1">Lower numbers appear first</p>
+                </div>
               </div>
 
               {/* Featured Toggle */}

@@ -190,10 +190,12 @@ export class InvoiceService {
     );
     const discountAmount = orderData.discountAmount ? Number(orderData.discountAmount) : 0;
     const couponCode = orderData.couponCode || null;
-    const subtotal = itemsSubtotal - discountAmount;
     const vatRate = await this.vatSettingsService.getCurrentRate();
-    const tax = itemsSubtotal * vatRate; // VAT on full items (before discount)
-    const total = itemsSubtotal * (1 + vatRate) - discountAmount; // items_gross - flat_discount
+    // Coupon is flat off gross: total = items_gross - flat_discount
+    const total = itemsSubtotal * (1 + vatRate) - discountAmount;
+    // Derive VAT and net from the final gross total
+    const tax = total * vatRate / (1 + vatRate);
+    const subtotal = total - tax;
 
     // Resolve logo URL: prefer logoFile, fallback to logoUrl, skip placeholders
     let logoImage: string | null = null;
@@ -1813,15 +1815,23 @@ export class InvoiceService {
       offset: options?.offset || 0,
     });
 
-    const invoices = orders.map((order) => ({
-      id: order.id,
-      invoiceNumber: `INV-${(order as any).orderNumber}`,
-      orderNumber: (order as any).orderNumber,
-      date: order.createdAt,
-      total: Number(order.totalAmount),
-      currency: order.currency,
-      status: order.status,
-    }));
+    const vatRate = await this.vatSettingsService.getCurrentRate();
+
+    const invoices = orders.map((order) => {
+      const netTotal = Number(order.totalAmount);
+      const discount = order.discountAmount ? Number(order.discountAmount) : 0;
+      // Reconstruct gross: items_gross - flat_discount
+      const grossTotal = (netTotal + discount) * (1 + vatRate) - discount;
+      return {
+        id: order.id,
+        invoiceNumber: `INV-${(order as any).orderNumber}`,
+        orderNumber: (order as any).orderNumber,
+        date: order.createdAt,
+        total: Number(grossTotal.toFixed(2)),
+        currency: order.currency,
+        status: order.status,
+      };
+    });
 
     return invoices;
   }

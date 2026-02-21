@@ -120,7 +120,9 @@ export const fetchManufacturers = createAsyncThunk(
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Failed to fetch manufacturers');
     }
-    return response.data.manufacturers;
+    // Backend returns array directly or { manufacturers: [] }
+    const data = response.data;
+    return Array.isArray(data) ? data : (data.manufacturers ?? []);
   }
 );
 
@@ -231,6 +233,7 @@ const pcComponentsSlice = createSlice({
       .addCase(fetchComponentsByType.fulfilled, (state, action) => {
         state.isLoading = false;
         state.components[action.payload.componentType] = action.payload.components;
+        state.allComponents = action.payload.components;
         state.total = action.payload.total;
       })
       .addCase(fetchComponentsByType.rejected, (state, action) => {
@@ -276,8 +279,15 @@ const pcComponentsSlice = createSlice({
       })
       .addCase(searchComponents.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.allComponents = action.payload.components;
-        state.total = action.payload.total;
+        // Backend returns array directly or { components, total }
+        const data = action.payload;
+        if (Array.isArray(data)) {
+          state.allComponents = data;
+          state.total = data.length;
+        } else {
+          state.allComponents = data.components ?? [];
+          state.total = data.total ?? 0;
+        }
       })
       .addCase(searchComponents.rejected, (state, action) => {
         state.isLoading = false;

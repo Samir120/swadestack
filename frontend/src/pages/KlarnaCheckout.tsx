@@ -72,8 +72,8 @@ const KlarnaCheckout: React.FC = () => {
       // Determine correct phase based on order
       let correctPhase = phase;
 
-      // Get payment summary if partial payment
-      if (orderResponse.data.requiresPartialPayment) {
+      // Get payment summary if partial payment (skip for additional payments — they're independent)
+      if (orderResponse.data.requiresPartialPayment && phase !== 'additional') {
         const summaryResponse = await ordersApi.getPaymentStatus(orderId!);
         if (!summaryResponse.data) {
           setError('Could not load payment status');
@@ -104,7 +104,7 @@ const KlarnaCheckout: React.FC = () => {
           setError('Final payment not ready yet. Please wait for admin to mark the order ready.');
           return;
         }
-      } else if (!orderResponse.data.requiresPartialPayment && phase !== 'full') {
+      } else if (!orderResponse.data.requiresPartialPayment && phase !== 'full' && phase !== 'additional') {
         // Order doesn't require partial payment, use full payment
         correctPhase = 'full';
       }
@@ -174,13 +174,26 @@ const KlarnaCheckout: React.FC = () => {
   const orderDiscount = order.discountAmount || 0;
   // Gross total with flat discount: items_gross - flat_discount
   const fullGross = netToGross(order.totalAmount + orderDiscount, vatRate) - orderDiscount;
-  const amount = phase === 'initial'
+
+  // For additional payments, get amount from the payment record
+  const paymentId = searchParams.get('paymentId');
+  let additionalPaymentAmount: number | null = null;
+  if (phase === 'additional' && order.payments) {
+    const additionalPayment = order.payments.find((p) => p.id === paymentId || (p.phase === 'additional' && p.status === 'pending'));
+    if (additionalPayment) {
+      additionalPaymentAmount = netToGross(Number(additionalPayment.amount), vatRate);
+    }
+  }
+
+  const amount = phase === 'additional' && additionalPaymentAmount
+    ? additionalPaymentAmount
+    : phase === 'initial'
     ? fullGross * 0.5
     : phase === 'final'
     ? fullGross * 0.5
     : fullGross;
 
-  const phaseLabel = phase === 'initial' ? 'Initial Payment (50%)' : phase === 'final' ? 'Final Payment (50%)' : 'Full Payment';
+  const phaseLabel = phase === 'additional' ? 'Additional Payment (Balance Due)' : phase === 'initial' ? 'Initial Payment (50%)' : phase === 'final' ? 'Final Payment (50%)' : 'Full Payment';
   const stepIndicator = phase === 'initial' ? 'Step 1 of 2' : phase === 'final' ? 'Step 2 of 2' : '';
 
   return (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../models/api/apiClient';
 import { useAppSelector } from '../../store/hooks';
-import AddressAutocomplete from '../common/AddressAutocomplete';
+
 import LoadingSpinner from '../common/LoadingSpinner';
 import { PasswordInput } from '../common/PasswordInput';
 
@@ -281,22 +281,13 @@ const ProfileTab: React.FC = () => {
             <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider mb-1 sm:mb-1.5">
               {language === 'en' ? 'Address' : 'Adress'}
             </label>
-            <AddressAutocomplete
+            <input
+              type="text"
               value={formData.address}
-              onChange={(value) => setFormData({ ...formData, address: value })}
-              onAddressSelect={(address) => {
-                setFormData({
-                  ...formData,
-                  address: address.address,
-                  city: address.city,
-                  postalCode: address.postalCode,
-                  country: address.country || formData.country,
-                });
-              }}
-              placeholder={language === 'en' ? 'Start typing your address...' : 'Börja skriva din adress...'}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              placeholder={language === 'en' ? 'Enter your address' : 'Ange din adress'}
               disabled={!editing}
-              className="form-input pr-10"
-              language={language}
+              className="form-input"
             />
           </div>
 

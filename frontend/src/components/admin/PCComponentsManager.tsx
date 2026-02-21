@@ -8,6 +8,8 @@ import {
   ComponentType,
   CreatePCComponentDTO,
 } from '../../models/types/pcComponent.types';
+import AdminPriceDisplay from './common/AdminPriceDisplay';
+import AdminPriceInput from './common/AdminPriceInput';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaToggleOn, FaToggleOff, FaSearch, FaFilter } from 'react-icons/fa';
 import LoadingSpinner from '../common/LoadingSpinner';
 
@@ -240,13 +242,7 @@ const PCComponentsManager: React.FC = () => {
     return true;
   });
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  // formatAdminCurrency used directly via AdminPriceDisplay
 
   // Render specification fields based on component type
   const renderSpecFields = () => {
@@ -1153,7 +1149,7 @@ const PCComponentsManager: React.FC = () => {
 
                         {/* Price and Stock */}
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm font-bold text-primary-400">{formatPrice(component.price)}</span>
+                          <AdminPriceDisplay price={component.price} primaryClassName="text-sm font-bold text-primary-400" />
                           <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${
                             component.stock === 0
                               ? 'bg-red-900/30 text-red-400'
@@ -1250,7 +1246,7 @@ const PCComponentsManager: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-4 lg:px-6 py-4">
-                          <span className="font-bold text-primary-400">{formatPrice(component.price)}</span>
+                          <AdminPriceDisplay price={component.price} primaryClassName="font-bold text-primary-400" />
                         </td>
                         <td className="hidden md:table-cell px-4 lg:px-6 py-4">
                           <span className={`px-2 py-1 text-xs font-medium rounded ${
@@ -1391,16 +1387,12 @@ const PCComponentsManager: React.FC = () => {
 
               {/* Price & Stock */}
               <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-1.5">Price (SEK)</label>
-                  <input
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) })}
-                    required
-                    className="w-full px-3 py-2 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
-                  />
-                </div>
+                <AdminPriceInput
+                  label="Price"
+                  value={formData.price}
+                  onChange={(v) => setFormData({ ...formData, price: parseInt(v) || 0 })}
+                  required
+                />
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-1.5">Stock</label>
                   <input

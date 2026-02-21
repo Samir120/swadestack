@@ -46,3 +46,19 @@ export interface PCCartItem {
   };
   quantity: 1;
 }
+
+export interface ComponentCartItem {
+  component: {
+    id: string;
+    componentType: string;
+    name_en: string;
+    name_sv: string;
+    manufacturer: string;
+    modelNumber?: string;
+    price: number;
+    currency: string;
+    imageUrl?: string;
+    stock: number;
+  };
+  quantity: number;
+}

@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import UsersRepository from '../integration/repositories/UsersRepository';
 import RefreshTokenRepository from '../integration/repositories/RefreshTokenRepository';
+import LoginAttempt from '../models/sequelize/LoginAttempt';
 import { config } from '../config/environment';
 import { validatePassword } from '../utils/passwordValidator';
 import {
@@ -80,18 +81,54 @@ export class AuthService {
   /**
    * Login user
    */
-  async login(data: LoginDTO): Promise<AuthResponseDTO> {
+  async login(data: LoginDTO, context?: { ipAddress?: string; userAgent?: string }): Promise<AuthResponseDTO> {
+    const ipAddress = context?.ipAddress;
+    const userAgent = context?.userAgent;
+
     // Authenticate user
     const user = await this.usersRepository.authenticate(data.email, data.password);
 
     if (!user) {
+      // Log failed attempt
+      await this.logLoginAttempt(undefined, data.email, false, ipAddress, userAgent, 'Invalid credentials');
       throw new Error('Invalid email or password');
+    }
+
+    // Check account status
+    if (user.accountStatus === 'suspended') {
+      const reason = user.suspensionReason ? ` ${user.suspensionReason}` : '';
+      // Check if suspension has expired
+      if (user.suspensionEndDate && user.suspensionEndDate < new Date()) {
+        // Auto-reactivate expired suspensions
+        await this.usersRepository.update(user.id, {
+          accountStatus: 'active',
+          suspensionReason: null,
+          suspensionEndDate: null,
+        } as any);
+      } else {
+        await this.logLoginAttempt(user.id, data.email, false, ipAddress, userAgent, 'Account suspended');
+        throw new Error(`ACCOUNT_SUSPENDED:Your account has been temporarily suspended.${reason}`);
+      }
+    }
+
+    if (user.accountStatus === 'deactivated') {
+      await this.logLoginAttempt(user.id, data.email, false, ipAddress, userAgent, 'Account deactivated');
+      throw new Error('ACCOUNT_DEACTIVATED:Your account has been deactivated. Contact support if you believe this is an error.');
     }
 
     // Check if email is verified
     if (!user.isEmailVerified) {
+      await this.logLoginAttempt(user.id, data.email, false, ipAddress, userAgent, 'Email not verified');
       throw new Error('Please verify your email address before logging in');
     }
+
+    // Log successful attempt and update user's last login info
+    await this.logLoginAttempt(user.id, data.email, true, ipAddress, userAgent);
+    await this.usersRepository.update(user.id, {
+      lastLoginAt: new Date(),
+      lastLoginIp: ipAddress || null,
+      lastLoginUserAgent: userAgent || null,
+    } as any);
 
     // Generate access + refresh tokens
     const token = this.generateAccessToken(user.id, user.email, user.role);
@@ -345,6 +382,28 @@ export class AuthService {
 
   private isValidPassword(password: string): boolean {
     return validatePassword(password).valid;
+  }
+
+  private async logLoginAttempt(
+    userId: string | undefined,
+    email: string,
+    success: boolean,
+    ipAddress?: string,
+    userAgent?: string,
+    failureReason?: string
+  ): Promise<void> {
+    try {
+      await LoginAttempt.create({
+        userId,
+        email,
+        success,
+        ipAddress,
+        userAgent,
+        failureReason,
+      });
+    } catch (error) {
+      console.error('Failed to log login attempt:', error);
+    }
   }
 }
 

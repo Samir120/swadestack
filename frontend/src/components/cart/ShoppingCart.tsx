@@ -19,12 +19,16 @@ const ShoppingCart: React.FC = () => {
   const {
     items,
     pcItems,
+    componentItems,
     isEmpty,
     formatTotal,
     removeServiceFromCart,
     removePCFromCart,
+    removeComponentFromCart,
     incrementQuantity,
     decrementQuantity,
+    incrementComponentQuantity,
+    decrementComponentQuantity,
   } = useCartViewModel();
 
   const { getServiceName } = useServicesViewModel();
@@ -171,6 +175,53 @@ const ShoppingCart: React.FC = () => {
                     {/* Remove Button */}
                     <button
                       onClick={() => removePCFromCart(pc.id)}
+                      className="text-red-400 hover:text-red-300"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })}
+
+              {/* Component Items */}
+              {componentItems.map((item) => {
+                const comp = item.component;
+                const compName = language === 'en' ? comp.name_en : comp.name_sv;
+                return (
+                  <div key={comp.id} className="flex items-center space-x-4 border-b border-gray-200 dark:border-surface-700 pb-4">
+                    <div className="flex-grow">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium text-gray-900 dark:text-white">{compName}</h3>
+                        <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 uppercase">
+                          {comp.manufacturer}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-neutral-400">
+                        {netToGross(comp.price, vatRate).toLocaleString('sv-SE', { maximumFractionDigits: 0 })} {comp.currency}
+                      </p>
+                      <p className="text-xs text-gray-400 dark:text-neutral-500 mt-0.5">
+                        {language === 'en' ? 'PC Component' : 'Datorkomponent'}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => decrementComponentQuantity(comp.id)}
+                        className="w-8 h-8 flex items-center justify-center border border-gray-200 rounded hover:bg-gray-100 text-gray-700 dark:border-surface-700 dark:hover:bg-surface-700 dark:text-neutral-300"
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center text-gray-900 dark:text-white">{item.quantity}</span>
+                      <button
+                        onClick={() => incrementComponentQuantity(comp.id)}
+                        className="w-8 h-8 flex items-center justify-center border border-gray-200 rounded hover:bg-gray-100 text-gray-700 dark:border-surface-700 dark:hover:bg-surface-700 dark:text-neutral-300"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => removeComponentFromCart(comp.id)}
                       className="text-red-400 hover:text-red-300"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

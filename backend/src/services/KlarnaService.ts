@@ -137,7 +137,12 @@ export class KlarnaService {
       amount = order.totalAmount;
     } else {
       const payments = await this.paymentRepository.findByOrderId(orderId);
-      paymentRecord = payments.find(p => p.phase === phase);
+
+      if (phase === 'additional') {
+        paymentRecord = payments.find(p => p.phase === 'additional' && p.status === 'pending');
+      } else {
+        paymentRecord = payments.find(p => p.phase === phase);
+      }
 
       if (!paymentRecord) {
         throw new Error(`Payment record not found for phase: ${phase}`);
@@ -155,7 +160,10 @@ export class KlarnaService {
     // Coupon discount is flat (no VAT): gross_total = items_gross - flat_discount
     const discountNet = order.discountAmount != null ? parseFloat(order.discountAmount.toString()) : 0;
     let amountInMinorUnits: number;
-    if (discountNet > 0) {
+    if (phase === 'additional') {
+      // Additional payment: amount is the exact balance due (net), convert to gross directly
+      amountInMinorUnits = Math.round(amount * grossMultiplier * 100);
+    } else if (discountNet > 0) {
       // Recover pre-discount items total and compute gross with flat discount
       const itemsNetTotal = order.totalAmount + discountNet;
       const fullGrossMinor = Math.round(itemsNetTotal * grossMultiplier * 100) - Math.round(discountNet * 100); // items_gross - flat_discount
@@ -286,10 +294,10 @@ export class KlarnaService {
     const klarnaTaxRate = Math.round(vatRate * 10000);
     const grossMultiplier = 1 + vatRate;
 
-    // For partial payments, create a single line item
+    // For partial/additional payments, create a single line item
     // targetAmountMinorUnits is already gross (VAT-inclusive)
     if (phase !== 'full') {
-      const phaseDescription = phase === 'initial' ? 'Initial Payment (50%)' : 'Final Payment (50%)';
+      const phaseDescription = phase === 'initial' ? 'Initial Payment (50%)' : phase === 'final' ? 'Final Payment (50%)' : 'Additional Payment (Balance Due)';
       return [
         {
           type: 'physical',
@@ -472,18 +480,19 @@ export class KlarnaService {
       // Add coupon discount line if applicable
       const discountAmount = order.discountAmount != null ? parseFloat(order.discountAmount.toString()) : 0;
       if (discountAmount > 0) {
-        // Coupon discount is a flat deduction (no VAT) — tax_rate: 0
-        const flatDiscount = Math.round(discountAmount * 100); // flat amount in öre (no VAT markup)
+        // Coupon is a flat deduction off gross — carries the same VAT rate
+        // so Klarna correctly reduces VAT proportionally
+        const flatDiscountOre = Math.round(discountAmount * 100); // discount in öre (gross)
         const couponLabel = order.couponCode ? `Coupon: ${order.couponCode}` : 'Discount';
         orderLines.push({
           type: 'discount',
           reference: `${order.orderNumber}-COUPON`,
           name: couponLabel,
           quantity: 1,
-          unit_price: -flatDiscount,
-          tax_rate: 0,
-          total_amount: -flatDiscount,
-          total_tax_amount: 0,
+          unit_price: -flatDiscountOre,
+          tax_rate: klarnaTaxRate,
+          total_amount: -flatDiscountOre,
+          total_tax_amount: -this.calcVATFromGross(flatDiscountOre, klarnaTaxRate),
         });
       }
 
@@ -661,6 +670,12 @@ export class KlarnaService {
         skipEmail: true,
       });
       console.log(`✅ Order ${order.orderNumber} - Final payment succeeded (100% complete)`);
+    } else if (phase === 'additional') {
+      await this.ordersService.updateOrderStatus(orderId, {
+        status: 'paid',
+        skipEmail: true,
+      });
+      console.log(`✅ Order ${order.orderNumber} - Additional payment succeeded (balance paid)`);
     }
   }
 
@@ -683,9 +698,10 @@ export class KlarnaService {
       price: Number(item.price) * (1 + vatRate),
     }));
 
-    // Coupon is a flat deduction (no VAT): total = items_gross - flat_discount
+    // Coupon is a flat deduction off gross: total = items_gross - flat_discount
     const grossTotal = itemsNet * (1 + vatRate) - discountAmount;
-    const vatAmount = itemsNet * vatRate; // VAT on full items (before discount)
+    // VAT is the proportional portion of the final gross total
+    const vatAmount = grossTotal * vatRate / (1 + vatRate);
 
     // Fetch payment records for partial/final payment details
     const payments = await this.paymentRepository.findByOrderId(order.id);

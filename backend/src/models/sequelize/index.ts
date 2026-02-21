@@ -22,6 +22,19 @@ import CompanyLegalSettings from './CompanyLegalSettings';
 import Coupon from './Coupon';
 import NotificationBanner from './NotificationBanner';
 import VatSettings from './VatSettings';
+import Address from './Address';
+import AuditLog from './AuditLog';
+import Cart from './Cart';
+import CartItem from './CartItem';
+import InternalNote from './InternalNote';
+import LoginAttempt from './LoginAttempt';
+import OrderAdjustment from './OrderAdjustment';
+import NewsletterSegment from './NewsletterSegment';
+import NewsletterSegmentMember from './NewsletterSegmentMember';
+import NewsletterCampaign from './NewsletterCampaign';
+import NewsletterCampaignStats from './NewsletterCampaignStats';
+import NewsletterSendLog from './NewsletterSendLog';
+import NewsletterTemplate from './NewsletterTemplate';
 
 // Define associations
 const initializeAssociations = () => {
@@ -63,6 +76,17 @@ const initializeAssociations = () => {
   OrderItem.belongsTo(Service, {
     foreignKey: 'serviceId',
     as: 'service',
+  });
+
+  // PCComponent <-> OrderItems (One-to-Many)
+  PCComponent.hasMany(OrderItem, {
+    foreignKey: 'pcComponentId',
+    as: 'orderItems',
+  });
+
+  OrderItem.belongsTo(PCComponent, {
+    foreignKey: 'pcComponentId',
+    as: 'pcComponent',
   });
 
   // Order <-> Payments (One-to-Many)
@@ -146,6 +170,18 @@ const initializeAssociations = () => {
     as: 'order',
   });
 
+  // User <-> Addresses (One-to-Many)
+  User.hasMany(Address, {
+    foreignKey: 'userId',
+    as: 'addresses',
+    onDelete: 'CASCADE',
+  });
+
+  Address.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user',
+  });
+
   // Coupon <-> Order (One-to-Many)
   Coupon.hasMany(Order, {
     foreignKey: 'couponId',
@@ -155,6 +191,171 @@ const initializeAssociations = () => {
   Order.belongsTo(Coupon, {
     foreignKey: 'couponId',
     as: 'coupon',
+  });
+
+  // User <-> Cart (One-to-One)
+  User.hasOne(Cart, {
+    foreignKey: 'userId',
+    as: 'cart',
+    onDelete: 'CASCADE',
+  });
+
+  Cart.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user',
+  });
+
+  // Cart <-> CartItems (One-to-Many)
+  Cart.hasMany(CartItem, {
+    foreignKey: 'cartId',
+    as: 'items',
+    onDelete: 'CASCADE',
+  });
+
+  CartItem.belongsTo(Cart, {
+    foreignKey: 'cartId',
+    as: 'cart',
+  });
+
+  // CartItem <-> Service (Optional)
+  CartItem.belongsTo(Service, {
+    foreignKey: 'serviceId',
+    as: 'service',
+  });
+
+  // CartItem <-> PCConfiguration (Optional)
+  CartItem.belongsTo(PCConfiguration, {
+    foreignKey: 'pcConfigurationId',
+    as: 'pcConfiguration',
+  });
+
+  // CartItem <-> PCComponent (Optional)
+  CartItem.belongsTo(PCComponent, {
+    foreignKey: 'pcComponentId',
+    as: 'pcComponent',
+  });
+
+  // User <-> LoginAttempts (One-to-Many)
+  User.hasMany(LoginAttempt, {
+    foreignKey: 'userId',
+    as: 'loginAttempts',
+    onDelete: 'SET NULL',
+  });
+
+  LoginAttempt.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user',
+  });
+
+  // InternalNote <-> User (author)
+  InternalNote.belongsTo(User, {
+    foreignKey: 'authorId',
+    as: 'author',
+  });
+
+  // Order <-> OrderAdjustments (One-to-Many)
+  Order.hasMany(OrderAdjustment, {
+    foreignKey: 'orderId',
+    as: 'adjustments',
+    onDelete: 'CASCADE',
+  });
+
+  OrderAdjustment.belongsTo(Order, {
+    foreignKey: 'orderId',
+    as: 'order',
+  });
+
+  // User <-> NewsletterSubscriber (One-to-One, Optional)
+  User.hasOne(NewsletterSubscriber, {
+    foreignKey: 'userId',
+    as: 'newsletterSubscription',
+  });
+
+  NewsletterSubscriber.belongsTo(User, {
+    foreignKey: 'userId',
+    as: 'user',
+  });
+
+  // NewsletterSegment <-> NewsletterSegmentMember (One-to-Many)
+  NewsletterSegment.hasMany(NewsletterSegmentMember, {
+    foreignKey: 'segmentId',
+    as: 'members',
+    onDelete: 'CASCADE',
+  });
+
+  NewsletterSegmentMember.belongsTo(NewsletterSegment, {
+    foreignKey: 'segmentId',
+    as: 'segment',
+  });
+
+  // NewsletterSubscriber <-> NewsletterSegmentMember (One-to-Many)
+  NewsletterSubscriber.hasMany(NewsletterSegmentMember, {
+    foreignKey: 'subscriberId',
+    as: 'segmentMemberships',
+    onDelete: 'CASCADE',
+  });
+
+  NewsletterSegmentMember.belongsTo(NewsletterSubscriber, {
+    foreignKey: 'subscriberId',
+    as: 'subscriber',
+  });
+
+  // NewsletterCampaign <-> NewsletterCampaignStats (One-to-One)
+  NewsletterCampaign.hasOne(NewsletterCampaignStats, {
+    foreignKey: 'campaignId',
+    as: 'stats',
+    onDelete: 'CASCADE',
+  });
+
+  NewsletterCampaignStats.belongsTo(NewsletterCampaign, {
+    foreignKey: 'campaignId',
+    as: 'campaign',
+  });
+
+  // NewsletterCampaign <-> NewsletterSendLog (One-to-Many)
+  NewsletterCampaign.hasMany(NewsletterSendLog, {
+    foreignKey: 'campaignId',
+    as: 'sendLogs',
+    onDelete: 'CASCADE',
+  });
+
+  NewsletterSendLog.belongsTo(NewsletterCampaign, {
+    foreignKey: 'campaignId',
+    as: 'campaign',
+  });
+
+  // NewsletterSubscriber <-> NewsletterSendLog (One-to-Many)
+  NewsletterSubscriber.hasMany(NewsletterSendLog, {
+    foreignKey: 'subscriberId',
+    as: 'sendLogs',
+    onDelete: 'CASCADE',
+  });
+
+  NewsletterSendLog.belongsTo(NewsletterSubscriber, {
+    foreignKey: 'subscriberId',
+    as: 'subscriber',
+  });
+
+  // User <-> NewsletterCampaign (sentByAdmin)
+  User.hasMany(NewsletterCampaign, {
+    foreignKey: 'sentByAdminId',
+    as: 'sentCampaigns',
+  });
+
+  NewsletterCampaign.belongsTo(User, {
+    foreignKey: 'sentByAdminId',
+    as: 'sentByAdmin',
+  });
+
+  // NewsletterCampaign <-> NewsletterTemplate (Many-to-One, Optional)
+  NewsletterTemplate.hasMany(NewsletterCampaign, {
+    foreignKey: 'templateId',
+    as: 'campaigns',
+  });
+
+  NewsletterCampaign.belongsTo(NewsletterTemplate, {
+    foreignKey: 'templateId',
+    as: 'template',
   });
 };
 
@@ -187,6 +388,19 @@ export {
   Coupon,
   NotificationBanner,
   VatSettings,
+  Address,
+  AuditLog,
+  Cart,
+  CartItem,
+  InternalNote,
+  LoginAttempt,
+  OrderAdjustment,
+  NewsletterSegment,
+  NewsletterSegmentMember,
+  NewsletterCampaign,
+  NewsletterCampaignStats,
+  NewsletterSendLog,
+  NewsletterTemplate,
 };
 
 // Export default object with all models
@@ -215,4 +429,17 @@ export default {
   Coupon,
   NotificationBanner,
   VatSettings,
+  Address,
+  AuditLog,
+  Cart,
+  CartItem,
+  InternalNote,
+  LoginAttempt,
+  OrderAdjustment,
+  NewsletterSegment,
+  NewsletterSegmentMember,
+  NewsletterCampaign,
+  NewsletterCampaignStats,
+  NewsletterSendLog,
+  NewsletterTemplate,
 };

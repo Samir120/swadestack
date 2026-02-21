@@ -2,6 +2,9 @@ import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../config/database';
 import bcrypt from 'bcrypt';
 
+// Account status type
+export type AccountStatus = 'active' | 'suspended' | 'deactivated';
+
 // User attributes interface
 export interface UserAttributes {
   id: string;
@@ -11,6 +14,9 @@ export interface UserAttributes {
   lastName: string;
   role: 'admin' | 'user';
   userType: 'personal' | 'company';
+  accountStatus: AccountStatus;
+  suspensionReason?: string | null;
+  suspensionEndDate?: Date | null;
   isEmailVerified: boolean;
   emailVerificationToken?: string | null;
   emailVerificationExpires?: Date | null;
@@ -26,12 +32,15 @@ export interface UserAttributes {
   company?: string;
   organizationNumber?: string;
   vatNumber?: string;
+  lastLoginAt?: Date | null;
+  lastLoginIp?: string | null;
+  lastLoginUserAgent?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 // Optional fields for creation
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'role' | 'isEmailVerified' | 'emailVerificationToken' | 'emailVerificationExpires' | 'resetPasswordToken' | 'resetPasswordExpires'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'role' | 'accountStatus' | 'suspensionReason' | 'suspensionEndDate' | 'isEmailVerified' | 'emailVerificationToken' | 'emailVerificationExpires' | 'resetPasswordToken' | 'resetPasswordExpires' | 'lastLoginAt' | 'lastLoginIp' | 'lastLoginUserAgent'> {}
 
 // User model class
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
@@ -42,6 +51,9 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public lastName!: string;
   public role!: 'admin' | 'user';
   public userType!: 'personal' | 'company';
+  public accountStatus!: AccountStatus;
+  public suspensionReason?: string | null;
+  public suspensionEndDate?: Date | null;
   public isEmailVerified!: boolean;
   public emailVerificationToken?: string | null;
   public emailVerificationExpires?: Date | null;
@@ -57,6 +69,9 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public company?: string;
   public organizationNumber?: string;
   public vatNumber?: string;
+  public lastLoginAt?: Date | null;
+  public lastLoginIp?: string | null;
+  public lastLoginUserAgent?: string | null;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -111,6 +126,19 @@ User.init(
       type: DataTypes.ENUM('personal', 'company'),
       allowNull: false,
       defaultValue: 'personal',
+    },
+    accountStatus: {
+      type: DataTypes.ENUM('active', 'suspended', 'deactivated'),
+      allowNull: false,
+      defaultValue: 'active',
+    },
+    suspensionReason: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    suspensionEndDate: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     isEmailVerified: {
       type: DataTypes.BOOLEAN,
@@ -172,6 +200,18 @@ User.init(
     },
     vatNumber: {
       type: DataTypes.STRING(50),
+      allowNull: true,
+    },
+    lastLoginAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    lastLoginIp: {
+      type: DataTypes.STRING(45),
+      allowNull: true,
+    },
+    lastLoginUserAgent: {
+      type: DataTypes.TEXT,
       allowNull: true,
     },
   },

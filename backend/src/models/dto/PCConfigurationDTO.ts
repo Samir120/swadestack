@@ -50,6 +50,7 @@ export interface PCConfigurationDTO {
   imageUrls?: string[];
   shortDescription_en?: string;
   shortDescription_sv?: string;
+  stock: number;
 
   // Metadata
   componentCount: number;
@@ -179,6 +180,7 @@ export function mapPCConfigurationToDTO(config: any): PCConfigurationDTO {
     imageUrls: config.imageUrls || [],
     shortDescription_en: config.shortDescription_en,
     shortDescription_sv: config.shortDescription_sv,
+    stock: config.stock || 0,
     // Metadata
     componentCount: config.getComponentCount ? config.getComponentCount() : 0,
     isComplete: config.isComplete ? config.isComplete() : false,

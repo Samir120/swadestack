@@ -40,6 +40,9 @@ export enum EmailTemplateType {
   NEWSLETTER = 'newsletter',
   PASSWORD_RESET = 'password-reset',
   NEWSLETTER_SUBSCRIPTION = 'newsletter-subscription',
+  CART_REMINDER = 'cart-reminder',
+  ADMIN_CUSTOM = 'admin-custom',
+  ORDER_BALANCE_DUE = 'order-balance-due',
 }
 
 // Email priority levels

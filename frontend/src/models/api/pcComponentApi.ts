@@ -79,13 +79,13 @@ export const pcComponentApi = {
   },
 
   /**
-   * Get component type counts (admin)
-   * GET /api/pc-components/stats/counts
+   * Get component type counts (public)
+   * GET /api/pc-components/counts
    */
   getComponentTypeCounts: async (): Promise<
     ApiResponse<{ counts: Record<ComponentType, number> }>
   > => {
-    return apiClient.get('/pc-components/stats/counts');
+    return apiClient.get('/pc-components/counts');
   },
 
   /**

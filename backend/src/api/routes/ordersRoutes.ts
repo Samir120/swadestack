@@ -13,6 +13,31 @@ router.post('/:id/cancel', authenticate, requireAdmin, ordersController.cancel);
 router.post('/:id/mark-ready-final-payment', authenticate, requireAdmin, ordersController.markReadyForFinalPayment);
 router.post('/:id/refund', authenticate, requireAdmin, ordersController.createRefund);
 
+// Admin order detail (enhanced with adjustments)
+router.get('/:id/admin-detail', authenticate, requireAdmin, ordersController.getAdminDetail);
+
+// Order modification
+router.put('/:id/modify', authenticate, requireAdmin, ordersController.modifyOrder);
+router.post('/:id/override-lock', authenticate, requireAdmin, ordersController.overrideLock);
+
+// Catalog search for adding items to orders
+router.get('/:id/catalog/search', authenticate, requireAdmin, ordersController.searchCatalog);
+router.get('/:id/adjustments', authenticate, requireAdmin, ordersController.getAdjustments);
+router.delete('/:id/adjustments/:adjustmentId', authenticate, requireAdmin, ordersController.deleteAdjustment);
+
+// Order notes
+router.get('/:id/notes', authenticate, requireAdmin, ordersController.getOrderNotes);
+router.post('/:id/notes', authenticate, requireAdmin, ordersController.createOrderNote);
+router.put('/notes/:noteId', authenticate, requireAdmin, ordersController.updateOrderNote);
+router.delete('/notes/:noteId', authenticate, requireAdmin, ordersController.deleteOrderNote);
+
+// Order activity (audit logs)
+router.get('/:id/activity', authenticate, requireAdmin, ordersController.getOrderActivity);
+
+// Order emails
+router.get('/:id/emails', authenticate, requireAdmin, ordersController.getOrderEmails);
+router.post('/:id/emails/send', authenticate, requireAdmin, ordersController.sendOrderEmail);
+
 // Public routes (rate limited)
 router.post('/', orderCreationRateLimitMiddleware, ordersController.create);
 

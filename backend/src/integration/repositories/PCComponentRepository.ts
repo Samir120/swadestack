@@ -241,6 +241,52 @@ export class PCComponentRepository extends BaseDAO<PCComponent> {
   }
 
   /**
+   * Find active components with pagination and optional type/filters
+   */
+  async findActiveWithPagination(
+    limit: number = 50,
+    offset: number = 0,
+    componentType?: ComponentType,
+    filters?: {
+      manufacturer?: string;
+      minPrice?: number;
+      maxPrice?: number;
+    }
+  ): Promise<{ components: PCComponent[]; total: number }> {
+    const where: any = { isActive: true };
+    if (componentType) {
+      where.componentType = componentType;
+    }
+    if (filters) {
+      if (filters.manufacturer) {
+        where.manufacturer = filters.manufacturer;
+      }
+      if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+        where.price = {};
+        if (filters.minPrice !== undefined) {
+          where.price[Op.gte] = filters.minPrice;
+        }
+        if (filters.maxPrice !== undefined) {
+          where.price[Op.lte] = filters.maxPrice;
+        }
+      }
+    }
+
+    const { count, rows } = await this.model.findAndCountAll({
+      where,
+      order: [
+        ['componentType', 'ASC'],
+        ['manufacturer', 'ASC'],
+        ['price', 'ASC'],
+      ],
+      limit,
+      offset,
+    });
+
+    return { components: rows, total: count };
+  }
+
+  /**
    * Find all components regardless of isActive status (Admin)
    */
   async findAllComponents(

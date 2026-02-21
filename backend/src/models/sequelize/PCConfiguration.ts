@@ -126,6 +126,7 @@ export interface PCConfigurationAttributes {
   imageUrls?: string[];           // Multiple product images (array of base64 or URLs)
   shortDescription_en?: string;   // Brief description for card display
   shortDescription_sv?: string;
+  stock: number;                  // Inventory count for pre-configured PCs
 
   createdAt?: Date;
   updatedAt?: Date;
@@ -138,7 +139,7 @@ interface PCConfigurationCreationAttributes extends Optional<
   'buildServiceCharge' | 'buildServiceSnapshot' | 'isValid' | 'validationErrors' | 'validationWarnings' |
   'powerSummary' | 'status' | 'orderId' | 'createdAt' | 'updatedAt' |
   'isPreConfigured' | 'isFeatured' | 'tier' | 'displayOrder' | 'imageUrl' | 'imageUrls' |
-  'shortDescription_en' | 'shortDescription_sv' | 'discountedPrice'
+  'shortDescription_en' | 'shortDescription_sv' | 'discountedPrice' | 'stock'
 > {}
 
 // Model class
@@ -180,6 +181,7 @@ class PCConfiguration extends Model<
   public imageUrls?: string[];
   public shortDescription_en?: string;
   public shortDescription_sv?: string;
+  public stock!: number;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -368,6 +370,11 @@ PCConfiguration.init(
     shortDescription_sv: {
       type: DataTypes.STRING(500),
       allowNull: true,
+    },
+    stock: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
     },
   },
   {

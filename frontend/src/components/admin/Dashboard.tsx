@@ -5,6 +5,7 @@ import { useServicesViewModel } from '../../viewmodels/servicesViewModel';
 import apiClient from '../../models/api/apiClient';
 import { FaShoppingCart, FaMoneyBillWave, FaClock, FaBox, FaArrowRight, FaImages, FaCog } from 'react-icons/fa';
 import LoadingSpinner from '../common/LoadingSpinner';
+import AdminPriceDisplay from './common/AdminPriceDisplay';
 
 interface Statistics {
   totalOrders: number;
@@ -57,14 +58,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -98,9 +91,13 @@ const AdminDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
             <div className="order-2 sm:order-1">
               <p className="text-[10px] sm:text-sm font-bold text-neutral-400 uppercase tracking-wider">Total Revenue</p>
-              <p className="text-lg sm:text-3xl font-bold text-white mt-0.5 sm:mt-2">
-                {formatCurrency(stats.totalRevenue)}
-              </p>
+              <div className="mt-0.5 sm:mt-2">
+                <AdminPriceDisplay
+                  price={stats.totalRevenue}
+                  primaryClassName="text-lg sm:text-3xl font-bold text-white"
+                  secondaryClassName="block text-[10px] sm:text-xs text-neutral-400 font-normal"
+                />
+              </div>
             </div>
             <div className="order-1 sm:order-2 w-10 h-10 sm:w-12 sm:h-12 bg-primary-600/10 rounded-lg sm:rounded-2xl flex items-center justify-center text-primary-400">
               <FaMoneyBillWave className="text-base sm:text-xl" />
@@ -234,9 +231,11 @@ const AdminDashboard: React.FC = () => {
                     <p className="text-xs text-neutral-400">
                       {new Date(order.createdAt).toLocaleDateString()}
                     </p>
-                    <p className="text-sm font-bold text-white">
-                      {formatCurrency(order.totalAmount)}
-                    </p>
+                    <AdminPriceDisplay
+                      price={order.totalAmount}
+                      primaryClassName="text-sm font-bold text-white"
+                      secondaryClassName="block text-[10px] text-neutral-500 font-normal"
+                    />
                   </div>
                 </div>
               ))}
@@ -282,8 +281,12 @@ const AdminDashboard: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
                       {order.firstName} {order.lastName}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                      {formatCurrency(order.totalAmount)}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <AdminPriceDisplay
+                        price={order.totalAmount}
+                        primaryClassName="text-sm text-white"
+                        secondaryClassName="block text-[10px] text-neutral-500 font-normal"
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span

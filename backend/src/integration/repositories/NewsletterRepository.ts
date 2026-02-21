@@ -60,22 +60,29 @@ export class NewsletterRepository {
     if (!subscriber) return null;
 
     await subscriber.update({
+      isActive: true,
+      status: 'active',
       verifiedAt: new Date(),
-      verificationToken: undefined,
+      verificationToken: null as any,
     });
 
     return subscriber;
   }
 
   /**
-   * Unsubscribe by token
+   * Unsubscribe by token or subscriber ID
    */
   async unsubscribe(token: string): Promise<NewsletterSubscriber | null> {
-    const subscriber = await this.findByUnsubscribeToken(token);
+    // Try unsubscribeToken first, then fall back to subscriber ID (for old emails)
+    let subscriber = await this.findByUnsubscribeToken(token);
+    if (!subscriber) {
+      subscriber = await NewsletterSubscriber.findByPk(token);
+    }
     if (!subscriber) return null;
 
     await subscriber.update({
       isActive: false,
+      status: 'unsubscribed',
       unsubscribedAt: new Date(),
     });
 
@@ -89,8 +96,13 @@ export class NewsletterRepository {
     const subscriber = await this.findByEmail(email);
     if (!subscriber) return null;
 
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+
     await subscriber.update({
-      isActive: true,
+      isActive: false,
+      status: 'pending_confirmation',
+      verificationToken,
+      verifiedAt: undefined as any,
       unsubscribedAt: undefined,
     });
 

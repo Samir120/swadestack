@@ -915,6 +915,7 @@ export class PCConfigurationController {
         includesBuildService,
         buildServiceCharge,
         buildServiceSnapshot,
+        stock,
       } = req.body;
 
       const configuration = await this.configService.promoteToPreConfigured(id, {
@@ -931,6 +932,7 @@ export class PCConfigurationController {
         includesBuildService,
         buildServiceCharge,
         buildServiceSnapshot,
+        stock,
       });
 
       res.status(200).json({

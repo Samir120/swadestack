@@ -9,6 +9,9 @@ router.get('/', pcComponentController.getComponentsByType); // GET /api/pc-compo
 router.get('/search', pcComponentController.searchComponents); // GET /api/pc-components/search?q=Ryzen
 router.get('/manufacturers', pcComponentController.getManufacturers); // GET /api/pc-components/manufacturers?type=cpu
 
+// Public stats - aggregate counts only (no sensitive data)
+router.get('/counts', pcComponentController.getComponentTypeCounts); // GET /api/pc-components/counts
+
 // Admin routes - get all components (including inactive) - must be before /:id
 router.get('/admin/all', authenticate, requireAdmin, pcComponentController.getAll); // GET /api/pc-components/admin/all?type=cpu
 

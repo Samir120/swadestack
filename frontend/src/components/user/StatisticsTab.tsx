@@ -1,6 +1,8 @@
 import React from 'react';
 import { useAppSelector } from '../../store/hooks';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { useVatRate } from '../../hooks/useVatRate';
+import { netToGross } from '../../utils/vat';
 
 interface StatisticsTabProps {
   statistics: any;
@@ -8,6 +10,7 @@ interface StatisticsTabProps {
 
 const StatisticsTab: React.FC<StatisticsTabProps> = ({ statistics }) => {
   const language = useAppSelector((state) => state.ui.language);
+  const vatRate = useVatRate();
 
   if (!statistics) {
     return (
@@ -34,7 +37,7 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ statistics }) => {
     },
     {
       label: language === 'en' ? 'Total Spent' : 'Total spenderat',
-      value: `${Number(statistics.totalSpent || 0).toLocaleString('sv-SE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} SEK`,
+      value: `${netToGross(Number(statistics.totalSpent || 0), vatRate).toLocaleString('sv-SE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} SEK`,
       icon: (
         <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -119,7 +122,7 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ statistics }) => {
                 </div>
                 <div className="text-right flex-shrink-0 ml-3">
                   <p className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
-                    {Number(order.total || 0).toLocaleString('sv-SE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} SEK
+                    {netToGross(Number(order.total || 0), vatRate).toLocaleString('sv-SE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} SEK
                   </p>
                   <span
                     className={`inline-block px-2 py-0.5 text-[10px] sm:text-xs font-bold rounded-full ${

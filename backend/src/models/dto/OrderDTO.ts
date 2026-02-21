@@ -4,6 +4,8 @@ import { PaymentDTO } from './PaymentDTO';
 export interface OrderItemDTO {
   id: string;
   serviceId: string;
+  pcComponentId?: string;
+  pcConfigurationId?: string;
   serviceName: string;
   serviceDescription?: string;
   quantity: number;
@@ -59,6 +61,10 @@ export interface CreateOrderDTO {
     name: string;
     totalPrice: number;
     configurationSnapshot: any;
+  }[];
+  componentItems?: {
+    pcComponentId: string;
+    quantity: number;
   }[];
 }
 

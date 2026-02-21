@@ -1,7 +1,7 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, Middleware } from '@reduxjs/toolkit';
 import portfolioReducer from './slices/portfolioSlice';
 import servicesReducer from './slices/servicesSlice';
-import cartReducer from './slices/cartSlice';
+import cartReducer, { syncCartToServer } from './slices/cartSlice';
 import authReducer from './slices/authSlice';
 import uiReducer from './slices/uiSlice';
 import siteSettingsReducer from './slices/siteSettingsSlice';
@@ -17,6 +17,25 @@ import preConfiguredPCReducer from './slices/preConfiguredPCSlice';
 import featuresReducer from './slices/featuresSlice';
 import legalSettingsReducer from './slices/legalSettingsSlice';
 import vatSettingsReducer from './slices/vatSettingsSlice';
+import newsletterReducer from './slices/newsletterSlice';
+
+// Cart sync middleware — automatically syncs to server after any cart mutation
+const cartActions = ['cart/addToCart', 'cart/removeFromCart', 'cart/updateQuantity', 'cart/addPCToCart', 'cart/removePCFromCart', 'cart/addComponentToCart', 'cart/removeComponentFromCart', 'cart/updateComponentQuantity', 'cart/clearCart', 'cart/mergeServerCart', 'cart/replaceWithServerCart'];
+let cartSyncTimer: ReturnType<typeof setTimeout> | null = null;
+
+const cartSyncMiddleware: Middleware = (storeApi) => (next) => (action: any) => {
+  const result = next(action);
+  if (cartActions.includes(action.type)) {
+    const state = storeApi.getState() as RootState;
+    if (state.auth.isAuthenticated) {
+      if (cartSyncTimer) clearTimeout(cartSyncTimer);
+      cartSyncTimer = setTimeout(() => {
+        storeApi.dispatch(syncCartToServer() as any);
+      }, 500);
+    }
+  }
+  return result;
+};
 
 /**
  * Redux Store Configuration
@@ -42,12 +61,13 @@ export const store = configureStore({
     features: featuresReducer,
     legalSettings: legalSettingsReducer,
     vatSettings: vatSettingsReducer,
+    newsletter: newsletterReducer,
   },
   devTools: !import.meta.env.PROD,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }),
+    }).concat(cartSyncMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

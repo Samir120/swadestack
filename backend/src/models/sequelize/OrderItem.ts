@@ -7,6 +7,7 @@ export interface OrderItemAttributes {
   orderId: string;
   serviceId?: string; // Optional - null for PC configurations
   pcConfigurationId?: string; // Optional - for PC configuration orders
+  pcComponentId?: string; // Optional - for individual PC component orders
   quantity: number;
   price: number;
   serviceName: string;
@@ -16,7 +17,7 @@ export interface OrderItemAttributes {
 }
 
 // Optional fields for creation
-interface OrderItemCreationAttributes extends Optional<OrderItemAttributes, 'id' | 'quantity' | 'serviceId' | 'pcConfigurationId'> {}
+interface OrderItemCreationAttributes extends Optional<OrderItemAttributes, 'id' | 'quantity' | 'serviceId' | 'pcConfigurationId' | 'pcComponentId'> {}
 
 // OrderItem model class
 class OrderItem extends Model<OrderItemAttributes, OrderItemCreationAttributes> implements OrderItemAttributes {
@@ -24,6 +25,7 @@ class OrderItem extends Model<OrderItemAttributes, OrderItemCreationAttributes> 
   public orderId!: string;
   public serviceId?: string;
   public pcConfigurationId?: string;
+  public pcComponentId?: string;
   public quantity!: number;
   public price!: number;
   public serviceName!: string;
@@ -66,6 +68,15 @@ OrderItem.init(
         model: 'PCConfigurations',
         key: 'id',
       },
+      onDelete: 'SET NULL',
+    },
+    pcComponentId: {
+      type: DataTypes.UUID,
+      allowNull: true, // Nullable - only for individual PC component orders
+      references: {
+        model: 'PCComponents',
+        key: 'id',
+      },
       onDelete: 'RESTRICT',
     },
     quantity: {
@@ -100,6 +111,7 @@ OrderItem.init(
       { fields: ['orderId'] },
       { fields: ['serviceId'] },
       { fields: ['pcConfigurationId'] },
+      { fields: ['pcComponentId'] },
     ],
   }
 );

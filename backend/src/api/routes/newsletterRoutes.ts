@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { NewsletterController } from '../controllers/newsletterController';
 import { authenticate, requireAdmin } from '../../middleware/authMiddleware';
-import { newsletterRateLimitMiddleware } from '../../middleware/rateLimit.middleware';
+import {
+  newsletterRateLimitMiddleware,
+  newsletterStatusCheckRateLimitMiddleware,
+  newsletterUnsubscribeRateLimitMiddleware,
+} from '../../middleware/rateLimit.middleware';
 
 const router = Router();
 const newsletterController = new NewsletterController();
@@ -12,6 +16,20 @@ const newsletterController = new NewsletterController();
  * @access  Public
  */
 router.post('/subscribe', newsletterRateLimitMiddleware, newsletterController.subscribe);
+
+/**
+ * @route   POST /api/newsletter/check-status
+ * @desc    Check subscription status by email
+ * @access  Public
+ */
+router.post('/check-status', newsletterStatusCheckRateLimitMiddleware, newsletterController.checkStatus);
+
+/**
+ * @route   POST /api/newsletter/unsubscribe-by-email
+ * @desc    Unsubscribe by email (public)
+ * @access  Public
+ */
+router.post('/unsubscribe-by-email', newsletterUnsubscribeRateLimitMiddleware, newsletterController.unsubscribeByEmail);
 
 /**
  * @route   GET /api/newsletter/verify/:token
@@ -26,6 +44,20 @@ router.get('/verify/:token', newsletterController.verify);
  * @access  Public
  */
 router.get('/unsubscribe/:token', newsletterController.unsubscribe);
+
+/**
+ * @route   GET /api/newsletter/track/open/:sendLogId.png
+ * @desc    Tracking pixel for email opens
+ * @access  Public
+ */
+router.get('/track/open/:sendLogId.png', newsletterController.trackOpen);
+
+/**
+ * @route   GET /api/newsletter/track/click/:sendLogId
+ * @desc    Tracking redirect for email clicks
+ * @access  Public
+ */
+router.get('/track/click/:sendLogId', newsletterController.trackClick);
 
 /**
  * @route   POST /api/newsletter/broadcast

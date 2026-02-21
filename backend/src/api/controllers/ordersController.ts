@@ -2,16 +2,31 @@ import { Request, Response, NextFunction } from 'express';
 import OrdersService from '../../services/OrdersService';
 import KlarnaService from '../../services/KlarnaService';
 import PartialPaymentService from '../../services/PartialPaymentService';
+import AuditLogService from '../../services/AuditLogService';
+import ProductSearchService from '../../services/ProductSearchService';
 
 export class OrdersController {
   private ordersService: OrdersService;
   private klarnaService: KlarnaService;
   private partialPaymentService: PartialPaymentService;
+  private auditLogService: AuditLogService;
+  private productSearchService: ProductSearchService;
 
   constructor() {
     this.ordersService = new OrdersService();
     this.klarnaService = new KlarnaService();
     this.partialPaymentService = new PartialPaymentService();
+    this.auditLogService = new AuditLogService();
+    this.productSearchService = new ProductSearchService();
+  }
+
+  private getAdmin(req: Request) {
+    const user = (req as any).user;
+    return {
+      id: user.id,
+      name: user.email,
+      ip: req.ip || req.socket.remoteAddress,
+    };
   }
 
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -204,10 +219,10 @@ export class OrdersController {
       const { id } = req.params;
       const { phase } = req.body;
 
-      if (!phase || !['initial', 'final', 'full'].includes(phase)) {
+      if (!phase || !['initial', 'final', 'full', 'additional'].includes(phase)) {
         res.status(400).json({
           success: false,
-          message: 'Valid phase (initial, final, full) is required',
+          message: 'Valid phase (initial, final, full, additional) is required',
         });
         return;
       }
@@ -316,6 +331,227 @@ export class OrdersController {
         message: 'Refund created successfully',
       });
     } catch (error) {
+      next(error);
+    }
+  };
+  // ==================== PART 4: Order Admin Detail ====================
+
+  getAdminDetail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const order = await this.ordersService.getOrderDetailForAdmin(id);
+      if (!order) {
+        res.status(404).json({ success: false, message: 'Order not found' });
+        return;
+      }
+      res.status(200).json({ success: true, data: order });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // ==================== PART 4: Order Modification ====================
+
+  modifyOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const admin = this.getAdmin(req);
+      const order = await this.ordersService.modifyOrder(id, req.body, admin);
+      if (!order) {
+        res.status(404).json({ success: false, message: 'Order not found' });
+        return;
+      }
+      res.status(200).json({ success: true, message: 'Order modified', data: order });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getAdjustments = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const adjustments = await this.ordersService.getOrderAdjustments(id);
+      res.status(200).json({ success: true, data: adjustments });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteAdjustment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id, adjustmentId } = req.params;
+      const admin = this.getAdmin(req);
+      await this.ordersService.deleteOrderAdjustment(id, adjustmentId, admin);
+      res.status(200).json({ success: true, message: 'Adjustment deleted' });
+    } catch (error: any) {
+      if (error.message === 'Adjustment not found') {
+        res.status(404).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  };
+
+  // ==================== PART 4: Order Notes ====================
+
+  getOrderNotes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { page, pageSize } = req.query;
+      const result = await this.ordersService.getOrderNotes(
+        id,
+        page ? parseInt(page as string) : 1,
+        pageSize ? parseInt(pageSize as string) : 50,
+      );
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  createOrderNote = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { content } = req.body;
+      if (!content || !content.trim()) {
+        res.status(400).json({ success: false, message: 'Content is required' });
+        return;
+      }
+      const admin = this.getAdmin(req);
+      const note = await this.ordersService.createOrderNote(id, content, admin);
+      res.status(201).json({ success: true, data: note });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateOrderNote = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { noteId } = req.params;
+      const { content } = req.body;
+      if (!content || !content.trim()) {
+        res.status(400).json({ success: false, message: 'Content is required' });
+        return;
+      }
+      const admin = this.getAdmin(req);
+      const note = await this.ordersService.updateOrderNote(noteId, content, admin.id);
+      if (!note) {
+        res.status(404).json({ success: false, message: 'Note not found' });
+        return;
+      }
+      res.status(200).json({ success: true, data: note });
+    } catch (error: any) {
+      if (error.message === 'Note not found' || error.message === 'You can only edit your own notes') {
+        res.status(error.message === 'Note not found' ? 404 : 403).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  };
+
+  deleteOrderNote = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { noteId } = req.params;
+      const admin = this.getAdmin(req);
+      await this.ordersService.deleteOrderNote(noteId, admin.id);
+      res.status(200).json({ success: true, message: 'Note deleted' });
+    } catch (error: any) {
+      if (error.message === 'Note not found' || error.message === 'You can only delete your own notes') {
+        res.status(error.message === 'Note not found' ? 404 : 403).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  };
+
+  // ==================== PART 4: Order Activity (Audit Logs) ====================
+
+  getOrderActivity = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { page, pageSize } = req.query;
+      const result = await this.auditLogService.getLogsForTarget(
+        'Order',
+        id,
+        page ? parseInt(page as string) : 1,
+        pageSize ? parseInt(pageSize as string) : 20,
+      );
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // ==================== PART 4: Order Emails ====================
+
+  getOrderEmails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { page, pageSize } = req.query;
+      const result = await this.ordersService.getOrderEmails(
+        id,
+        page ? parseInt(page as string) : 1,
+        pageSize ? parseInt(pageSize as string) : 50,
+      );
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  sendOrderEmail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { subject, body, language } = req.body;
+      if (!subject || !body) {
+        res.status(400).json({ success: false, message: 'Subject and body are required' });
+        return;
+      }
+      const admin = this.getAdmin(req);
+      await this.ordersService.sendOrderEmail(id, { subject, body, language }, admin);
+      res.status(200).json({ success: true, message: 'Email queued successfully' });
+    } catch (error: any) {
+      if (error.message === 'Order not found') {
+        res.status(404).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  };
+  // ==================== Catalog Search ====================
+
+  searchCatalog = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { query, category, page, pageSize } = req.query;
+      const result = await this.productSearchService.search({
+        query: query as string | undefined,
+        category: category as string | undefined,
+        page: page ? parseInt(page as string) : 1,
+        pageSize: pageSize ? parseInt(pageSize as string) : 6,
+      });
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // ==================== Order Lock Override ====================
+
+  overrideLock = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const admin = this.getAdmin(req);
+      await this.ordersService.overrideOrderLock(id, admin);
+      res.status(200).json({ success: true, message: 'Order lock overridden' });
+    } catch (error: any) {
+      if (error.message === 'Order not found') {
+        res.status(404).json({ success: false, message: error.message });
+        return;
+      }
+      if (error.message === 'Order is not in a locked status') {
+        res.status(400).json({ success: false, message: error.message });
+        return;
+      }
       next(error);
     }
   };

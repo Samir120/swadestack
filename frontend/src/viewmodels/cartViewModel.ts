@@ -5,9 +5,12 @@ import {
   updateQuantity,
   addPCToCart,
   removePCFromCart,
+  addComponentToCart,
+  removeComponentFromCart,
+  updateComponentQuantity,
   clearCart,
 } from '../store/slices/cartSlice';
-import { Service, PCCartItem } from '../models/types/service.types';
+import { Service, PCCartItem, ComponentCartItem } from '../models/types/service.types';
 import { PCConfiguration } from '../models/types/pcConfiguration.types';
 import { useVatRate } from '../hooks/useVatRate';
 import { netToGross } from '../utils/vat';
@@ -16,11 +19,12 @@ import { netToGross } from '../utils/vat';
  * Cart ViewModel - Business Logic Layer
  * Handles shopping cart business logic and state management
  * Connects View (Components) to Model (API)
+ * Note: Server sync is handled automatically by cartSyncMiddleware in store.ts
  */
 
 export const useCartViewModel = () => {
   const dispatch = useAppDispatch();
-  const { items, pcItems, totalAmount, totalItems } = useAppSelector(
+  const { items, pcItems, componentItems, totalAmount, totalItems } = useAppSelector(
     (state) => state.cart
   );
   const vatRate = useVatRate();
@@ -115,6 +119,69 @@ export const useCartViewModel = () => {
   };
 
   /**
+   * Add PC component to cart
+   */
+  const addComponentToCartAction = (component: ComponentCartItem['component'], quantity = 1) => {
+    if (component.stock <= 0) return;
+    const existing = componentItems.find((i) => i.component.id === component.id);
+    if (existing && existing.quantity + quantity > component.stock) return;
+    dispatch(addComponentToCart({ component, quantity }));
+  };
+
+  /**
+   * Remove PC component from cart
+   */
+  const removeComponentFromCartAction = (componentId: string) => {
+    dispatch(removeComponentFromCart(componentId));
+  };
+
+  /**
+   * Update PC component quantity
+   */
+  const changeComponentQuantity = (componentId: string, quantity: number) => {
+    if (quantity < 1) {
+      removeComponentFromCartAction(componentId);
+    } else {
+      dispatch(updateComponentQuantity({ componentId, quantity }));
+    }
+  };
+
+  /**
+   * Increment component quantity
+   */
+  const incrementComponentQuantity = (componentId: string) => {
+    const item = componentItems.find((i) => i.component.id === componentId);
+    if (item && item.quantity < item.component.stock) {
+      changeComponentQuantity(componentId, item.quantity + 1);
+    }
+  };
+
+  /**
+   * Decrement component quantity
+   */
+  const decrementComponentQuantity = (componentId: string) => {
+    const item = componentItems.find((i) => i.component.id === componentId);
+    if (item) {
+      changeComponentQuantity(componentId, item.quantity - 1);
+    }
+  };
+
+  /**
+   * Check if component is in cart
+   */
+  const isComponentInCart = (componentId: string): boolean => {
+    return componentItems.some((item) => item.component.id === componentId);
+  };
+
+  /**
+   * Get component quantity in cart
+   */
+  const getComponentQuantity = (componentId: string): number => {
+    const item = componentItems.find((i) => i.component.id === componentId);
+    return item ? item.quantity : 0;
+  };
+
+  /**
    * Check if service is in cart
    */
   const isInCart = (serviceId: string): boolean => {
@@ -170,7 +237,7 @@ export const useCartViewModel = () => {
    * Check if cart is empty
    */
   const isEmpty = (): boolean => {
-    return items.length === 0 && pcItems.length === 0;
+    return items.length === 0 && pcItems.length === 0 && componentItems.length === 0;
   };
 
   /**
@@ -206,19 +273,27 @@ export const useCartViewModel = () => {
     postalCode?: string;
     country?: string;
   }) => {
-    return {
+    const data: any = {
       ...customerInfo,
       items: items.map((item) => ({
         serviceId: item.service.id,
         quantity: item.quantity,
       })),
     };
+    if (componentItems.length > 0) {
+      data.componentItems = componentItems.map((ci) => ({
+        pcComponentId: ci.component.id,
+        quantity: ci.quantity,
+      }));
+    }
+    return data;
   };
 
   return {
     // State
     items,
     pcItems,
+    componentItems,
     totalAmount,
     totalItems,
 
@@ -231,11 +306,18 @@ export const useCartViewModel = () => {
     emptyCart,
     addPCToCart: addPCToCartAction,
     removePCFromCart: removePCFromCartAction,
+    addComponentToCart: addComponentToCartAction,
+    removeComponentFromCart: removeComponentFromCartAction,
+    changeComponentQuantity,
+    incrementComponentQuantity,
+    decrementComponentQuantity,
 
     // Business Logic
     isInCart,
     isPCInCart,
+    isComponentInCart,
     getQuantity,
+    getComponentQuantity,
     formatTotal,
     getItemSubtotal,
     formatItemSubtotal,

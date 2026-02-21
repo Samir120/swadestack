@@ -19,20 +19,18 @@ export const createApp = (): Application => {
   app.set('trust proxy', 1);
 
   // Security middleware
-  app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          connectSrc: ["'self'", config.cors.origin],
-          scriptSrc: ["'self'", "'unsafe-inline'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", "data:", "blob:", "https:"],
-          fontSrc: ["'self'", "data:"],
-        },
+  app.use('/api', helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        connectSrc: ["'self'", config.cors.origin],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "blob:", "https:"],
+        fontSrc: ["'self'", "data:"],
       },
-    })
-  );
+    },
+  }));
   app.use(
     cors({
       origin: config.cors.origin,
@@ -65,10 +63,22 @@ export const createApp = (): Application => {
 
   // In development, show API info at root
   // In production, Nginx serves the frontend and proxies only /api to this server
-  if (config.env !== 'production') {
+  if (config.env === 'production') {
+    // Serve frontend static files in production
+    const frontendPath = path.join(__dirname, '../../frontend/dist');
+    app.use(express.static(frontendPath));
+
+    // SPA fallback - serve index.html for all non-API/non-upload routes
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+        return next();
+      }
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    });
+  } else {
     app.get('/', (req, res) => {
       res.json({
-        message: 'M24 Design API',
+        message: 'Swade Stack API',
         version: '1.0.0',
         endpoints: {
           health: '/api/health',

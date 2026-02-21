@@ -34,6 +34,7 @@ export interface CreatePreConfiguredPCData {
   includesBuildService?: boolean;
   buildServiceCharge?: number;
   buildServiceSnapshot?: BuildServiceSnapshot;
+  stock?: number;
 }
 
 // Pre-configured PC update data
@@ -52,6 +53,7 @@ export interface UpdatePreConfiguredPCData {
   includesBuildService?: boolean;
   buildServiceCharge?: number;
   buildServiceSnapshot?: BuildServiceSnapshot | null;
+  stock?: number;
 }
 
 export class PCConfigurationRepository extends BaseDAO<PCConfiguration> {
@@ -463,6 +465,7 @@ export class PCConfigurationRepository extends BaseDAO<PCConfiguration> {
       imageUrls: data.imageUrls || [],
       shortDescription_en: data.shortDescription_en,
       shortDescription_sv: data.shortDescription_sv,
+      stock: data.stock || 0,
     } as any);
   }
 
@@ -491,6 +494,7 @@ export class PCConfigurationRepository extends BaseDAO<PCConfiguration> {
         includesBuildService: data.includesBuildService || false,
         buildServiceCharge: data.buildServiceCharge || 0,
         buildServiceSnapshot: data.buildServiceSnapshot || null,
+        stock: data.stock ?? 0,
       } as any,
       { where: { id: configId } }
     );
@@ -519,6 +523,7 @@ export class PCConfigurationRepository extends BaseDAO<PCConfiguration> {
     if (data.includesBuildService !== undefined) updateData.includesBuildService = data.includesBuildService;
     if (data.buildServiceCharge !== undefined) updateData.buildServiceCharge = data.buildServiceCharge;
     if (data.buildServiceSnapshot !== undefined) updateData.buildServiceSnapshot = data.buildServiceSnapshot;
+    if (data.stock !== undefined) updateData.stock = data.stock;
 
     await this.model.update(updateData, {
       where: { id: configId, isPreConfigured: true },
@@ -668,6 +673,30 @@ export class PCConfigurationRepository extends BaseDAO<PCConfiguration> {
     });
 
     return { configurations: rows, total: count };
+  }
+  /**
+   * Increment stock for a pre-configured PC
+   */
+  async incrementStock(configId: string, quantity: number): Promise<void> {
+    const config = await this.findById(configId);
+    if (config) {
+      config.stock = (config.stock || 0) + quantity;
+      await config.save();
+    }
+  }
+
+  /**
+   * Decrement stock for a pre-configured PC
+   */
+  async decrementStock(configId: string, quantity: number): Promise<boolean> {
+    const config = await this.findById(configId);
+    if (!config || (config.stock || 0) < quantity) {
+      return false; // Insufficient stock
+    }
+
+    config.stock = (config.stock || 0) - quantity;
+    await config.save();
+    return true;
   }
 }
 

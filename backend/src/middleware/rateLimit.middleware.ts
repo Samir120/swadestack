@@ -110,3 +110,33 @@ export const orderCreationRateLimitMiddleware = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+/**
+ * Rate limiter for newsletter status checks
+ * Limits to 30 requests per 15 minutes per IP
+ */
+export const newsletterStatusCheckRateLimitMiddleware = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30,
+  message: {
+    success: false,
+    error: 'Too many status check requests, please try again later.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+/**
+ * Rate limiter for newsletter unsubscribe by email
+ * Limits to 5 requests per hour per IP
+ */
+export const newsletterUnsubscribeRateLimitMiddleware = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  message: {
+    success: false,
+    error: 'Too many unsubscribe attempts, please try again later.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

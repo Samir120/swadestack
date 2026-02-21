@@ -11,7 +11,7 @@ export class PCComponentController {
 
   /**
    * GET /api/pc-components?type=cpu&manufacturer=AMD&page=1&limit=50
-   * Get components by type with optional filters and pagination
+   * Get components with optional type filter, filters, and pagination
    */
   getComponentsByType = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -25,18 +25,10 @@ export class PCComponentController {
         maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined,
       };
 
-      if (!componentType) {
-        res.status(400).json({
-          success: false,
-          message: 'Component type is required',
-        });
-        return;
-      }
-
-      const result = await this.componentService.getComponentsByType(
-        componentType,
+      const result = await this.componentService.getActiveComponents(
         page,
         limit,
+        componentType || undefined,
         filters
       );
 
@@ -283,11 +275,17 @@ export class PCComponentController {
    */
   getComponentTypeCounts = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const counts = await this.componentService.getComponentTypeCounts();
+      const countsArray = await this.componentService.getComponentTypeCounts();
+
+      // Transform array to record for frontend compatibility
+      const counts: Record<string, number> = {};
+      for (const item of countsArray) {
+        counts[item.type] = item.count;
+      }
 
       res.status(200).json({
         success: true,
-        data: counts,
+        data: { counts },
       });
     } catch (error) {
       next(error);

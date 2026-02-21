@@ -165,6 +165,7 @@ const PreConfiguredPCDetail: React.FC = () => {
   // Handle add to cart
   const handleAddToCart = () => {
     if (!currentPC) return;
+    if (currentPC.stock === 0) return;
 
     if (isPCInCart(currentPC.id)) {
       dispatch(toggleCart());
@@ -422,8 +423,46 @@ const PreConfiguredPCDetail: React.FC = () => {
 
               {/* Short Description */}
               {shortDesc && (
-                <p className="text-gray-500 dark:text-neutral-400 text-sm sm:text-base leading-relaxed mb-8">{shortDesc}</p>
+                <p className="text-gray-500 dark:text-neutral-400 text-sm sm:text-base leading-relaxed mb-5">{shortDesc}</p>
               )}
+
+              {/* Stock Indicator */}
+              {(() => {
+                const stock = currentPC.stock ?? 0;
+                const isOutOfStock = stock === 0;
+                const isLowStock = stock >= 1 && stock <= 5;
+
+                return (
+                  <div className="flex items-center gap-2 mb-6">
+                    {isOutOfStock ? (
+                      <>
+                        <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                        <span className="text-sm text-gray-600 dark:text-neutral-300">
+                          {language === 'en' ? 'Out of Stock' : 'Slut i lager'}
+                        </span>
+                      </>
+                    ) : isLowStock ? (
+                      <>
+                        <span className="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-pulse" />
+                        <span className="text-sm text-gray-600 dark:text-neutral-300">
+                          {language === 'en'
+                            ? `Low Stock (${stock} left)`
+                            : `Få kvar (${stock} st)`}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                        <span className="text-sm text-gray-600 dark:text-neutral-300">
+                          {language === 'en'
+                            ? `In Stock (${stock} available)`
+                            : `I lager (${stock} tillgängliga)`}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Price & Order Card */}
               <div className="bg-white dark:bg-surface-850 rounded-2xl border border-gray-200 dark:border-surface-700/50 overflow-hidden mb-8 shadow-sm">
@@ -536,15 +575,20 @@ const PreConfiguredPCDetail: React.FC = () => {
                   {/* Add to Cart Button */}
                   <button
                     onClick={handleAddToCart}
+                    disabled={(currentPC.stock ?? 0) === 0}
                     className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
-                      pcAlreadyInCart
-                        ? 'bg-green-600 text-white hover:bg-green-500'
-                        : 'bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:shadow-glow hover:scale-[1.01] active:scale-[0.98]'
+                      (currentPC.stock ?? 0) === 0
+                        ? 'bg-gray-200 dark:bg-surface-700 text-gray-400 dark:text-neutral-500 cursor-not-allowed'
+                        : pcAlreadyInCart
+                          ? 'bg-green-600 text-white hover:bg-green-500'
+                          : 'bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:shadow-glow hover:scale-[1.01] active:scale-[0.98]'
                     }`}
                   >
-                    {pcAlreadyInCart
-                      ? (language === 'en' ? 'View Cart' : 'Visa kundvagn')
-                      : (language === 'en' ? 'Add to Cart' : 'Lägg i kundvagn')}
+                    {(currentPC.stock ?? 0) === 0
+                      ? (language === 'en' ? 'Out of Stock' : 'Slut i lager')
+                      : pcAlreadyInCart
+                        ? (language === 'en' ? 'View Cart' : 'Visa kundvagn')
+                        : (language === 'en' ? 'Add to Cart' : 'Lägg i kundvagn')}
                   </button>
                 </div>
               </div>

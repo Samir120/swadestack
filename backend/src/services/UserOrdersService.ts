@@ -1,5 +1,6 @@
 import Order from '../models/sequelize/Order';
 import OrderItem from '../models/sequelize/OrderItem';
+import Payment from '../models/sequelize/Payment';
 import { Op } from 'sequelize';
 import OrdersService from './OrdersService';
 
@@ -34,6 +35,10 @@ export class UserOrdersService {
           model: OrderItem,
           as: 'items',
         },
+        {
+          model: Payment,
+          as: 'payments',
+        },
       ],
       order: [['createdAt', 'DESC']],
       limit: options?.limit || 20,
@@ -59,6 +64,10 @@ export class UserOrdersService {
           model: OrderItem,
           as: 'items',
         },
+        {
+          model: Payment,
+          as: 'payments',
+        },
       ],
     });
 
@@ -79,6 +88,10 @@ export class UserOrdersService {
         {
           model: OrderItem,
           as: 'items',
+        },
+        {
+          model: Payment,
+          as: 'payments',
         },
       ],
     });

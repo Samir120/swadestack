@@ -1,6 +1,7 @@
 import { BaseDAO } from '../dao/BaseDAO';
 import Order, { OrderAttributes, OrderStatus } from '../../models/sequelize/Order';
 import OrderItem from '../../models/sequelize/OrderItem';
+import Payment from '../../models/sequelize/Payment';
 import Service from '../../models/sequelize/Service';
 import { Op } from 'sequelize';
 
@@ -41,6 +42,10 @@ export class OrdersRepository extends BaseDAO<Order> {
               as: 'service',
             },
           ],
+        },
+        {
+          model: Payment,
+          as: 'payments',
         },
       ],
     });
@@ -165,6 +170,56 @@ export class OrdersRepository extends BaseDAO<Order> {
     const revenue = orders.reduce((sum, order) => sum + parseFloat(order.totalAmount.toString()), 0);
     
     return revenue;
+  }
+
+  /**
+   * Find orders by user ID with filters (for admin customer orders tab)
+   */
+  async findByUserIdFiltered(
+    userId: string,
+    filters: {
+      search?: string;
+      status?: string;
+      dateFrom?: string;
+      dateTo?: string;
+      limit?: number;
+      offset?: number;
+    }
+  ): Promise<{ orders: Order[]; total: number }> {
+    const where: any = { userId };
+
+    if (filters.status) {
+      where.status = filters.status;
+    }
+
+    if (filters.dateFrom || filters.dateTo) {
+      where.createdAt = {};
+      if (filters.dateFrom) {
+        where.createdAt[Op.gte] = new Date(filters.dateFrom);
+      }
+      if (filters.dateTo) {
+        where.createdAt[Op.lte] = new Date(filters.dateTo + 'T23:59:59.999Z');
+      }
+    }
+
+    if (filters.search) {
+      where.orderNumber = { [Op.iLike]: `%${filters.search}%` };
+    }
+
+    const { count, rows } = await this.model.findAndCountAll({
+      where,
+      include: [
+        {
+          model: OrderItem,
+          as: 'items',
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: filters.limit || 20,
+      offset: filters.offset || 0,
+    });
+
+    return { orders: rows, total: count };
   }
 
   /**

@@ -97,6 +97,31 @@ export class PCComponentService {
   }
 
   /**
+   * Get all active components with optional type filter, pagination, and filters (Public)
+   */
+  async getActiveComponents(
+    page: number = 1,
+    limit: number = 50,
+    componentType?: ComponentType,
+    filters?: ComponentFilters
+  ): Promise<{ components: PCComponent[]; total: number; page: number; limit: number }> {
+    const offset = (page - 1) * limit;
+
+    const { components, total } = await this.componentRepo.findActiveWithPagination(
+      limit,
+      offset,
+      componentType,
+      {
+        manufacturer: filters?.manufacturer,
+        minPrice: filters?.minPrice,
+        maxPrice: filters?.maxPrice,
+      }
+    );
+
+    return { components, total, page, limit };
+  }
+
+  /**
    * Get all components including inactive ones (Admin)
    */
   async getAllComponentsAdmin(
@@ -280,6 +305,9 @@ export class PCComponentService {
       'psu',
       'case',
       'cooling',
+      'optical',
+      'fan',
+      'os',
     ];
 
     const counts = await Promise.all(

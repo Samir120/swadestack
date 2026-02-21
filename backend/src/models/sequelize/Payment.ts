@@ -2,7 +2,7 @@ import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../../config/database';
 
 // Payment phase type
-export type PaymentPhase = 'initial' | 'final' | 'full';
+export type PaymentPhase = 'initial' | 'final' | 'full' | 'additional';
 
 // Payment status type
 export type PaymentStatus = 'pending' | 'processing' | 'succeeded' | 'failed' | 'cancelled';
@@ -73,7 +73,7 @@ Payment.init(
       defaultValue: 'SEK',
     },
     phase: {
-      type: DataTypes.ENUM('initial', 'final', 'full'),
+      type: DataTypes.ENUM('initial', 'final', 'full', 'additional'),
       allowNull: false,
     },
     status: {

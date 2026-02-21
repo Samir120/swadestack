@@ -429,6 +429,38 @@ const OrdersTab: React.FC = () => {
                 </div>
               </div>
 
+              {/* Balance Due - Additional Payment */}
+              {selectedOrder.payments?.some((p: any) => p.phase === 'additional' && p.status === 'pending') && (
+                <div className="bg-amber-100 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700/30 p-4 rounded-xl">
+                  <p className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-2">
+                    {language === 'en' ? 'Additional Charge' : 'Ytterligare avgift'}
+                  </p>
+                  {selectedOrder.payments
+                    .filter((p: any) => p.phase === 'additional' && p.status === 'pending')
+                    .map((payment: any) => (
+                      <div key={payment.id} className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-gray-700 dark:text-neutral-300">
+                            {language === 'en' ? 'Balance due for order' : 'Saldo för order'} #{selectedOrder.orderNumber}
+                          </p>
+                          <p className="text-lg font-bold text-amber-700 dark:text-amber-400">
+                            {netToGross(Number(payment.amount), vatRate).toLocaleString('sv-SE', { maximumFractionDigits: 0 })} {payment.currency}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            navigate(`/klarna-checkout/${selectedOrder.id}?phase=additional&paymentId=${payment.id}`);
+                            setSelectedOrder(null);
+                          }}
+                          className="w-full px-4 py-2.5 bg-amber-600 text-white rounded-lg font-bold text-sm hover:bg-amber-500 transition-colors"
+                        >
+                          {language === 'en' ? 'Pay Now' : 'Betala nu'}
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              )}
+
               {/* Cancel Button */}
               {selectedOrder.status === 'pending' && (
                 <button

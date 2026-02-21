@@ -2,7 +2,7 @@ export type OrderStatus = 'pending' | 'partial_paid' | 'awaiting_final' | 'paid'
 
 export type PartialPaymentStatus = 'initial_pending' | 'initial_paid' | 'final_pending' | 'full_paid';
 
-export type PaymentPhase = 'initial' | 'final' | 'full';
+export type PaymentPhase = 'initial' | 'final' | 'full' | 'additional';
 
 export type PaymentStatus = 'pending' | 'processing' | 'succeeded' | 'failed' | 'cancelled';
 
@@ -82,6 +82,10 @@ export interface CreateOrderData {
   couponCode?: string;
   items: {
     serviceId: string;
+    quantity: number;
+  }[];
+  componentItems?: {
+    pcComponentId: string;
     quantity: number;
   }[];
 }

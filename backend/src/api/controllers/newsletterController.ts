@@ -1,12 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
 import { NewsletterService } from '../../services/NewsletterService';
+import { CampaignSendingService } from '../../services/CampaignSendingService';
 import { NewsletterSubscriptionDTO, NewsletterBroadcastDTO } from '../../models/dto/emailDTO';
+
+// 1x1 transparent PNG pixel
+const TRANSPARENT_PIXEL = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==',
+  'base64'
+);
 
 export class NewsletterController {
   private newsletterService: NewsletterService;
+  private campaignSendingService: CampaignSendingService;
 
   constructor() {
     this.newsletterService = new NewsletterService();
+    this.campaignSendingService = new CampaignSendingService();
   }
 
   /**
@@ -86,6 +95,102 @@ export class NewsletterController {
         error: error.message,
       });
     }
+  };
+
+  /**
+   * Check subscription status by email
+   */
+  checkStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        res.status(400).json({
+          success: false,
+          error: 'Email is required',
+        });
+        return;
+      }
+
+      const result = await this.newsletterService.checkStatus(email);
+
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  };
+
+  /**
+   * Unsubscribe by email (public)
+   */
+  unsubscribeByEmail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        res.status(400).json({
+          success: false,
+          error: 'Email is required',
+        });
+        return;
+      }
+
+      await this.newsletterService.unsubscribeByEmail(email);
+
+      res.status(200).json({
+        success: true,
+        message: 'Successfully unsubscribed from newsletter',
+      });
+    } catch (error: any) {
+      if (error.message.includes('not found') || error.message.includes('already unsubscribed')) {
+        res.status(400).json({
+          success: false,
+          error: error.message,
+        });
+        return;
+      }
+      next(error);
+    }
+  };
+
+  /**
+   * Track email open via tracking pixel
+   */
+  trackOpen = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const sendLogId = req.params.sendLogId.replace('.png', '');
+      await this.campaignSendingService.trackOpen(sendLogId);
+    } catch {
+      // Silently fail — tracking should never break
+    }
+    res.set({
+      'Content-Type': 'image/png',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
+    res.end(TRANSPARENT_PIXEL);
+  };
+
+  /**
+   * Track link click via redirect
+   */
+  trackClick = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { sendLogId } = req.params;
+      const { url } = req.query;
+      await this.campaignSendingService.trackClick(sendLogId);
+      if (url && typeof url === 'string') {
+        res.redirect(302, url);
+        return;
+      }
+    } catch {
+      // Silently fail
+    }
+    res.redirect(302, process.env.FRONTEND_URL || '/');
   };
 
   /**

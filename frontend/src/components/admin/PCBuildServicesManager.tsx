@@ -6,6 +6,8 @@ import {
   PCBuildServiceOption,
   CreateBuildServiceOptionDTO,
 } from '../../models/types/pcConfiguration.types';
+import AdminPriceDisplay from './common/AdminPriceDisplay';
+import AdminPriceInput from './common/AdminPriceInput';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaToggleOn, FaToggleOff, FaWrench, FaStar, FaPercent, FaMoneyBillWave, FaClock, FaShieldAlt, FaChartBar } from 'react-icons/fa';
 import LoadingSpinner from '../common/LoadingSpinner';
 
@@ -149,13 +151,7 @@ const PCBuildServicesManager: React.FC = () => {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  // formatAdminCurrency used directly via AdminPriceDisplay
 
   const calculateExampleCharge = (option: PCBuildServiceOption, componentTotal: number) => {
     if (option.priceType === 'fixed') {
@@ -246,15 +242,17 @@ const PCBuildServicesManager: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-[10px] text-neutral-400 font-medium">Amount</p>
-                        <p className="text-sm font-bold text-primary-400">
-                          {option.priceType === 'fixed' ? formatPrice(option.amount) : `${option.amount}%`}
-                        </p>
+                        {option.priceType === 'fixed' ? (
+                          <AdminPriceDisplay price={option.amount} primaryClassName="text-sm font-bold text-primary-400" />
+                        ) : (
+                          <p className="text-sm font-bold text-primary-400">{option.amount}%</p>
+                        )}
                       </div>
                     </div>
 
                     <div className="bg-surface-800 rounded-lg p-2 mb-3">
                       <p className="text-[10px] text-neutral-400 font-medium mb-1">Example (25,000 SEK build)</p>
-                      <p className="text-sm font-bold text-white">+{formatPrice(calculateExampleCharge(option, 25000))}</p>
+                      <AdminPriceDisplay price={calculateExampleCharge(option, 25000)} primaryClassName="text-sm font-bold text-white" />
                     </div>
 
                     <div className="flex gap-2 pt-3 border-t border-surface-700">
@@ -341,12 +339,14 @@ const PCBuildServicesManager: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-4 lg:px-6 py-4">
-                          <span className="font-bold text-primary-400">
-                            {option.priceType === 'fixed' ? formatPrice(option.amount) : `${option.amount}%`}
-                          </span>
+                          {option.priceType === 'fixed' ? (
+                            <AdminPriceDisplay price={option.amount} primaryClassName="font-bold text-primary-400" />
+                          ) : (
+                            <span className="font-bold text-primary-400">{option.amount}%</span>
+                          )}
                         </td>
-                        <td className="hidden lg:table-cell px-4 lg:px-6 py-4 text-neutral-400 text-sm">
-                          +{formatPrice(calculateExampleCharge(option, 25000))}
+                        <td className="hidden lg:table-cell px-4 lg:px-6 py-4 text-sm">
+                          <AdminPriceDisplay price={calculateExampleCharge(option, 25000)} primaryClassName="text-neutral-400" />
                         </td>
                         <td className="px-4 lg:px-6 py-4">
                           <button
@@ -430,17 +430,17 @@ const PCBuildServicesManager: React.FC = () => {
                   .map((option) => (
                     <tr key={option.id} className="border-b border-surface-700">
                       <td className="py-2 pr-4 text-white font-medium">{option.name_en}</td>
-                      <td className="py-2 px-4 text-right text-primary-400 font-bold">
-                        +{formatPrice(calculateExampleCharge(option, 15000))}
+                      <td className="py-2 px-4 text-right">
+                        <AdminPriceDisplay price={calculateExampleCharge(option, 15000)} primaryClassName="text-primary-400 font-bold" />
                       </td>
-                      <td className="py-2 px-4 text-right text-primary-400 font-bold">
-                        +{formatPrice(calculateExampleCharge(option, 25000))}
+                      <td className="py-2 px-4 text-right">
+                        <AdminPriceDisplay price={calculateExampleCharge(option, 25000)} primaryClassName="text-primary-400 font-bold" />
                       </td>
-                      <td className="py-2 px-4 text-right text-primary-400 font-bold">
-                        +{formatPrice(calculateExampleCharge(option, 40000))}
+                      <td className="py-2 px-4 text-right">
+                        <AdminPriceDisplay price={calculateExampleCharge(option, 40000)} primaryClassName="text-primary-400 font-bold" />
                       </td>
-                      <td className="py-2 pl-4 text-right text-primary-400 font-bold">
-                        +{formatPrice(calculateExampleCharge(option, 60000))}
+                      <td className="py-2 pl-4 text-right">
+                        <AdminPriceDisplay price={calculateExampleCharge(option, 60000)} primaryClassName="text-primary-400 font-bold" />
                       </td>
                     </tr>
                   ))}
@@ -545,22 +545,33 @@ const PCBuildServicesManager: React.FC = () => {
                     <option value="percentage">Percentage of Total</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-1.5">
-                    {formData.priceType === 'fixed' ? 'Amount (SEK) *' : 'Percentage (%) *'}
-                  </label>
-                  <input
-                    type="number"
+                {formData.priceType === 'fixed' ? (
+                  <AdminPriceInput
+                    label="Amount *"
                     value={formData.amount}
-                    onChange={(e) =>
-                      setFormData({ ...formData, amount: parseFloat(e.target.value) })
-                    }
+                    onChange={(v) => setFormData({ ...formData, amount: parseFloat(v) || 0 })}
                     required
-                    min="0"
-                    step={formData.priceType === 'percentage' ? '0.1' : '1'}
-                    className="w-full px-3 py-2 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                    min={0}
+                    step={1}
                   />
-                </div>
+                ) : (
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-1.5">
+                      Percentage (%) *
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.amount}
+                      onChange={(e) =>
+                        setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })
+                      }
+                      required
+                      min={0}
+                      step={0.1}
+                      className="w-full px-3 py-2 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Build Time */}
@@ -667,36 +678,15 @@ const PCBuildServicesManager: React.FC = () => {
                     <FaChartBar size={14} /> Price Preview
                   </h4>
                   <div className="grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
-                    <div>
-                      <p className="text-primary-400 text-[10px] sm:text-xs">15,000 SEK</p>
-                      <p className="font-bold text-primary-300">
-                        +{formatPrice(
-                          formData.priceType === 'fixed'
-                            ? formData.amount
-                            : (15000 * formData.amount) / 100
-                        )}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-primary-400 text-[10px] sm:text-xs">25,000 SEK</p>
-                      <p className="font-bold text-primary-300">
-                        +{formatPrice(
-                          formData.priceType === 'fixed'
-                            ? formData.amount
-                            : (25000 * formData.amount) / 100
-                        )}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-primary-400 text-[10px] sm:text-xs">50,000 SEK</p>
-                      <p className="font-bold text-primary-300">
-                        +{formatPrice(
-                          formData.priceType === 'fixed'
-                            ? formData.amount
-                            : (50000 * formData.amount) / 100
-                        )}
-                      </p>
-                    </div>
+                    {[15000, 25000, 50000].map((total) => (
+                      <div key={total}>
+                        <p className="text-primary-400 text-[10px] sm:text-xs">{total.toLocaleString('sv-SE')} SEK</p>
+                        <AdminPriceDisplay
+                          price={formData.priceType === 'fixed' ? formData.amount : (total * formData.amount) / 100}
+                          primaryClassName="font-bold text-primary-300"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}

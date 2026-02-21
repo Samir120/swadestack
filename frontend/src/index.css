@@ -186,69 +186,6 @@
   background: #2a3041;
 }
 
-/* Google Places Autocomplete - Light (default) */
-.pac-container {
-  @apply bg-white border border-gray-200 rounded-xl shadow-light-xl mt-1 overflow-hidden z-[9999] font-sans;
-}
-
-.pac-item {
-  @apply px-4 py-3 cursor-pointer border-b border-gray-200 last:border-b-0 text-sm text-gray-700;
-}
-
-.pac-item:hover {
-  @apply bg-gray-100;
-}
-
-.pac-item-selected,
-.pac-item-selected:hover {
-  @apply bg-primary-600/20;
-}
-
-.pac-icon {
-  @apply hidden;
-}
-
-.pac-item-query {
-  @apply font-bold text-gray-900;
-}
-
-.pac-matched {
-  @apply font-bold text-primary-600;
-}
-
-.pac-logo::after {
-  @apply hidden;
-}
-
-/* Hide the Google branding at the bottom */
-.pac-container .pac-logo {
-  padding-bottom: 0;
-}
-
-.pac-container::after {
-  @apply hidden;
-}
-
-/* Google Places Autocomplete - Dark overrides */
-.dark .pac-container {
-  @apply bg-surface-850 border-surface-700 shadow-dark-xl;
-}
-
-.dark .pac-item {
-  @apply border-surface-700 text-neutral-300;
-}
-
-.dark .pac-item:hover {
-  @apply bg-surface-800;
-}
-
-.dark .pac-item-query {
-  @apply text-white;
-}
-
-.dark .pac-matched {
-  @apply text-primary-400;
-}
 
 /* RichTextEditor CSS variables */
 :root {

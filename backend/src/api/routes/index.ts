@@ -20,6 +20,9 @@ import legalSettingsRoutes from './legalSettingsRoutes';
 import couponsRoutes from './couponsRoutes';
 import notificationBannersRoutes from './notificationBannersRoutes';
 import vatSettingsRoutes from './vatSettingsRoutes';
+import customerRoutes from './customerRoutes';
+import cartRoutes from './cartRoutes';
+import newsletterAdminRoutes from './newsletterAdminRoutes';
 
 const router = Router();
 
@@ -45,6 +48,9 @@ router.use('/legal-settings', legalSettingsRoutes);
 router.use('/coupons', couponsRoutes);
 router.use('/notification-banners', notificationBannersRoutes);
 router.use('/vat-settings', vatSettingsRoutes);
+router.use('/admin/customers', customerRoutes);
+router.use('/admin/newsletters', newsletterAdminRoutes);
+router.use('/cart', cartRoutes);
 
 // Health check
 router.get('/health', (req, res) => {

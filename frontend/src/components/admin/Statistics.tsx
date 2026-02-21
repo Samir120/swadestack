@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import apiClient from '../../models/api/apiClient';
 import { FaChartBar, FaMoneyBillWave, FaBox, FaCheckCircle, FaClock, FaBan } from 'react-icons/fa';
 import LoadingSpinner from '../common/LoadingSpinner';
+import AdminPriceDisplay from './common/AdminPriceDisplay';
 
 interface StatisticsData {
   totalOrders: number;
@@ -53,14 +54,6 @@ const Statistics: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('sv-SE', {
-      style: 'currency',
-      currency: 'SEK',
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   const formatDate = (date: string) => {
@@ -120,7 +113,13 @@ const Statistics: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
             <div className="order-2 sm:order-1">
               <p className="text-[10px] sm:text-sm font-bold text-green-100 uppercase tracking-wider">Total Revenue</p>
-              <p className="text-xl sm:text-3xl font-bold mt-0.5 sm:mt-2 truncate">{formatCurrency(stats.totalRevenue)}</p>
+              <div className="mt-0.5 sm:mt-2">
+                <AdminPriceDisplay
+                  price={stats.totalRevenue}
+                  primaryClassName="text-xl sm:text-3xl font-bold text-white truncate"
+                  secondaryClassName="block text-[10px] sm:text-xs text-green-100 font-normal"
+                />
+              </div>
               <p className="text-[10px] sm:text-sm text-green-100 mt-1">{stats.completedOrders} completed</p>
             </div>
             <div className="order-1 sm:order-2 w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-2xl flex items-center justify-center">
@@ -322,7 +321,11 @@ const Statistics: React.FC = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <p className="text-xs text-neutral-400">{formatDate(order.createdAt)}</p>
-                    <p className="text-sm font-bold text-white">{formatCurrency(order.totalAmount)}</p>
+                    <AdminPriceDisplay
+                      price={order.totalAmount}
+                      primaryClassName="text-sm font-bold text-white"
+                      secondaryClassName="block text-[10px] text-neutral-500 font-normal"
+                    />
                   </div>
                 </div>
               ))}
@@ -351,7 +354,13 @@ const Statistics: React.FC = () => {
                   <tr key={order.id} className="hover:bg-surface-700">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{order.orderNumber}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">{order.firstName} {order.lastName}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{formatCurrency(order.totalAmount)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <AdminPriceDisplay
+                        price={order.totalAmount}
+                        primaryClassName="text-sm font-medium text-white"
+                        secondaryClassName="block text-[10px] text-neutral-500 font-normal"
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>{order.status}</span>
                     </td>
