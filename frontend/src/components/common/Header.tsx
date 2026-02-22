@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({
   // Close mobile menu on resize to desktop
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768) {
+      if (window.innerWidth >= 1024) {
         setShowMobileMenu(false);
       }
     };
@@ -113,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({
               </button>
               {/* Desktop Navigation Links */}
               {mode === 'home' && navLinks.length > 0 && (
-                <div className="hidden md:flex items-center gap-6 ml-8">
+                <div className="hidden lg:flex items-center gap-6 ml-8">
                   {navLinks.map((link) => (
                     <button
                       key={link.id}
@@ -172,7 +172,7 @@ const Header: React.FC<HeaderProps> = ({
               </button>
 
               {/* Desktop Auth/User Menu */}
-              <div className="hidden md:block relative">
+              <div className="hidden lg:block relative">
                 {isAuthenticated ? (
                   <div>
                     <button
@@ -252,7 +252,7 @@ const Header: React.FC<HeaderProps> = ({
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="md:hidden p-1.5 text-slate-700 dark:text-slate-200 active:scale-95 transition-all"
+                className="lg:hidden p-1.5 text-slate-700 dark:text-slate-200 active:scale-95 transition-all"
                 aria-label="Toggle menu"
               >
                 {showMobileMenu ? <FaTimes size={20} /> : <FaBars size={20} />}
@@ -262,7 +262,7 @@ const Header: React.FC<HeaderProps> = ({
 
           {/* Mobile Menu Dropdown — expands inside the floating bar */}
           {showMobileMenu && (
-            <div className="md:hidden border-t border-slate-200/50 dark:border-slate-700/50 px-4 pb-4 pt-3">
+            <div className="lg:hidden border-t border-slate-200/50 dark:border-slate-700/50 px-4 pb-4 pt-3">
               {/* Nav Links */}
               {mode === 'home' && navLinks.length > 0 && (
                 <div className="pb-3 mb-3 border-b border-slate-200/50 dark:border-slate-700/50">
@@ -369,7 +369,7 @@ const Header: React.FC<HeaderProps> = ({
       {/* Mobile menu backdrop overlay */}
       {showMobileMenu && (
         <div
-          className="fixed inset-0 z-40 md:hidden"
+          className="fixed inset-0 z-40 lg:hidden"
           onClick={() => setShowMobileMenu(false)}
         />
       )}

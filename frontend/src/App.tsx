@@ -1,5 +1,6 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from './store/hooks';
 import { rehydrateSession, logout } from './store/slices/authSlice';
 import { fetchServerCart } from './store/slices/cartSlice';
@@ -42,8 +43,10 @@ const ComponentDetail = lazy(() => import('./pages/ComponentDetail'));
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
+  const { i18n } = useTranslation();
   const { settings } = useAppSelector((state) => state.siteSettings);
   const theme = useAppSelector((state) => state.ui.theme);
+  const language = useAppSelector((state) => state.ui.language);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   // Check if Gaming PC section is enabled (default true while settings load)
@@ -71,6 +74,13 @@ const App: React.FC = () => {
       meta.setAttribute('content', theme === 'dark' ? '#09090b' : '#ffffff');
     }
   }, [theme]);
+
+  // Sync Redux language state to i18next so t() calls update instantly
+  useEffect(() => {
+    if (i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
 
   // Rehydrate session on mount: use refresh token to restore auth state
   useEffect(() => {
