@@ -32,6 +32,7 @@ import NewsletterSubscribers from '../components/admin/NewsletterSubscribers';
 import NewsletterTemplates from '../components/admin/NewsletterTemplates';
 import NewsletterTemplateEditor from '../components/admin/NewsletterTemplateEditor';
 import CampaignReport from '../components/admin/CampaignReport';
+import StoreSettingsManager from '../components/admin/StoreSettingsManager';
 
 const AdminRoutes: React.FC = () => {
   const { isAuthenticated, isLoading, isAdmin } = useAuthViewModel();
@@ -68,6 +69,7 @@ const AdminRoutes: React.FC = () => {
         <Route path="settings" element={<SiteSettingsManager />} />
         <Route path="legal-settings" element={<LegalSettingsManager />} />
         <Route path="vat-settings" element={<VatSettingsManager />} />
+        <Route path="store-settings" element={<StoreSettingsManager />} />
         <Route path="banners" element={<BannersManager />} />
         <Route path="team-members" element={<TeamMembersManager />} />
         <Route path="footer-categories" element={<FooterCategoriesManager />} />

@@ -8,6 +8,8 @@ import {
   ComponentType,
   CreatePCComponentDTO,
 } from '../../models/types/pcComponent.types';
+import { Currency } from '../../models/types/storeSettings.types';
+import { storeSettingsApi } from '../../models/api/storeSettingsApi';
 import AdminPriceDisplay from './common/AdminPriceDisplay';
 import AdminPriceInput from './common/AdminPriceInput';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaToggleOn, FaToggleOff, FaSearch, FaFilter } from 'react-icons/fa';
@@ -58,6 +60,7 @@ const PCComponentsManager: React.FC = () => {
   const [editingComponent, setEditingComponent] = useState<PCComponent | null>(null);
   const [filterType, setFilterType] = useState<ComponentType | ''>('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeCurrencies, setActiveCurrencies] = useState<Currency[]>([]);
 
   // Form state
   const [formData, setFormData] = useState<CreatePCComponentDTO>({
@@ -76,11 +79,23 @@ const PCComponentsManager: React.FC = () => {
     isActive: true,
     compatibilityNotes_en: '',
     compatibilityNotes_sv: '',
+    distributorCost: null,
+    costCurrency: 'SEK',
   });
 
   useEffect(() => {
     loadComponents();
   }, [filterType]);
+
+  useEffect(() => {
+    const loadCurrencies = async () => {
+      try {
+        const res = await storeSettingsApi.getCurrencies();
+        if (res.success && res.data) setActiveCurrencies(res.data.filter((c: Currency) => c.isActive));
+      } catch { /* currencies optional */ }
+    };
+    loadCurrencies();
+  }, []);
 
   const loadComponents = async () => {
     setIsLoading(true);
@@ -116,6 +131,8 @@ const PCComponentsManager: React.FC = () => {
       isActive: true,
       compatibilityNotes_en: '',
       compatibilityNotes_sv: '',
+      distributorCost: null,
+      costCurrency: 'SEK',
     });
     setShowModal(true);
   };
@@ -138,6 +155,8 @@ const PCComponentsManager: React.FC = () => {
       isActive: component.isActive,
       compatibilityNotes_en: component.compatibilityNotes_en || '',
       compatibilityNotes_sv: component.compatibilityNotes_sv || '',
+      distributorCost: component.distributorCost ?? null,
+      costCurrency: component.costCurrency || 'SEK',
     });
     setShowModal(true);
   };
@@ -1386,13 +1405,30 @@ const PCComponentsManager: React.FC = () => {
               </div>
 
               {/* Price & Stock */}
-              <div className="grid grid-cols-3 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <AdminPriceInput
                   label="Price"
                   value={formData.price}
                   onChange={(v) => setFormData({ ...formData, price: parseInt(v) || 0 })}
+                  currency={formData.currency || 'SEK'}
                   required
                 />
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-1.5">Currency</label>
+                  <select
+                    value={formData.currency || 'SEK'}
+                    onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                    className="w-full px-3 py-2 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                  >
+                    {activeCurrencies.length > 0 ? (
+                      activeCurrencies.map((c) => (
+                        <option key={c.id} value={c.code}>{c.code} - {c.name}</option>
+                      ))
+                    ) : (
+                      <option value="SEK">SEK</option>
+                    )}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-1.5">Stock</label>
                   <input
@@ -1423,6 +1459,52 @@ const PCComponentsManager: React.FC = () => {
                     )}
                   </button>
                 </div>
+              </div>
+
+              {/* Distributor Pricing */}
+              <div className="bg-surface-800 rounded-lg p-3 sm:p-4">
+                <h4 className="text-xs sm:text-sm font-semibold text-neutral-300 mb-3">
+                  Distributor Pricing <span className="text-neutral-500 font-normal">(optional)</span>
+                </h4>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-400 uppercase tracking-wider mb-1.5">Distributor Cost</label>
+                    <input
+                      type="number"
+                      value={formData.distributorCost ?? ''}
+                      onChange={(e) => setFormData({ ...formData, distributorCost: e.target.value ? parseFloat(e.target.value) : null })}
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      className="w-full px-3 py-2 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-400 uppercase tracking-wider mb-1.5">Cost Currency</label>
+                    <select
+                      value={formData.costCurrency || 'SEK'}
+                      onChange={(e) => setFormData({ ...formData, costCurrency: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                    >
+                      {activeCurrencies.length > 0 ? (
+                        activeCurrencies.map((c) => (
+                          <option key={c.id} value={c.code}>{c.code} - {c.name}</option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="SEK">SEK</option>
+                          <option value="USD">USD</option>
+                          <option value="EUR">EUR</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+                </div>
+                {formData.distributorCost && Number(formData.distributorCost) > 0 && (
+                  <p className="mt-2 text-xs text-neutral-500">
+                    Customer price will be auto-calculated based on exchange rates and profit margin rules.
+                  </p>
+                )}
               </div>
 
               {/* Specifications */}

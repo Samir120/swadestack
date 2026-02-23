@@ -36,6 +36,10 @@ interface Config {
     confirmationUrl: string;
     pushUrl: string;
   };
+  exchangeRate: {
+    apiKey: string;
+    baseUrl: string;
+  };
   frontendUrl: string;
   cors: {
     origin: string;
@@ -65,6 +69,10 @@ export const config: Config = {
     checkoutUrl: process.env.KLARNA_CHECKOUT_URL || 'http://localhost:5173/klarna-checkout/{checkout.order.id}',
     confirmationUrl: process.env.KLARNA_CONFIRMATION_URL || 'http://localhost:5173/order-confirmation/{checkout.order.id}',
     pushUrl: process.env.KLARNA_PUSH_URL || 'http://localhost:5000/api/orders/klarna/push',
+  },
+  exchangeRate: {
+    apiKey: process.env.EXCHANGE_RATE_API_KEY || '',
+    baseUrl: 'https://v6.exchangerate-api.com/v6',
   },
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   cors: {

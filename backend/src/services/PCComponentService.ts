@@ -1,5 +1,6 @@
 import PCComponent, { ComponentType, ComponentSpecifications } from '../models/sequelize/PCComponent';
 import PCComponentRepository from '../integration/repositories/PCComponentRepository';
+import ProfitMarginService from './ProfitMarginService';
 
 // Placeholder for DTOs (will be created later)
 export interface CreatePCComponentData {
@@ -18,6 +19,8 @@ export interface CreatePCComponentData {
   isActive?: boolean;
   compatibilityNotes_en?: string;
   compatibilityNotes_sv?: string;
+  distributorCost?: number | null;
+  costCurrency?: string | null;
 }
 
 export interface UpdatePCComponentData {
@@ -35,6 +38,8 @@ export interface UpdatePCComponentData {
   isActive?: boolean;
   compatibilityNotes_en?: string;
   compatibilityNotes_sv?: string;
+  distributorCost?: number | null;
+  costCurrency?: string | null;
 }
 
 export interface ComponentFilters {
@@ -50,9 +55,11 @@ export interface ComponentFilters {
  */
 export class PCComponentService {
   private componentRepo: PCComponentRepository;
+  private profitMarginService: ProfitMarginService;
 
   constructor() {
     this.componentRepo = new PCComponentRepository();
+    this.profitMarginService = new ProfitMarginService();
   }
 
   /**
@@ -189,7 +196,7 @@ export class PCComponentService {
     // Validate specifications based on component type
     this.validateSpecifications(data.componentType, data.specifications);
 
-    return await this.componentRepo.create({
+    const component = await this.componentRepo.create({
       ...data,
       imageUrl: data.imageUrl || undefined,
       modelNumber: data.modelNumber || undefined,
@@ -201,6 +208,18 @@ export class PCComponentService {
       stock: data.stock || 0,
       isActive: data.isActive !== undefined ? data.isActive : true,
     });
+
+    // Auto-calculate price if distributor cost is set
+    if (data.distributorCost && Number(data.distributorCost) > 0) {
+      try {
+        await this.profitMarginService.recalculatePrice(component.id);
+        return (await this.componentRepo.findById(component.id))!;
+      } catch {
+        // If recalculation fails (e.g., no exchange rates yet), return component as-is
+      }
+    }
+
+    return component;
   }
 
   /**
@@ -232,7 +251,18 @@ export class PCComponentService {
       throw new Error('Failed to update component');
     }
 
-    return updatedComponents[0];
+    // Auto-recalculate price if distributor cost is present
+    const updated = updatedComponents[0];
+    if (updated.distributorCost && Number(updated.distributorCost) > 0) {
+      try {
+        await this.profitMarginService.recalculatePrice(id);
+        return (await this.componentRepo.findById(id))!;
+      } catch {
+        // If recalculation fails, return updated component as-is
+      }
+    }
+
+    return updated;
   }
 
   /**
@@ -340,11 +370,6 @@ export class PCComponentService {
     // Validate price
     if (data.price < 0) {
       throw new Error('Price cannot be negative');
-    }
-
-    // Validate currency
-    if (data.currency && !['SEK', 'USD', 'EUR'].includes(data.currency)) {
-      throw new Error('Currency must be SEK, USD, or EUR');
     }
 
     // Validate stock

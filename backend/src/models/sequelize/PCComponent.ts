@@ -172,6 +172,10 @@ export interface PCComponentAttributes {
   stock: number;
   isActive: boolean;
 
+  // Distributor pricing
+  distributorCost?: number | null;
+  costCurrency?: string | null;
+
   // Optional compatibility notes
   compatibilityNotes_en?: string;
   compatibilityNotes_sv?: string;
@@ -184,7 +188,7 @@ export interface PCComponentAttributes {
 interface PCComponentCreationAttributes extends Optional<
   PCComponentAttributes,
   'id' | 'desc_en' | 'desc_sv' | 'modelNumber' | 'imageUrl' | 'stock' |
-  'isActive' | 'compatibilityNotes_en' | 'compatibilityNotes_sv' | 'createdAt' | 'updatedAt'
+  'isActive' | 'compatibilityNotes_en' | 'compatibilityNotes_sv' | 'distributorCost' | 'costCurrency' | 'createdAt' | 'updatedAt'
 > {}
 
 // Model class
@@ -209,6 +213,9 @@ class PCComponent extends Model<PCComponentAttributes, PCComponentCreationAttrib
 
   public stock!: number;
   public isActive!: boolean;
+
+  public distributorCost?: number | null;
+  public costCurrency?: string | null;
 
   public compatibilityNotes_en?: string;
   public compatibilityNotes_sv?: string;
@@ -295,9 +302,6 @@ PCComponent.init(
       type: DataTypes.STRING(3),
       allowNull: false,
       defaultValue: 'SEK',
-      validate: {
-        isIn: [['SEK', 'USD', 'EUR']],
-      },
     },
     imageUrl: {
       type: DataTypes.TEXT,
@@ -329,6 +333,17 @@ PCComponent.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
+    },
+
+    // Distributor pricing
+    distributorCost: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+    },
+    costCurrency: {
+      type: DataTypes.STRING(3),
+      allowNull: true,
+      defaultValue: 'SEK',
     },
 
     // Optional compatibility notes

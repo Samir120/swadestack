@@ -27,6 +27,10 @@ export interface PCComponentDTO {
   stock: number;
   isActive: boolean;
 
+  // Distributor pricing
+  distributorCost?: number | null;
+  costCurrency?: string | null;
+
   // Optional compatibility notes
   compatibilityNotes_en?: string;
   compatibilityNotes_sv?: string;
@@ -57,6 +61,9 @@ export interface CreatePCComponentDTO {
   stock?: number;
   isActive?: boolean;
 
+  distributorCost?: number | null;
+  costCurrency?: string | null;
+
   compatibilityNotes_en?: string;
   compatibilityNotes_sv?: string;
 }
@@ -80,6 +87,9 @@ export interface UpdatePCComponentDTO {
 
   stock?: number;
   isActive?: boolean;
+
+  distributorCost?: number | null;
+  costCurrency?: string | null;
 
   compatibilityNotes_en?: string;
   compatibilityNotes_sv?: string;
@@ -132,6 +142,8 @@ export function mapPCComponentToDTO(component: any): PCComponentDTO {
     specifications: component.specifications,
     stock: component.stock,
     isActive: component.isActive,
+    distributorCost: component.distributorCost != null ? parseFloat(component.distributorCost) : null,
+    costCurrency: component.costCurrency,
     compatibilityNotes_en: component.compatibilityNotes_en,
     compatibilityNotes_sv: component.compatibilityNotes_sv,
     createdAt: component.createdAt,

@@ -23,6 +23,7 @@ import vatSettingsRoutes from './vatSettingsRoutes';
 import customerRoutes from './customerRoutes';
 import cartRoutes from './cartRoutes';
 import newsletterAdminRoutes from './newsletterAdminRoutes';
+import storeSettingsRoutes from './storeSettingsRoutes';
 
 const router = Router();
 
@@ -51,6 +52,7 @@ router.use('/vat-settings', vatSettingsRoutes);
 router.use('/admin/customers', customerRoutes);
 router.use('/admin/newsletters', newsletterAdminRoutes);
 router.use('/cart', cartRoutes);
+router.use('/store-settings', storeSettingsRoutes);
 
 // Health check
 router.get('/health', (req, res) => {

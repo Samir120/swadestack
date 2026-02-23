@@ -176,6 +176,8 @@ export interface PCComponent {
   specifications: ComponentSpecifications;
   stock: number;
   isActive: boolean;
+  distributorCost?: number | null;
+  costCurrency?: string | null;
   compatibilityNotes_en?: string;
   compatibilityNotes_sv?: string;
   createdAt?: string;
@@ -295,6 +297,8 @@ export interface CreatePCComponentDTO {
   isActive?: boolean;
   compatibilityNotes_en?: string;
   compatibilityNotes_sv?: string;
+  distributorCost?: number | null;
+  costCurrency?: string | null;
 }
 
 export interface UpdatePCComponentDTO extends Partial<CreatePCComponentDTO> {

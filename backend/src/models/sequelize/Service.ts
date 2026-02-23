@@ -103,9 +103,6 @@ Service.init(
       type: DataTypes.STRING(3),
       allowNull: false,
       defaultValue: 'SEK',
-      validate: {
-        isIn: [['SEK', 'USD', 'EUR']],
-      },
     },
     features_en: {
       type: DataTypes.JSON,

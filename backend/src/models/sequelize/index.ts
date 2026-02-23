@@ -35,6 +35,9 @@ import NewsletterCampaign from './NewsletterCampaign';
 import NewsletterCampaignStats from './NewsletterCampaignStats';
 import NewsletterSendLog from './NewsletterSendLog';
 import NewsletterTemplate from './NewsletterTemplate';
+import Currency from './Currency';
+import ExchangeRate from './ExchangeRate';
+import ProfitMarginRule from './ProfitMarginRule';
 
 // Define associations
 const initializeAssociations = () => {
@@ -336,6 +339,17 @@ const initializeAssociations = () => {
     as: 'subscriber',
   });
 
+  // ProfitMarginRule <-> PCComponent (Many-to-One, Optional)
+  ProfitMarginRule.belongsTo(PCComponent, {
+    foreignKey: 'pcComponentId',
+    as: 'pcComponent',
+  });
+
+  PCComponent.hasMany(ProfitMarginRule, {
+    foreignKey: 'pcComponentId',
+    as: 'profitMarginRules',
+  });
+
   // User <-> NewsletterCampaign (sentByAdmin)
   User.hasMany(NewsletterCampaign, {
     foreignKey: 'sentByAdminId',
@@ -401,6 +415,9 @@ export {
   NewsletterCampaignStats,
   NewsletterSendLog,
   NewsletterTemplate,
+  Currency,
+  ExchangeRate,
+  ProfitMarginRule,
 };
 
 // Export default object with all models
@@ -442,4 +459,7 @@ export default {
   NewsletterCampaignStats,
   NewsletterSendLog,
   NewsletterTemplate,
+  Currency,
+  ExchangeRate,
+  ProfitMarginRule,
 };

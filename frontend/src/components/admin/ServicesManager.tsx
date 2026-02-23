@@ -6,6 +6,8 @@ import apiClient from '../../models/api/apiClient';
 import { Service } from '../../models/types/service.types';
 import { ServiceCategory } from '../../models/types/serviceCategory.types';
 import { serviceCategoryApi } from '../../models/api/serviceCategoryApi';
+import { storeSettingsApi } from '../../models/api/storeSettingsApi';
+import { Currency } from '../../models/types/storeSettings.types';
 import FileUpload from '../common/FileUpload';
 import AdminPriceDisplay, { formatAdminCurrency } from './common/AdminPriceDisplay';
 import AdminPriceInput from './common/AdminPriceInput';
@@ -18,6 +20,7 @@ const ServicesManager: React.FC = () => {
   const language = useAppSelector((state) => state.ui.language);
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
+  const [activeCurrencies, setActiveCurrencies] = useState<Currency[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -48,7 +51,15 @@ const ServicesManager: React.FC = () => {
   useEffect(() => {
     loadServices();
     loadCategories();
+    loadCurrencies();
   }, []);
+
+  const loadCurrencies = async () => {
+    try {
+      const res = await storeSettingsApi.getCurrencies();
+      if (res.success && res.data) setActiveCurrencies(res.data.filter((c: Currency) => c.isActive));
+    } catch { /* currencies optional */ }
+  };
 
   const loadServices = async () => {
     setIsLoading(true);
@@ -587,9 +598,13 @@ const ServicesManager: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                     className="w-full px-3 py-2.5 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
                   >
-                    <option value="SEK">SEK</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
+                    {activeCurrencies.length > 0 ? (
+                      activeCurrencies.map((c) => (
+                        <option key={c.id} value={c.code}>{c.code} - {c.name}</option>
+                      ))
+                    ) : (
+                      <option value="SEK">SEK</option>
+                    )}
                   </select>
                 </div>
                 <div>

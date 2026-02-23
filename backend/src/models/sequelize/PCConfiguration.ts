@@ -268,9 +268,6 @@ PCConfiguration.init(
       type: DataTypes.STRING(3),
       allowNull: false,
       defaultValue: 'SEK',
-      validate: {
-        isIn: [['SEK', 'USD', 'EUR']],
-      },
     },
     discountedPrice: {
       type: DataTypes.DECIMAL(10, 2),
