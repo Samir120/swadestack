@@ -113,7 +113,7 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
   // 8. Render Loading State
   if (isLoading) {
     return (
-      <div className="relative z-0 w-full h-[300px] sm:h-[480px] md:h-[580px] lg:h-[660px] bg-gray-200 dark:bg-surface-800 flex flex-col items-center justify-center gap-3">
+      <div className="relative z-0 w-full min-h-[50vh] sm:min-h-[55vh] md:min-h-[65vh] md:max-h-[75vh] bg-gray-200 dark:bg-surface-800 flex flex-col items-center justify-center gap-3">
         <LoadingSpinner />
         <span className="text-gray-500 dark:text-neutral-400 text-xs sm:text-sm">Loading highlights...</span>
       </div>
@@ -131,7 +131,7 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
       : 'Building Digital Excellence';
 
     return (
-      <div className="relative z-0 w-full h-[300px] sm:h-[480px] md:h-[580px] lg:h-[660px] overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-surface-900">
+      <div className="relative z-0 w-full min-h-[50vh] sm:min-h-[55vh] md:min-h-[65vh] md:max-h-[75vh] overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-surface-900">
         {/* Decorative gradient blobs */}
         <div className="absolute top-[10%] right-[-5%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-primary-600/20 rounded-full blur-[100px] sm:blur-[150px]" />
         <div className="absolute bottom-[-10%] left-[-5%] w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-accent-500/10 rounded-full blur-[100px] sm:blur-[150px]" />
@@ -183,7 +183,7 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
   // 9. Main Render — Carousel with persistent hero overlay
   return (
     <div
-      className="relative z-0 w-full h-[300px] sm:h-[480px] md:h-[580px] lg:h-[660px] overflow-hidden bg-gray-100 dark:bg-surface-900"
+      className="relative z-0 w-full min-h-[50vh] sm:min-h-[55vh] md:min-h-[65vh] md:max-h-[75vh] overflow-hidden bg-gray-100 dark:bg-surface-900"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -211,6 +211,13 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
             {/* Multi-layer gradient overlay for depth */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
+            {/* Cinematic vignette overlay */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)',
+              }}
+            />
           </div>
         );
       })}

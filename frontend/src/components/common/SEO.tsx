@@ -36,6 +36,20 @@ const SEO: React.FC = () => {
     }
     metaKeywords.setAttribute('content', keywords);
 
+    // Update Open Graph and Twitter Card tags dynamically
+    const ogTags: Record<string, string> = {
+      'og:title': title,
+      'og:description': description,
+      'twitter:title': title,
+      'twitter:description': description,
+    };
+
+    Object.entries(ogTags).forEach(([property, content]) => {
+      const el = document.querySelector(`meta[property="${property}"]`)
+        || document.querySelector(`meta[name="${property}"]`);
+      if (el) el.setAttribute('content', content);
+    });
+
     // Update favicon
     if (settings.faviconUrl) {
       let favicon = document.querySelector('link[rel="icon"]');

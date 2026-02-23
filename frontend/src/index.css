@@ -56,10 +56,10 @@
 
 @keyframes kenBurns {
   from {
-    transform: scale(1);
+    transform: scale(1.0);
   }
   to {
-    transform: scale(1.08);
+    transform: scale(1.05);
   }
 }
 
@@ -132,7 +132,7 @@
     animation: slideInRight 0.3s ease-out forwards;
   }
   .animate-kenBurns {
-    animation: kenBurns 6s ease-out forwards;
+    animation: kenBurns 18s ease-out forwards;
   }
   .animate-bannerTextIn {
     animation: bannerTextIn 0.8s ease-out both;
