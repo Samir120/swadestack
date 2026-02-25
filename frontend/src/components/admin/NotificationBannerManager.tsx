@@ -347,11 +347,11 @@ const NotificationBannerManager: React.FC = () => {
   if (view === 'list') {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white">Notification Banners</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">Notification Banners</h2>
           <button
             onClick={handleCreate}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500 transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500 transition-colors text-sm font-medium shrink-0"
           >
             <FaPlus size={12} /> New Banner
           </button>
@@ -468,15 +468,15 @@ const NotificationBannerManager: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           onClick={() => setView('list')}
-          className="p-2 text-neutral-400 hover:text-white hover:bg-surface-700 rounded-lg transition-colors"
+          className="p-2 text-neutral-400 hover:text-white hover:bg-surface-700 rounded-lg transition-colors shrink-0"
         >
           <FaArrowLeft size={16} />
         </button>
-        <h2 className="text-2xl font-bold text-white">
-          {editingId ? 'Edit Notification Banner' : 'Create Notification Banner'}
+        <h2 className="text-lg sm:text-2xl font-bold text-white">
+          {editingId ? 'Edit Banner' : 'Create Banner'}
         </h2>
       </div>
 
@@ -484,7 +484,7 @@ const NotificationBannerManager: React.FC = () => {
         {/* Left Column — Settings */}
         <div className="xl:col-span-2 space-y-6">
           {/* --- Content Section --- */}
-          <section className="bg-surface-800 rounded-xl border border-surface-700 p-5 space-y-4">
+          <section className="bg-surface-800 rounded-xl border border-surface-700 p-4 sm:p-5 space-y-4">
             <h3 className="text-white font-semibold text-sm">Content</h3>
 
             <div>
@@ -557,7 +557,7 @@ const NotificationBannerManager: React.FC = () => {
           </section>
 
           {/* --- CTA Section --- */}
-          <section className="bg-surface-800 rounded-xl border border-surface-700 p-5 space-y-4">
+          <section className="bg-surface-800 rounded-xl border border-surface-700 p-4 sm:p-5 space-y-4">
             <h3 className="text-white font-semibold text-sm">Call to Action</h3>
 
             <div>
@@ -624,7 +624,7 @@ const NotificationBannerManager: React.FC = () => {
           </section>
 
           {/* --- Contact Section --- */}
-          <section className="bg-surface-800 rounded-xl border border-surface-700 p-5 space-y-4">
+          <section className="bg-surface-800 rounded-xl border border-surface-700 p-4 sm:p-5 space-y-4">
             <h3 className="text-white font-semibold text-sm">Contact Info</h3>
             <p className="text-xs text-neutral-500">Display company phone/email from Legal & Company settings</p>
             <div className="flex gap-6">
@@ -650,7 +650,7 @@ const NotificationBannerManager: React.FC = () => {
           </section>
 
           {/* --- Styling Section --- */}
-          <section className="bg-surface-800 rounded-xl border border-surface-700 p-5 space-y-4">
+          <section className="bg-surface-800 rounded-xl border border-surface-700 p-4 sm:p-5 space-y-4">
             <h3 className="text-white font-semibold text-sm">Styling</h3>
 
             {/* Background Type */}
@@ -675,7 +675,7 @@ const NotificationBannerManager: React.FC = () => {
             {/* Background Color */}
             <div>
               <label className="block text-xs text-neutral-400 mb-2">Background Color</label>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <div className="flex gap-1.5">
                   {COLOR_PRESETS.map((color) => (
                     <button
@@ -688,21 +688,23 @@ const NotificationBannerManager: React.FC = () => {
                     />
                   ))}
                 </div>
-                <input
-                  type="color"
-                  value={form.backgroundColor}
-                  onChange={(e) => updateForm('backgroundColor', e.target.value)}
-                  className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"
-                />
-                <input
-                  type="text"
-                  value={form.backgroundColor}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) updateForm('backgroundColor', v);
-                  }}
-                  className="w-20 bg-surface-900 border border-surface-600 rounded-lg px-2 py-1 text-xs text-white font-mono focus:border-primary-500 focus:outline-none"
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={form.backgroundColor}
+                    onChange={(e) => updateForm('backgroundColor', e.target.value)}
+                    className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"
+                  />
+                  <input
+                    type="text"
+                    value={form.backgroundColor}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) updateForm('backgroundColor', v);
+                    }}
+                    className="w-20 bg-surface-900 border border-surface-600 rounded-lg px-2 py-1 text-xs text-white font-mono focus:border-primary-500 focus:outline-none"
+                  />
+                </div>
               </div>
             </div>
 
@@ -711,7 +713,7 @@ const NotificationBannerManager: React.FC = () => {
               <>
                 <div>
                   <label className="block text-xs text-neutral-400 mb-2">Gradient End Color</label>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <div className="flex gap-1.5">
                       {COLOR_PRESETS.map((color) => (
                         <button
@@ -724,21 +726,23 @@ const NotificationBannerManager: React.FC = () => {
                         />
                       ))}
                     </div>
-                    <input
-                      type="color"
-                      value={form.gradientEndColor}
-                      onChange={(e) => updateForm('gradientEndColor', e.target.value)}
-                      className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"
-                    />
-                    <input
-                      type="text"
-                      value={form.gradientEndColor}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) updateForm('gradientEndColor', v);
-                      }}
-                      className="w-20 bg-surface-900 border border-surface-600 rounded-lg px-2 py-1 text-xs text-white font-mono focus:border-primary-500 focus:outline-none"
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={form.gradientEndColor}
+                        onChange={(e) => updateForm('gradientEndColor', e.target.value)}
+                        className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={form.gradientEndColor}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) updateForm('gradientEndColor', v);
+                        }}
+                        className="w-20 bg-surface-900 border border-surface-600 rounded-lg px-2 py-1 text-xs text-white font-mono focus:border-primary-500 focus:outline-none"
+                      />
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -762,34 +766,38 @@ const NotificationBannerManager: React.FC = () => {
             {/* Text Color */}
             <div>
               <label className="block text-xs text-neutral-400 mb-2">Text Color</label>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => updateForm('textColor', '#ffffff')}
-                  className={`w-7 h-7 rounded-md border-2 transition-all bg-white ${
-                    form.textColor === '#ffffff' ? 'border-primary-500 scale-110' : 'border-surface-600'
-                  }`}
-                />
-                <button
-                  onClick={() => updateForm('textColor', '#000000')}
-                  className={`w-7 h-7 rounded-md border-2 transition-all bg-black ${
-                    form.textColor === '#000000' ? 'border-primary-500 scale-110' : 'border-surface-600'
-                  }`}
-                />
-                <input
-                  type="color"
-                  value={form.textColor}
-                  onChange={(e) => updateForm('textColor', e.target.value)}
-                  className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"
-                />
-                <input
-                  type="text"
-                  value={form.textColor}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) updateForm('textColor', v);
-                  }}
-                  className="w-20 bg-surface-900 border border-surface-600 rounded-lg px-2 py-1 text-xs text-white font-mono focus:border-primary-500 focus:outline-none"
-                />
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => updateForm('textColor', '#ffffff')}
+                    className={`w-7 h-7 rounded-md border-2 transition-all bg-white ${
+                      form.textColor === '#ffffff' ? 'border-primary-500 scale-110' : 'border-surface-600'
+                    }`}
+                  />
+                  <button
+                    onClick={() => updateForm('textColor', '#000000')}
+                    className={`w-7 h-7 rounded-md border-2 transition-all bg-black ${
+                      form.textColor === '#000000' ? 'border-primary-500 scale-110' : 'border-surface-600'
+                    }`}
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={form.textColor}
+                    onChange={(e) => updateForm('textColor', e.target.value)}
+                    className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"
+                  />
+                  <input
+                    type="text"
+                    value={form.textColor}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) updateForm('textColor', v);
+                    }}
+                    className="w-20 bg-surface-900 border border-surface-600 rounded-lg px-2 py-1 text-xs text-white font-mono focus:border-primary-500 focus:outline-none"
+                  />
+                </div>
               </div>
 
               {/* WCAG Contrast Check */}
@@ -802,7 +810,7 @@ const NotificationBannerManager: React.FC = () => {
             </div>
 
             {/* Font Weight & Size */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs text-neutral-400 mb-1">Font Weight</label>
                 <select
@@ -831,7 +839,7 @@ const NotificationBannerManager: React.FC = () => {
           </section>
 
           {/* --- Visibility Section --- */}
-          <section className="bg-surface-800 rounded-xl border border-surface-700 p-5 space-y-4">
+          <section className="bg-surface-800 rounded-xl border border-surface-700 p-4 sm:p-5 space-y-4">
             <h3 className="text-white font-semibold text-sm">Visibility & Targeting</h3>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -856,7 +864,7 @@ const NotificationBannerManager: React.FC = () => {
             {/* Page targeting */}
             <div>
               <label className="block text-xs text-neutral-400 mb-2">Show On Pages</label>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <label className="flex items-center gap-2 text-sm text-neutral-300 cursor-pointer">
                   <input
                     type="radio"
@@ -934,7 +942,7 @@ const NotificationBannerManager: React.FC = () => {
           </section>
 
           {/* Save Button */}
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleSave}
               disabled={saving}
@@ -951,15 +959,15 @@ const NotificationBannerManager: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column — Live Preview (sticky) */}
+        {/* Right Column — Live Preview (sticky on xl) */}
         <div className="xl:col-span-1">
-          <div className="sticky top-20 space-y-4">
-            {/* Desktop Preview */}
-            <div>
+          <div className="xl:sticky xl:top-20 space-y-4">
+            {/* Desktop Preview — hidden on small screens */}
+            <div className="hidden sm:block">
               <h3 className="text-white font-semibold text-sm mb-2">Desktop Preview</h3>
               <div className="rounded-xl overflow-hidden border border-surface-700">
                 <div
-                  className="px-4 py-2 flex items-center justify-between gap-3"
+                  className="px-4 py-2 flex items-center justify-between gap-3 overflow-hidden"
                   style={{ ...previewBgStyle, color: form.textColor }}
                 >
                   {/* Zone 1: Message + CTA */}

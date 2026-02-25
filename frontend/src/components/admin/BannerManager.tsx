@@ -161,8 +161,8 @@ const BannersManager: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
         <div>
-          <h2 className="text-3xl sm:text-4xl font-thin text-white flex items-center gap-2">
-            <FaBullhorn className="text-primary-400" size={24} />
+          <h2 className="text-2xl sm:text-4xl font-thin text-white flex items-center gap-2">
+            <FaBullhorn className="text-primary-400 shrink-0" size={24} />
             Banners Management
           </h2>
           <p className="font-medium text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-500 mt-2">Manage hero banners and promotional content</p>
@@ -181,7 +181,7 @@ const BannersManager: React.FC = () => {
         {/* Mobile Card View */}
         <div className="sm:hidden">
           {banners.length === 0 ? (
-            <div className="p-8 text-center">
+            <div className="p-6 sm:p-8 text-center">
               <FaBullhorn className="mx-auto text-neutral-500 mb-3" size={32} />
               <p className="text-sm text-neutral-400">No banners yet. Click "Add Banner" to get started.</p>
             </div>

@@ -73,7 +73,7 @@ const ConfirmModal: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60" onClick={onCancel} />
-      <div className="relative bg-surface-850 rounded-2xl border border-surface-700 shadow-dark-lg w-full max-w-md p-6">
+      <div className="relative bg-surface-850 rounded-2xl border border-surface-700 shadow-dark-lg w-full max-w-md p-4 sm:p-6">
         <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
         <p className="text-sm text-neutral-400 mb-4">{message}</p>
         {children}
@@ -156,7 +156,7 @@ const AddressModal: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60" onClick={onCancel} />
-      <div className="relative bg-surface-850 rounded-2xl border border-surface-700 shadow-dark-lg w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-surface-850 rounded-2xl border border-surface-700 shadow-dark-lg w-full max-w-lg p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
         <div className="space-y-3">
           <div>
@@ -204,7 +204,7 @@ const AddressModal: React.FC<{
               className="w-full px-3 py-2 bg-surface-800 border border-surface-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500/50"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] text-neutral-500 uppercase font-bold mb-1">Postal Code *</label>
               <input
@@ -233,7 +233,7 @@ const AddressModal: React.FC<{
               className="w-full px-3 py-2 bg-surface-800 border border-surface-700 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-500/50"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[10px] text-neutral-500 uppercase font-bold mb-1">Phone</label>
               <input
@@ -1055,26 +1055,26 @@ const CustomerProfilePage: React.FC = () => {
   return (
     <div>
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-neutral-400 mb-6">
-        <Link to="/admin/customers" className="hover:text-white transition-colors">
+      <div className="flex items-center gap-2 text-sm text-neutral-400 mb-4 sm:mb-6 min-w-0">
+        <Link to="/admin/customers" className="hover:text-white transition-colors shrink-0">
           Customers
         </Link>
-        <FaChevronRight className="text-[10px] text-neutral-600" />
-        <span className="text-white font-medium">{customer.firstName} {customer.lastName}</span>
+        <FaChevronRight className="text-[10px] text-neutral-600 shrink-0" />
+        <span className="text-white font-medium truncate">{customer.firstName} {customer.lastName}</span>
       </div>
 
       {/* Profile Header Card */}
       <div className="bg-surface-850 rounded-2xl shadow-dark-md border border-surface-700 p-4 sm:p-6 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
           {/* Avatar */}
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0 ${getAvatarColor(customer.firstName + customer.lastName)}`}>
+          <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white text-base sm:text-xl font-bold flex-shrink-0 ${getAvatarColor(customer.firstName + customer.lastName)}`}>
             {getInitials(customer.firstName, customer.lastName)}
           </div>
 
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <h2 className="text-xl sm:text-2xl font-thin text-white">
                   {customer.firstName} {customer.lastName}
                 </h2>
@@ -1137,19 +1137,19 @@ const CustomerProfilePage: React.FC = () => {
               </div>
             </div>
 
-            <p className="text-xs text-neutral-500 mt-3">
-              Last active: {getRelativeTime(customer.lastActive)}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0 text-xs text-neutral-500 mt-3">
+              <span>Last active: {getRelativeTime(customer.lastActive)}</span>
               {customer.lastOrderDate && (
-                <> &middot; Last order: {getRelativeTime(customer.lastOrderDate)}</>
+                <span className="sm:before:content-['·'] sm:before:mx-1.5">Last order: {getRelativeTime(customer.lastOrderDate)}</span>
               )}
-            </p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-surface-700 mb-6">
-        <div className="flex gap-0 overflow-x-auto">
+      <div className="border-b border-surface-700 mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex gap-0 overflow-x-auto scrollbar-hide">
           {([
             { key: 'overview' as TabKey, label: 'Overview' },
             { key: 'orders' as TabKey, label: 'Orders' },
@@ -1162,7 +1162,7 @@ const CustomerProfilePage: React.FC = () => {
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`px-4 sm:px-6 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
+              className={`px-3 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
                 activeTab === tab.key
                   ? 'border-primary-500 text-primary-400'
                   : 'border-transparent text-neutral-400 hover:text-neutral-300 hover:border-surface-600'
@@ -1211,7 +1211,7 @@ const CustomerProfilePage: React.FC = () => {
               <div className="p-4 sm:p-6 space-y-4">
                 {isEditing ? (
                   <>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[10px] text-neutral-500 uppercase font-bold mb-1">First Name</label>
                         <input
@@ -1261,38 +1261,38 @@ const CustomerProfilePage: React.FC = () => {
                   </>
                 ) : (
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between py-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-1 gap-0.5">
                       <span className="text-xs text-neutral-500 uppercase font-bold">Full Name</span>
                       <span className="text-sm text-white">{customer.firstName} {customer.lastName}</span>
                     </div>
-                    <div className="flex items-center justify-between py-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-1 gap-0.5">
                       <span className="text-xs text-neutral-500 uppercase font-bold">Email</span>
-                      <span className="text-sm text-white flex items-center gap-1.5">
+                      <span className="text-sm text-white flex items-center gap-1.5 break-all sm:break-normal">
                         {customer.email}
                         {customer.isEmailVerified ? (
-                          <FaCheck className="text-[10px] text-green-400" />
+                          <FaCheck className="text-[10px] text-green-400 shrink-0" />
                         ) : (
-                          <FaTimes className="text-[10px] text-red-400" />
+                          <FaTimes className="text-[10px] text-red-400 shrink-0" />
                         )}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between py-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-1 gap-0.5">
                       <span className="text-xs text-neutral-500 uppercase font-bold">Phone</span>
                       <span className="text-sm text-white">{customer.phone || '—'}</span>
                     </div>
-                    <div className="flex items-center justify-between py-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-1 gap-0.5">
                       <span className="text-xs text-neutral-500 uppercase font-bold">Date of Birth</span>
                       <span className="text-sm text-white">{customer.dateOfBirth ? formatDate(customer.dateOfBirth) : '—'}</span>
                     </div>
-                    <div className="flex items-center justify-between py-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-1 gap-0.5">
                       <span className="text-xs text-neutral-500 uppercase font-bold">Language</span>
                       <span className="text-sm text-white">English</span>
                     </div>
-                    <div className="flex items-center justify-between py-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-1 gap-0.5">
                       <span className="text-xs text-neutral-500 uppercase font-bold">Registered</span>
                       <span className="text-sm text-white">{formatDate(customer.createdAt)}</span>
                     </div>
-                    <div className="flex items-center justify-between py-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-1 gap-0.5">
                       <span className="text-xs text-neutral-500 uppercase font-bold">Last Login</span>
                       <span className="text-sm text-white">{formatDateWithTime(customer.updatedAt)}</span>
                     </div>
@@ -1457,23 +1457,23 @@ const CustomerProfilePage: React.FC = () => {
                   customer.recentOrders.map(order => (
                     <div
                       key={order.id}
-                      className="px-4 sm:px-6 py-3 hover:bg-surface-800/50 cursor-pointer transition-colors flex items-center justify-between"
+                      className="px-4 sm:px-6 py-3 hover:bg-surface-800/50 cursor-pointer transition-colors"
                     >
-                      <div>
-                        <p className="text-sm font-bold text-white">{order.orderNumber}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-bold text-white truncate">{order.orderNumber}</p>
+                        <AdminPriceDisplay
+                          price={order.totalAmount}
+                          primaryClassName="text-sm font-bold text-white whitespace-nowrap"
+                          secondaryClassName="block text-[10px] text-neutral-500 font-normal"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
                         <p className="text-xs text-neutral-400">
                           {new Date(order.createdAt).toLocaleDateString('sv-SE', { month: 'short', day: 'numeric' })}
                         </p>
-                      </div>
-                      <div className="text-right flex items-center gap-3">
                         <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
-                        <AdminPriceDisplay
-                          price={order.totalAmount}
-                          primaryClassName="text-sm font-bold text-white"
-                          secondaryClassName="block text-[10px] text-neutral-500 font-normal"
-                        />
                       </div>
                     </div>
                   ))
@@ -1763,23 +1763,25 @@ const CustomerProfilePage: React.FC = () => {
               {/* Cart Items */}
               <div className="bg-surface-850 rounded-2xl shadow-dark-md border border-surface-700 divide-y divide-surface-700">
                 {cart.items.map(item => (
-                  <div key={item.id} className="px-4 sm:px-6 py-4 flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-white">{item.name}</p>
-                      <p className="text-xs text-neutral-500">{item.category}</p>
+                  <div key={item.id} className="px-4 sm:px-6 py-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-white">{item.name}</p>
+                        <p className="text-xs text-neutral-500">{item.category}</p>
+                      </div>
+                      <button
+                        onClick={() => setRemoveItemModal(item)}
+                        title="Remove item"
+                        className="p-1.5 text-neutral-500 hover:text-red-400 transition-colors shrink-0"
+                      >
+                        <FaTimes className="text-xs" />
+                      </button>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between mt-1.5 sm:mt-0 sm:pl-0">
                       <span className="text-xs text-neutral-400">Qty: {item.quantity}</span>
                       <span className="text-sm font-bold text-white whitespace-nowrap">
                         {formatCurrency(item.price * item.quantity)}
                       </span>
-                      <button
-                        onClick={() => setRemoveItemModal(item)}
-                        title="Remove item"
-                        className="p-1.5 text-neutral-500 hover:text-red-400 transition-colors"
-                      >
-                        <FaTimes className="text-xs" />
-                      </button>
                     </div>
                   </div>
                 ))}
@@ -1933,7 +1935,7 @@ const CustomerProfilePage: React.FC = () => {
                 {loginAttempts.map(attempt => {
                   const ua = parseUserAgent(attempt.userAgent);
                   return (
-                    <div key={attempt.id} className="px-4 sm:px-6 py-3 flex items-center gap-3">
+                    <div key={attempt.id} className="px-4 sm:px-6 py-3 flex items-start sm:items-center gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                         attempt.success ? 'bg-green-900/30' : 'bg-red-900/30'
                       }`}>
@@ -1950,15 +1952,16 @@ const CustomerProfilePage: React.FC = () => {
                             <span className="text-neutral-500 ml-1">({attempt.failureReason})</span>
                           )}
                         </p>
-                        <div className="flex items-center gap-3 text-[11px] text-neutral-500">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-neutral-500">
                           <span>{maskIp(attempt.ipAddress)}</span>
                           <span className="flex items-center gap-1">
                             {ua.device === 'Mobile' ? <FaMobileAlt className="text-[9px]" /> : <FaDesktop className="text-[9px]" />}
                             {ua.browser}
                           </span>
+                          <span className="sm:hidden">{getRelativeTime(attempt.createdAt)}</span>
                         </div>
                       </div>
-                      <span className="text-xs text-neutral-500 flex-shrink-0">
+                      <span className="text-xs text-neutral-500 flex-shrink-0 hidden sm:block">
                         {getRelativeTime(attempt.createdAt)}
                       </span>
                     </div>
@@ -2171,17 +2174,23 @@ const CustomerProfilePage: React.FC = () => {
             ) : (
               <div className="divide-y divide-surface-700">
                 {emailHistory.map(email => (
-                  <div key={email.id} className="px-4 sm:px-6 py-3 flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full bg-surface-800 flex items-center justify-center flex-shrink-0`}>
+                  <div key={email.id} className="px-4 sm:px-6 py-3 flex items-start sm:items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-surface-800 flex items-center justify-center flex-shrink-0">
                       <FaEnvelope className={`text-xs ${getEmailTypeIcon(email.templateType)}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-white truncate">{email.subject}</p>
-                      <p className="text-[11px] text-neutral-500">
+                      <p className="text-[11px] text-neutral-500 truncate">
                         {email.templateType.replace(/-/g, ' ')} &middot; {email.to}
                       </p>
+                      <div className="flex items-center gap-2 mt-1 sm:hidden">
+                        <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${getEmailStatusBadge(email.status)}`}>
+                          {email.status}
+                        </span>
+                        <span className="text-[11px] text-neutral-500">{getRelativeTime(email.createdAt)}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
                       <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${getEmailStatusBadge(email.status)}`}>
                         {email.status}
                       </span>

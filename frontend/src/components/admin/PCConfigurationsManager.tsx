@@ -282,8 +282,8 @@ const PCConfigurationsManager: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
         <div>
-          <h2 className="text-3xl sm:text-4xl font-thin text-white flex items-center gap-2">
-            <FaDesktop className="text-primary-400" size={24} />
+          <h2 className="text-2xl sm:text-4xl font-thin text-white flex items-center gap-2">
+            <FaDesktop className="text-primary-400 shrink-0" size={24} />
             PC Configurations
           </h2>
           <p className="font-medium text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-500 mt-2">User Build Management</p>
@@ -312,14 +312,14 @@ const PCConfigurationsManager: React.FC = () => {
               <FaCheckCircle className="text-blue-400" size={14} />
               <p className="text-xs sm:text-sm text-neutral-400 font-medium">Saved</p>
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.savedCount || 0}</p>
+            <p className="text-xl sm:text-2xl font-bold text-blue-400">{stats.savedCount || 0}</p>
           </div>
           <div className="bg-surface-850 rounded-2xl shadow-dark-md border border-surface-700 p-3 sm:p-4">
             <div className="flex items-center gap-2 mb-1">
               <FaCheckCircle className="text-green-400" size={14} />
               <p className="text-xs sm:text-sm text-neutral-400 font-medium">Ordered</p>
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.orderedCount || 0}</p>
+            <p className="text-xl sm:text-2xl font-bold text-green-400">{stats.orderedCount || 0}</p>
           </div>
         </div>
       )}
@@ -339,7 +339,7 @@ const PCConfigurationsManager: React.FC = () => {
               <FaWrench className="text-purple-400" size={14} />
               <p className="text-xs sm:text-sm text-neutral-400 font-medium">Build Service Adoption</p>
             </div>
-            <p className="text-xl sm:text-2xl font-bold text-purple-600">
+            <p className="text-xl sm:text-2xl font-bold text-purple-400">
               {Math.round((stats.buildServiceAdoptionRate || 0) * 100)}%
             </p>
           </div>
@@ -355,7 +355,7 @@ const PCConfigurationsManager: React.FC = () => {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value as ConfigurationStatus | '')}
-          className="w-full sm:w-auto px-3 sm:px-4 py-2 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+          className="w-full sm:w-auto px-3 sm:px-4 py-2 text-sm bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
         >
           <option value="">All Statuses</option>
           <option value="saved">Saved</option>
@@ -407,18 +407,18 @@ const PCConfigurationsManager: React.FC = () => {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     {config.isValid ? (
-                      <span className="flex items-center gap-1 text-green-600 text-xs font-medium">
+                      <span className="flex items-center gap-1 text-green-400 text-xs font-medium">
                         <FaCheckCircle size={12} />
                         Valid
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-red-600 text-xs font-medium">
+                      <span className="flex items-center gap-1 text-red-400 text-xs font-medium">
                         <FaTimesCircle size={12} />
                         {config.validationErrors?.length || 0} Errors
                       </span>
                     )}
                     {config.includesBuildService && (
-                      <span className="flex items-center gap-1 text-purple-600 text-xs font-medium">
+                      <span className="flex items-center gap-1 text-purple-400 text-xs font-medium">
                         <FaWrench size={10} />
                         Build
                       </span>
@@ -438,7 +438,7 @@ const PCConfigurationsManager: React.FC = () => {
                   {config.isValid && !config.isPreConfigured && (
                     <button
                       onClick={() => openPromoteModal(config)}
-                      className="px-3 py-2 bg-purple-900/20 text-purple-600 rounded-lg text-xs font-bold hover:bg-purple-900/30 active:scale-[0.98] transition"
+                      className="px-3 py-2 bg-purple-900/20 text-purple-400 rounded-lg text-xs font-bold hover:bg-purple-900/30 active:scale-[0.98] transition"
                       title="Promote to Pre-Configured PC"
                     >
                       <FaStar size={12} />
@@ -446,7 +446,7 @@ const PCConfigurationsManager: React.FC = () => {
                   )}
                   <button
                     onClick={() => handleDelete(config.id)}
-                    className="px-3 py-2 bg-red-900/20 text-red-600 rounded-lg text-xs font-bold hover:bg-red-900/30 active:scale-[0.98] transition"
+                    className="px-3 py-2 bg-red-900/20 text-red-400 rounded-lg text-xs font-bold hover:bg-red-900/30 active:scale-[0.98] transition"
                   >
                     <FaTrash size={12} />
                   </button>
@@ -455,7 +455,7 @@ const PCConfigurationsManager: React.FC = () => {
             ))}
 
             {configurations.length === 0 && (
-              <div className="bg-surface-850 rounded-2xl shadow-dark-md border border-surface-700 p-8 text-center">
+              <div className="bg-surface-850 rounded-2xl shadow-dark-md border border-surface-700 p-6 sm:p-8 text-center">
                 <FaDesktop className="mx-auto text-neutral-600 mb-3" size={32} />
                 <p className="text-neutral-400 text-sm">No configurations found.</p>
               </div>
@@ -512,7 +512,7 @@ const PCConfigurationsManager: React.FC = () => {
                         <div>
                           <AdminPriceDisplay price={config.totalPrice} primaryClassName="font-bold text-primary-400 text-sm" />
                           {config.includesBuildService && (
-                            <p className="text-xs text-purple-600 flex items-center gap-1 mt-1">
+                            <p className="text-xs text-purple-400 flex items-center gap-1 mt-1">
                               <FaWrench size={10} />
                               +{formatPrice(config.buildServiceCharge)}
                             </p>
@@ -530,12 +530,12 @@ const PCConfigurationsManager: React.FC = () => {
                       </td>
                       <td className="px-4 lg:px-6 py-4">
                         {config.isValid ? (
-                          <span className="flex items-center gap-1 text-green-600 text-sm font-medium">
+                          <span className="flex items-center gap-1 text-green-400 text-sm font-medium">
                             <FaCheckCircle size={14} />
                             Valid
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-red-600 text-sm font-medium">
+                          <span className="flex items-center gap-1 text-red-400 text-sm font-medium">
                             <FaTimesCircle size={14} />
                             {config.validationErrors?.length || 0} Errors
                           </span>
@@ -556,7 +556,7 @@ const PCConfigurationsManager: React.FC = () => {
                           {config.isValid && !config.isPreConfigured && (
                             <button
                               onClick={() => openPromoteModal(config)}
-                              className="p-2 text-purple-600 hover:bg-purple-900/20 rounded-lg transition"
+                              className="p-2 text-purple-400 hover:bg-purple-900/20 rounded-lg transition"
                               title="Promote to Pre-Configured PC"
                             >
                               <FaStar size={16} />
@@ -564,7 +564,7 @@ const PCConfigurationsManager: React.FC = () => {
                           )}
                           <button
                             onClick={() => handleDelete(config.id)}
-                            className="p-2 text-red-600 hover:bg-red-900/20 rounded-lg transition"
+                            className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition"
                             title="Delete"
                           >
                             <FaTrash size={16} />
@@ -621,7 +621,7 @@ const PCConfigurationsManager: React.FC = () => {
                 </div>
                 <div className="bg-surface-800 p-3 rounded-lg">
                   <p className="text-xs text-neutral-400 font-medium">Validity</p>
-                  <p className={`mt-1 font-bold flex items-center gap-1 ${selectedConfig.isValid ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className={`mt-1 font-bold flex items-center gap-1 ${selectedConfig.isValid ? 'text-green-400' : 'text-red-400'}`}>
                     {selectedConfig.isValid ? (
                       <><FaCheckCircle size={14} /> Valid</>
                     ) : (
@@ -635,7 +635,7 @@ const PCConfigurationsManager: React.FC = () => {
                 </div>
                 <div className="bg-surface-800 p-3 rounded-lg">
                   <p className="text-xs text-neutral-400 font-medium">Build Service</p>
-                  <p className={`mt-1 font-bold flex items-center gap-1 ${selectedConfig.includesBuildService ? 'text-purple-600' : 'text-neutral-400'}`}>
+                  <p className={`mt-1 font-bold flex items-center gap-1 ${selectedConfig.includesBuildService ? 'text-purple-400' : 'text-neutral-400'}`}>
                     {selectedConfig.includesBuildService ? (
                       <><FaWrench size={12} /> +{formatPrice(selectedConfig.buildServiceCharge)}</>
                     ) : (
@@ -656,18 +656,18 @@ const PCConfigurationsManager: React.FC = () => {
                     component && (
                       <div
                         key={type}
-                        className="flex items-center justify-between p-3 bg-surface-800 rounded-lg"
+                        className="flex items-start justify-between gap-3 p-3 bg-surface-800 rounded-lg"
                       >
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <p className="text-[10px] text-neutral-400 uppercase font-bold">{type}</p>
-                          <p className="font-bold text-white text-sm">
+                          <p className="font-bold text-white text-sm truncate">
                             {(component as any).name_en || 'Unknown'}
                           </p>
-                          <p className="text-xs text-neutral-400">
+                          <p className="text-xs text-neutral-400 truncate">
                             {(component as any).manufacturer}
                           </p>
                         </div>
-                        <AdminPriceDisplay price={(component as any).price || 0} primaryClassName="font-bold text-primary-400 text-sm" />
+                        <AdminPriceDisplay price={(component as any).price || 0} primaryClassName="font-bold text-primary-400 text-sm shrink-0" />
                       </div>
                     )
                   ))}
@@ -677,7 +677,7 @@ const PCConfigurationsManager: React.FC = () => {
               {/* Validation Errors */}
               {selectedConfig.validationErrors && selectedConfig.validationErrors.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-red-600 mb-3 flex items-center gap-2">
+                  <h4 className="font-bold text-red-400 mb-3 flex items-center gap-2">
                     <FaTimesCircle size={14} />
                     Validation Errors
                   </h4>
@@ -695,7 +695,7 @@ const PCConfigurationsManager: React.FC = () => {
               {/* Validation Warnings */}
               {selectedConfig.validationWarnings && selectedConfig.validationWarnings.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-yellow-600 mb-3 flex items-center gap-2">
+                  <h4 className="font-bold text-yellow-400 mb-3 flex items-center gap-2">
                     <FaExclamationTriangle size={14} />
                     Validation Warnings
                   </h4>
@@ -728,7 +728,7 @@ const PCConfigurationsManager: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-xs text-neutral-400 font-medium">Headroom</p>
-                      <p className={`font-bold ${selectedConfig.powerSummary.headroom >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <p className={`font-bold ${selectedConfig.powerSummary.headroom >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {selectedConfig.powerSummary.headroom}W ({Math.round(selectedConfig.powerSummary.headroomPercentage ?? 0)}%)
                       </p>
                     </div>
@@ -775,11 +775,11 @@ const PCConfigurationsManager: React.FC = () => {
             {/* Form */}
             <form onSubmit={handlePromote} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
               {/* Configuration Info */}
-              <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4 mb-4">
-                <p className="text-sm text-purple-400">
+              <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
+                <p className="text-xs sm:text-sm text-purple-400">
                   <strong>Configuration:</strong> {promoteConfig.name_en || `Config #${promoteConfig.id.slice(0, 8)}`}
                 </p>
-                <p className="text-sm text-purple-600">
+                <p className="text-xs sm:text-sm text-purple-400">
                   <strong>Price:</strong> {formatPrice(promoteConfig.totalPrice)}
                 </p>
               </div>
@@ -793,7 +793,7 @@ const PCConfigurationsManager: React.FC = () => {
                     required
                     value={promoteForm.name_en}
                     onChange={(e) => setPromoteForm({ ...promoteForm, name_en: e.target.value })}
-                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Gaming Pro PC"
                   />
                 </div>
@@ -804,7 +804,7 @@ const PCConfigurationsManager: React.FC = () => {
                     required
                     value={promoteForm.name_sv}
                     onChange={(e) => setPromoteForm({ ...promoteForm, name_sv: e.target.value })}
-                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Gaming Pro Dator"
                   />
                 </div>
@@ -817,7 +817,7 @@ const PCConfigurationsManager: React.FC = () => {
                   <textarea
                     value={promoteForm.shortDescription_en}
                     onChange={(e) => setPromoteForm({ ...promoteForm, shortDescription_en: e.target.value })}
-                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Perfect for gaming and content creation"
                     rows={2}
                   />
@@ -827,7 +827,7 @@ const PCConfigurationsManager: React.FC = () => {
                   <textarea
                     value={promoteForm.shortDescription_sv}
                     onChange={(e) => setPromoteForm({ ...promoteForm, shortDescription_sv: e.target.value })}
-                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Perfekt för gaming och innehållsskapande"
                     rows={2}
                   />
@@ -841,7 +841,7 @@ const PCConfigurationsManager: React.FC = () => {
                   required
                   value={promoteForm.tier}
                   onChange={(e) => setPromoteForm({ ...promoteForm, tier: e.target.value as PCTier })}
-                  className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 >
                   <option value="core">Core (Entry Level)</option>
                   <option value="pro">Pro (Mid-Range)</option>
@@ -866,18 +866,18 @@ const PCConfigurationsManager: React.FC = () => {
                 min={0}
                 placeholder="Leave empty for no discount"
                 labelClassName="block text-sm font-medium text-neutral-300 mb-1"
-                inputClassName="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                inputClassName="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               />
 
               {/* Build Service Section */}
-              <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4 space-y-3">
+              <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-3 sm:p-4 space-y-3">
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
                     id="includeBuildService"
                     checked={promoteForm.includesBuildService}
                     onChange={(e) => setPromoteForm({ ...promoteForm, includesBuildService: e.target.checked })}
-                    className="w-5 h-5 text-purple-600 border-surface-600 rounded focus:ring-purple-500"
+                    className="w-5 h-5 text-purple-400 border-surface-600 rounded focus:ring-purple-500"
                   />
                   <label htmlFor="includeBuildService" className="text-sm font-medium text-neutral-300 flex items-center gap-2">
                     <FaWrench className="text-purple-500" size={14} />
@@ -903,7 +903,7 @@ const PCConfigurationsManager: React.FC = () => {
                               : 0,
                           });
                         }}
-                        className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                       >
                         <option value="">Select a build service...</option>
                         {buildServiceOptions.filter(opt => opt.isActive).map((option) => (
@@ -949,7 +949,7 @@ const PCConfigurationsManager: React.FC = () => {
                     required
                     value={promoteForm.stock || 0}
                     onChange={(e) => setPromoteForm({ ...promoteForm, stock: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     placeholder="0"
                     min={0}
                   />
@@ -961,7 +961,7 @@ const PCConfigurationsManager: React.FC = () => {
                     type="number"
                     value={promoteForm.displayOrder || 0}
                     onChange={(e) => setPromoteForm({ ...promoteForm, displayOrder: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     placeholder="0"
                     min={0}
                   />
@@ -976,7 +976,7 @@ const PCConfigurationsManager: React.FC = () => {
                   id="isFeatured"
                   checked={promoteForm.isFeatured}
                   onChange={(e) => setPromoteForm({ ...promoteForm, isFeatured: e.target.checked })}
-                  className="w-5 h-5 text-purple-600 border-surface-600 rounded focus:ring-purple-500"
+                  className="w-5 h-5 text-purple-400 border-surface-600 rounded focus:ring-purple-500"
                 />
                 <label htmlFor="isFeatured" className="text-sm font-medium text-neutral-300">
                   Featured on Home Page

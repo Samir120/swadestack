@@ -419,12 +419,12 @@ const StoreSettingsManager: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bg-surface-850 rounded-lg shadow-dark-md p-1 flex gap-1">
+      <div className="bg-surface-850 rounded-lg shadow-dark-md p-1 grid grid-cols-2 sm:grid-cols-4 gap-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all ${
+            className={`px-3 py-2 text-xs sm:text-sm font-medium rounded-md transition-all ${
               activeTab === tab.id
                 ? 'bg-primary-600/10 text-primary-400 border border-primary-500/30'
                 : 'text-neutral-400 hover:text-white hover:bg-surface-700 border border-transparent'
@@ -456,78 +456,114 @@ const StoreSettingsManager: React.FC = () => {
                   {t('storeSettings.currencies.empty')}
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-surface-700">
-                    <thead className="bg-surface-800">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.currencies.code')}</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.currencies.name')}</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.currencies.symbol')}</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.currencies.role')}</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.common.actions')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-surface-700">
-                      {currencies.map((c) => (
-                        <tr key={c.id} className="hover:bg-surface-800">
-                          <td className="px-4 py-3 text-sm font-bold text-white">{c.code}</td>
-                          <td className="px-4 py-3 text-sm text-neutral-300">{c.name}</td>
-                          <td className="px-4 py-3 text-sm text-neutral-300">{c.symbol}</td>
-                          <td className="px-4 py-3">
-                            <div className="flex gap-1.5">
-                              {c.isBaseCurrency && (
-                                <span className="px-2 py-0.5 bg-blue-900/30 text-blue-400 text-[10px] font-bold rounded-full uppercase">
-                                  {t('storeSettings.currencies.base')}
-                                </span>
-                              )}
-                              {c.isDisplayCurrency && (
-                                <span className="px-2 py-0.5 bg-purple-900/30 text-purple-400 text-[10px] font-bold rounded-full uppercase">
-                                  {t('storeSettings.currencies.display')}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              {!c.isBaseCurrency && (
-                                <button
-                                  onClick={() => handleSetBase(c.id)}
-                                  className="p-1.5 text-blue-400 hover:bg-blue-900/20 rounded-lg transition text-[10px] font-bold"
-                                  title={t('storeSettings.currencies.setBase')}
-                                >
-                                  <FaStar size={12} />
-                                </button>
-                              )}
-                              {!c.isDisplayCurrency && (
-                                <button
-                                  onClick={() => handleSetDisplay(c.id)}
-                                  className="p-1.5 text-purple-400 hover:bg-purple-900/20 rounded-lg transition text-[10px] font-bold"
-                                  title={t('storeSettings.currencies.setDisplay')}
-                                >
-                                  <FaEye size={12} />
-                                </button>
-                              )}
-                              <button
-                                onClick={() => handleEditCurrency(c)}
-                                className="p-1.5 text-primary-400 hover:bg-primary-600/20 rounded-lg transition"
-                              >
-                                <FaEdit size={12} />
+                <>
+                  {/* Mobile: Card layout */}
+                  <div className="sm:hidden divide-y divide-surface-700">
+                    {currencies.map((c) => (
+                      <div key={c.id} className="p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-white">{c.code}</span>
+                            <span className="text-sm text-neutral-400">({c.symbol})</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {!c.isBaseCurrency && (
+                              <button onClick={() => handleSetBase(c.id)} className="p-1.5 text-blue-400 hover:bg-blue-900/20 rounded-lg transition" title={t('storeSettings.currencies.setBase')}>
+                                <FaStar size={12} />
                               </button>
-                              {!c.isBaseCurrency && !c.isDisplayCurrency && (
-                                <button
-                                  onClick={() => handleDeleteCurrency(c.id)}
-                                  className="p-1.5 text-red-400 hover:bg-red-900/20 rounded-lg transition"
-                                >
-                                  <FaTrash size={12} />
-                                </button>
-                              )}
-                            </div>
-                          </td>
+                            )}
+                            {!c.isDisplayCurrency && (
+                              <button onClick={() => handleSetDisplay(c.id)} className="p-1.5 text-purple-400 hover:bg-purple-900/20 rounded-lg transition" title={t('storeSettings.currencies.setDisplay')}>
+                                <FaEye size={12} />
+                              </button>
+                            )}
+                            <button onClick={() => handleEditCurrency(c)} className="p-1.5 text-primary-400 hover:bg-primary-600/20 rounded-lg transition">
+                              <FaEdit size={12} />
+                            </button>
+                            {!c.isBaseCurrency && !c.isDisplayCurrency && (
+                              <button onClick={() => handleDeleteCurrency(c.id)} className="p-1.5 text-red-400 hover:bg-red-900/20 rounded-lg transition">
+                                <FaTrash size={12} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-xs text-neutral-400">{c.name}</p>
+                        <div className="flex gap-1.5">
+                          {c.isBaseCurrency && (
+                            <span className="px-2 py-0.5 bg-blue-900/30 text-blue-400 text-[10px] font-bold rounded-full uppercase">
+                              {t('storeSettings.currencies.base')}
+                            </span>
+                          )}
+                          {c.isDisplayCurrency && (
+                            <span className="px-2 py-0.5 bg-purple-900/30 text-purple-400 text-[10px] font-bold rounded-full uppercase">
+                              {t('storeSettings.currencies.display')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop: Table layout */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-surface-700">
+                      <thead className="bg-surface-800">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.currencies.code')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.currencies.name')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.currencies.symbol')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.currencies.role')}</th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.common.actions')}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-surface-700">
+                        {currencies.map((c) => (
+                          <tr key={c.id} className="hover:bg-surface-800">
+                            <td className="px-4 py-3 text-sm font-bold text-white">{c.code}</td>
+                            <td className="px-4 py-3 text-sm text-neutral-300">{c.name}</td>
+                            <td className="px-4 py-3 text-sm text-neutral-300">{c.symbol}</td>
+                            <td className="px-4 py-3">
+                              <div className="flex gap-1.5">
+                                {c.isBaseCurrency && (
+                                  <span className="px-2 py-0.5 bg-blue-900/30 text-blue-400 text-[10px] font-bold rounded-full uppercase">
+                                    {t('storeSettings.currencies.base')}
+                                  </span>
+                                )}
+                                {c.isDisplayCurrency && (
+                                  <span className="px-2 py-0.5 bg-purple-900/30 text-purple-400 text-[10px] font-bold rounded-full uppercase">
+                                    {t('storeSettings.currencies.display')}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                {!c.isBaseCurrency && (
+                                  <button onClick={() => handleSetBase(c.id)} className="p-1.5 text-blue-400 hover:bg-blue-900/20 rounded-lg transition text-[10px] font-bold" title={t('storeSettings.currencies.setBase')}>
+                                    <FaStar size={12} />
+                                  </button>
+                                )}
+                                {!c.isDisplayCurrency && (
+                                  <button onClick={() => handleSetDisplay(c.id)} className="p-1.5 text-purple-400 hover:bg-purple-900/20 rounded-lg transition text-[10px] font-bold" title={t('storeSettings.currencies.setDisplay')}>
+                                    <FaEye size={12} />
+                                  </button>
+                                )}
+                                <button onClick={() => handleEditCurrency(c)} className="p-1.5 text-primary-400 hover:bg-primary-600/20 rounded-lg transition">
+                                  <FaEdit size={12} />
+                                </button>
+                                {!c.isBaseCurrency && !c.isDisplayCurrency && (
+                                  <button onClick={() => handleDeleteCurrency(c.id)} className="p-1.5 text-red-400 hover:bg-red-900/20 rounded-lg transition">
+                                    <FaTrash size={12} />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -539,12 +575,12 @@ const StoreSettingsManager: React.FC = () => {
         <div className="space-y-4">
           {/* Status Bar */}
           <div className="bg-surface-850 rounded-lg shadow-dark-md p-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${getStatusColor()}`} />
-                <div>
+                <div className={`w-3 h-3 rounded-full shrink-0 ${getStatusColor()}`} />
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-white">{t('storeSettings.exchangeRates.status')}</p>
-                  <p className="text-xs text-neutral-400">
+                  <p className="text-xs text-neutral-400 truncate">
                     {rateStatus?.lastFetchedAt
                       ? `${t('storeSettings.exchangeRates.lastFetched')}: ${new Date(rateStatus.lastFetchedAt).toLocaleString()}`
                       : t('storeSettings.exchangeRates.neverFetched')}
@@ -554,7 +590,7 @@ const StoreSettingsManager: React.FC = () => {
               <button
                 onClick={handleRefreshRates}
                 disabled={refreshing}
-                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500 font-bold text-sm disabled:opacity-50 active:scale-[0.98] transition"
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500 font-bold text-sm disabled:opacity-50 active:scale-[0.98] transition shrink-0"
               >
                 <FaSync size={12} className={refreshing ? 'animate-spin' : ''} />
                 {refreshing ? t('storeSettings.exchangeRates.refreshing') : t('storeSettings.exchangeRates.refresh')}
@@ -577,28 +613,48 @@ const StoreSettingsManager: React.FC = () => {
                   {t('storeSettings.exchangeRates.empty')}
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-surface-700">
-                    <thead className="bg-surface-800">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.exchangeRates.from')}</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.exchangeRates.to')}</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.exchangeRates.rate')}</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.exchangeRates.fetchedAt')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-surface-700">
-                      {rateStatus.rates.map((r) => (
-                        <tr key={r.id} className="hover:bg-surface-800">
-                          <td className="px-4 py-3 text-sm font-bold text-white">{r.baseCurrency}</td>
-                          <td className="px-4 py-3 text-sm text-neutral-300">{r.targetCurrency}</td>
-                          <td className="px-4 py-3 text-sm font-mono text-primary-400">{Number(r.rate).toFixed(6)}</td>
-                          <td className="px-4 py-3 text-sm text-neutral-400">{new Date(r.fetchedAt).toLocaleString()}</td>
+                <>
+                  {/* Mobile: Card layout */}
+                  <div className="sm:hidden divide-y divide-surface-700">
+                    {rateStatus.rates.map((r) => (
+                      <div key={r.id} className="p-4 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="font-bold text-white">{r.baseCurrency}</span>
+                            <span className="text-neutral-500">&rarr;</span>
+                            <span className="text-neutral-300">{r.targetCurrency}</span>
+                          </div>
+                          <span className="text-sm font-mono text-primary-400">{Number(r.rate).toFixed(6)}</span>
+                        </div>
+                        <p className="text-[11px] text-neutral-500">{new Date(r.fetchedAt).toLocaleString()}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop: Table layout */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-surface-700">
+                      <thead className="bg-surface-800">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.exchangeRates.from')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.exchangeRates.to')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.exchangeRates.rate')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.exchangeRates.fetchedAt')}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-surface-700">
+                        {rateStatus.rates.map((r) => (
+                          <tr key={r.id} className="hover:bg-surface-800">
+                            <td className="px-4 py-3 text-sm font-bold text-white">{r.baseCurrency}</td>
+                            <td className="px-4 py-3 text-sm text-neutral-300">{r.targetCurrency}</td>
+                            <td className="px-4 py-3 text-sm font-mono text-primary-400">{Number(r.rate).toFixed(6)}</td>
+                            <td className="px-4 py-3 text-sm text-neutral-400">{new Date(r.fetchedAt).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -634,61 +690,106 @@ const StoreSettingsManager: React.FC = () => {
                   {t('storeSettings.profitRules.empty')}
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-surface-700">
-                    <thead className="bg-surface-800">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.profitRules.name')}</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.profitRules.scope')}</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.profitRules.margin')}</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.profitRules.status')}</th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.common.actions')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-surface-700">
-                      {rules.map((r) => (
-                        <tr key={r.id} className="hover:bg-surface-800">
-                          <td className="px-4 py-3 text-sm font-bold text-white">{r.name}</td>
-                          <td className="px-4 py-3">
-                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full uppercase ${
-                              r.type === 'global' ? 'bg-blue-900/30 text-blue-400' :
-                              r.type === 'category' ? 'bg-green-900/30 text-green-400' :
-                              'bg-purple-900/30 text-purple-400'
-                            }`}>
-                              {r.type}
-                            </span>
-                            {r.type === 'category' && r.componentType && (
-                              <span className="ml-1.5 text-xs text-neutral-400">{COMPONENT_TYPE_LABELS[r.componentType as ComponentType] || r.componentType}</span>
-                            )}
-                            {r.type === 'product' && r.pcComponent && (
-                              <span className="ml-1.5 text-xs text-neutral-400">{r.pcComponent.name_en}</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-sm font-mono text-primary-400">
-                            {r.marginType === 'percentage' ? `${Number(r.marginValue)}%` : `${Number(r.marginValue)} SEK`}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
-                              r.isActive ? 'bg-green-900/30 text-green-400' : 'bg-neutral-700 text-neutral-400'
-                            }`}>
-                              {r.isActive ? t('storeSettings.profitRules.active') : t('storeSettings.profitRules.inactive')}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <button onClick={() => handleEditRule(r)} className="p-1.5 text-primary-400 hover:bg-primary-600/20 rounded-lg transition">
-                                <FaEdit size={12} />
-                              </button>
-                              <button onClick={() => handleDeleteRule(r.id)} className="p-1.5 text-red-400 hover:bg-red-900/20 rounded-lg transition">
-                                <FaTrash size={12} />
-                              </button>
-                            </div>
-                          </td>
+                <>
+                  {/* Mobile: Card layout */}
+                  <div className="sm:hidden divide-y divide-surface-700">
+                    {rules.map((r) => (
+                      <div key={r.id} className="p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-white">{r.name}</span>
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => handleEditRule(r)} className="p-1.5 text-primary-400 hover:bg-primary-600/20 rounded-lg transition">
+                              <FaEdit size={12} />
+                            </button>
+                            <button onClick={() => handleDeleteRule(r.id)} className="p-1.5 text-red-400 hover:bg-red-900/20 rounded-lg transition">
+                              <FaTrash size={12} />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full uppercase ${
+                            r.type === 'global' ? 'bg-blue-900/30 text-blue-400' :
+                            r.type === 'category' ? 'bg-green-900/30 text-green-400' :
+                            'bg-purple-900/30 text-purple-400'
+                          }`}>
+                            {r.type}
+                          </span>
+                          {r.type === 'category' && r.componentType && (
+                            <span className="text-xs text-neutral-400">{COMPONENT_TYPE_LABELS[r.componentType as ComponentType] || r.componentType}</span>
+                          )}
+                          {r.type === 'product' && r.pcComponent && (
+                            <span className="text-xs text-neutral-400 truncate max-w-[180px]">{r.pcComponent.name_en}</span>
+                          )}
+                          <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
+                            r.isActive ? 'bg-green-900/30 text-green-400' : 'bg-neutral-700 text-neutral-400'
+                          }`}>
+                            {r.isActive ? t('storeSettings.profitRules.active') : t('storeSettings.profitRules.inactive')}
+                          </span>
+                        </div>
+                        <p className="text-sm font-mono text-primary-400">
+                          {r.marginType === 'percentage' ? `${Number(r.marginValue)}%` : `${Number(r.marginValue)} SEK`}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop: Table layout */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-surface-700">
+                      <thead className="bg-surface-800">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.profitRules.name')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.profitRules.scope')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.profitRules.margin')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.profitRules.status')}</th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-neutral-400 uppercase tracking-wider">{t('storeSettings.common.actions')}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-surface-700">
+                        {rules.map((r) => (
+                          <tr key={r.id} className="hover:bg-surface-800">
+                            <td className="px-4 py-3 text-sm font-bold text-white">{r.name}</td>
+                            <td className="px-4 py-3">
+                              <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full uppercase ${
+                                r.type === 'global' ? 'bg-blue-900/30 text-blue-400' :
+                                r.type === 'category' ? 'bg-green-900/30 text-green-400' :
+                                'bg-purple-900/30 text-purple-400'
+                              }`}>
+                                {r.type}
+                              </span>
+                              {r.type === 'category' && r.componentType && (
+                                <span className="ml-1.5 text-xs text-neutral-400">{COMPONENT_TYPE_LABELS[r.componentType as ComponentType] || r.componentType}</span>
+                              )}
+                              {r.type === 'product' && r.pcComponent && (
+                                <span className="ml-1.5 text-xs text-neutral-400">{r.pcComponent.name_en}</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-sm font-mono text-primary-400">
+                              {r.marginType === 'percentage' ? `${Number(r.marginValue)}%` : `${Number(r.marginValue)} SEK`}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
+                                r.isActive ? 'bg-green-900/30 text-green-400' : 'bg-neutral-700 text-neutral-400'
+                              }`}>
+                                {r.isActive ? t('storeSettings.profitRules.active') : t('storeSettings.profitRules.inactive')}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button onClick={() => handleEditRule(r)} className="p-1.5 text-primary-400 hover:bg-primary-600/20 rounded-lg transition">
+                                  <FaEdit size={12} />
+                                </button>
+                                <button onClick={() => handleDeleteRule(r.id)} className="p-1.5 text-red-400 hover:bg-red-900/20 rounded-lg transition">
+                                  <FaTrash size={12} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
           )}
@@ -718,23 +819,35 @@ const StoreSettingsManager: React.FC = () => {
 
             {pricePreview && (
               <div className="mt-4 bg-surface-800 rounded-lg p-3 space-y-2">
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <span className="text-neutral-400">{t('storeSettings.profitRules.distCost')}:</span>
-                  <span className="text-white font-mono">{pricePreview.distributorCost} {pricePreview.costCurrency}</span>
-                  <span className="text-neutral-400">{t('storeSettings.profitRules.exchRate')}:</span>
-                  <span className="text-white font-mono">{pricePreview.exchangeRate.toFixed(6)}</span>
-                  <span className="text-neutral-400">{t('storeSettings.profitRules.costBase')}:</span>
-                  <span className="text-white font-mono">{pricePreview.costInBaseCurrency.toFixed(2)} SEK</span>
-                  <span className="text-neutral-400">{t('storeSettings.profitRules.marginApplied')}:</span>
-                  <span className="text-white font-mono">
-                    {pricePreview.marginRule
-                      ? `${pricePreview.marginRule.name} (${pricePreview.marginRule.marginType === 'percentage' ? `${pricePreview.marginRule.marginValue}%` : `${pricePreview.marginRule.marginValue} flat`})`
-                      : t('storeSettings.profitRules.noRule')}
-                  </span>
-                  <span className="text-neutral-400">{t('storeSettings.profitRules.marginAmt')}:</span>
-                  <span className="text-white font-mono">+{pricePreview.marginAmount.toFixed(2)} SEK</span>
-                  <span className="text-neutral-400 font-semibold">{t('storeSettings.profitRules.finalPrice')}:</span>
-                  <span className="text-primary-400 font-bold font-mono text-lg">{pricePreview.finalPrice.toFixed(2)} SEK</span>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between gap-2">
+                    <span className="text-neutral-400 shrink-0">{t('storeSettings.profitRules.distCost')}:</span>
+                    <span className="text-white font-mono text-right">{pricePreview.distributorCost} {pricePreview.costCurrency}</span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-neutral-400 shrink-0">{t('storeSettings.profitRules.exchRate')}:</span>
+                    <span className="text-white font-mono text-right">{pricePreview.exchangeRate.toFixed(6)}</span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-neutral-400 shrink-0">{t('storeSettings.profitRules.costBase')}:</span>
+                    <span className="text-white font-mono text-right">{pricePreview.costInBaseCurrency.toFixed(2)} SEK</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-2">
+                    <span className="text-neutral-400 shrink-0">{t('storeSettings.profitRules.marginApplied')}:</span>
+                    <span className="text-white font-mono text-right break-words">
+                      {pricePreview.marginRule
+                        ? `${pricePreview.marginRule.name} (${pricePreview.marginRule.marginType === 'percentage' ? `${pricePreview.marginRule.marginValue}%` : `${pricePreview.marginRule.marginValue} flat`})`
+                        : t('storeSettings.profitRules.noRule')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-neutral-400 shrink-0">{t('storeSettings.profitRules.marginAmt')}:</span>
+                    <span className="text-white font-mono text-right">+{pricePreview.marginAmount.toFixed(2)} SEK</span>
+                  </div>
+                  <div className="flex justify-between gap-2 pt-1 border-t border-surface-700">
+                    <span className="text-neutral-400 font-semibold shrink-0">{t('storeSettings.profitRules.finalPrice')}:</span>
+                    <span className="text-primary-400 font-bold font-mono text-lg">{pricePreview.finalPrice.toFixed(2)} SEK</span>
+                  </div>
                 </div>
               </div>
             )}

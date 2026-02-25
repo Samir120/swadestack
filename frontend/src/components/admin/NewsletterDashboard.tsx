@@ -63,7 +63,7 @@ const NewsletterDashboard: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h2 className="text-3xl sm:text-4xl font-thin text-white">{t('newsletterAdmin.dashboard.title')}</h2>
+          <h2 className="text-2xl sm:text-4xl font-thin text-white">{t('newsletterAdmin.dashboard.title')}</h2>
           <p className="font-medium text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-500 mt-2">
             {t('newsletterAdmin.dashboard.subtitle')}
           </p>
@@ -84,7 +84,7 @@ const NewsletterDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
             <div className="order-2 sm:order-1">
               <p className="text-[10px] sm:text-sm font-bold text-neutral-400 uppercase tracking-wider">{t('newsletterAdmin.dashboard.totalSubscribers')}</p>
-              <p className="text-3xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{data.totalSubscribers}</p>
+              <p className="text-2xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{data.totalSubscribers}</p>
               {data.newThisMonth > 0 && (
                 <p className="text-[10px] text-emerald-400 mt-1">
                   +{data.newThisMonth} {t('newsletterAdmin.dashboard.newThisMonth').toLowerCase()}
@@ -103,7 +103,7 @@ const NewsletterDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
             <div className="order-2 sm:order-1">
               <p className="text-[10px] sm:text-sm font-bold text-neutral-400 uppercase tracking-wider">{t('newsletterAdmin.dashboard.activeSubscribers')}</p>
-              <p className="text-3xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{data.activeSubscribers}</p>
+              <p className="text-2xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{data.activeSubscribers}</p>
             </div>
             <div className="order-1 sm:order-2 w-10 h-10 sm:w-12 sm:h-12 bg-primary-600/10 rounded-lg sm:rounded-2xl flex items-center justify-center text-emerald-400">
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +117,7 @@ const NewsletterDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
             <div className="order-2 sm:order-1">
               <p className="text-[10px] sm:text-sm font-bold text-neutral-400 uppercase tracking-wider">{t('newsletterAdmin.dashboard.avgOpenRate')}</p>
-              <p className="text-3xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{data.avgOpenRate.toFixed(1)}%</p>
+              <p className="text-2xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{data.avgOpenRate.toFixed(1)}%</p>
             </div>
             <div className="order-1 sm:order-2 w-10 h-10 sm:w-12 sm:h-12 bg-primary-600/10 rounded-lg sm:rounded-2xl flex items-center justify-center text-blue-400">
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +131,7 @@ const NewsletterDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
             <div className="order-2 sm:order-1">
               <p className="text-[10px] sm:text-sm font-bold text-neutral-400 uppercase tracking-wider">{t('newsletterAdmin.dashboard.avgClickRate')}</p>
-              <p className="text-3xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{data.avgClickRate.toFixed(1)}%</p>
+              <p className="text-2xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{data.avgClickRate.toFixed(1)}%</p>
             </div>
             <div className="order-1 sm:order-2 w-10 h-10 sm:w-12 sm:h-12 bg-primary-600/10 rounded-lg sm:rounded-2xl flex items-center justify-center text-purple-400">
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,11 +199,35 @@ const NewsletterDashboard: React.FC = () => {
           </Link>
         </div>
         {data.recentCampaigns.length === 0 ? (
-          <div className="p-8 text-center text-neutral-400 text-sm">
+          <div className="p-6 sm:p-8 text-center text-neutral-400 text-sm">
             {t('newsletterAdmin.dashboard.noCampaigns')}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          {/* Mobile Card View */}
+          <div className="sm:hidden divide-y divide-surface-700">
+            {data.recentCampaigns.map((campaign) => (
+              <div key={campaign.id} className="p-4">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-white truncate">{campaign.name}</p>
+                    <p className="text-xs text-neutral-400 truncate">{campaign.subject}</p>
+                  </div>
+                  {getStatusBadge(campaign.status)}
+                </div>
+                {campaign.stats && campaign.stats.totalSent > 0 && (
+                  <div className="flex gap-4 mt-2 text-[10px] text-neutral-400">
+                    <span>Sent: <span className="text-white font-medium">{campaign.stats.totalSent}</span></span>
+                    <span>Opens: <span className="text-white font-medium">{campaign.stats.uniqueOpens} ({campaign.stats.openRate.toFixed(1)}%)</span></span>
+                    <span>Clicks: <span className="text-white font-medium">{campaign.stats.uniqueClicks} ({campaign.stats.clickRate.toFixed(1)}%)</span></span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="min-w-full divide-y divide-surface-700">
               <thead className="bg-surface-800">
                 <tr>
@@ -213,7 +237,7 @@ const NewsletterDashboard: React.FC = () => {
                   <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                     {t('newsletterAdmin.subscribers.status')}
                   </th>
-                  <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-right text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-neutral-400 uppercase tracking-wider">
                     {t('newsletterAdmin.campaigns.stats.sent')}
                   </th>
                   <th className="hidden md:table-cell px-4 sm:px-6 py-3 text-right text-xs font-medium text-neutral-400 uppercase tracking-wider">
@@ -229,12 +253,12 @@ const NewsletterDashboard: React.FC = () => {
                   <tr key={campaign.id} className="hover:bg-surface-800/50 transition-colors">
                     <td className="px-4 sm:px-6 py-4">
                       <div className="text-sm font-bold text-white">{campaign.name}</div>
-                      <div className="text-xs text-neutral-400 truncate max-w-[150px] sm:max-w-[200px] md:max-w-[300px]">{campaign.subject}</div>
+                      <div className="text-xs text-neutral-400 truncate max-w-[200px] md:max-w-[300px]">{campaign.subject}</div>
                     </td>
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(campaign.status)}
                     </td>
-                    <td className="hidden sm:table-cell px-4 sm:px-6 py-4 text-sm text-white text-right">
+                    <td className="px-4 sm:px-6 py-4 text-sm text-white text-right">
                       {campaign.stats?.totalSent || 0}
                     </td>
                     <td className="hidden md:table-cell px-4 sm:px-6 py-4 text-sm text-white text-right">
@@ -258,6 +282,7 @@ const NewsletterDashboard: React.FC = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </div>
 

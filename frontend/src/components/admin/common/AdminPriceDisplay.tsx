@@ -43,8 +43,8 @@ const AdminPriceDisplay: React.FC<AdminPriceDisplayProps> = ({
   return (
     <span className={className}>
       <span className={primaryClassName}>
-        {formatAdminCurrency(price, currency)}{' '}
-        <span className="text-neutral-500 font-normal text-[10px]">ex. moms</span>
+        <span className="whitespace-nowrap">{formatAdminCurrency(price, currency)}</span>
+        <span className="text-neutral-500 font-normal text-[10px] ml-1 whitespace-nowrap">ex. moms</span>
       </span>
       <span className={secondaryClassName ?? 'block text-[10px] text-neutral-500 font-normal'}>
         {formatAdminCurrency(gross, currency)} inkl. moms ({pct}%)

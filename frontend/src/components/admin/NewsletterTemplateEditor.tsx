@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Undo2, Redo2, Monitor, Smartphone, Save } from 'lucide-react';
+import { ArrowLeft, Undo2, Redo2, Monitor, Smartphone, Save, Eye, PencilLine } from 'lucide-react';
 import { newsletterAdminApi } from '../../models/api/newsletterAdminApi';
 import {
   TemplateListItem,
@@ -61,6 +61,7 @@ const NewsletterTemplateEditor: React.FC = () => {
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [leftPanelMode, setLeftPanelMode] = useState<LeftPanelMode>('blocks');
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'mobile'>('desktop');
+  const [mobilePanel, setMobilePanel] = useState<'edit' | 'preview'>('edit');
 
   // Undo/Redo
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -282,29 +283,169 @@ const NewsletterTemplateEditor: React.FC = () => {
     );
   }
 
-  // Mobile warning
   return (
     <div className="fixed inset-0 bg-surface-950 flex flex-col z-50">
-      {/* Mobile warning */}
-      <div className="lg:hidden flex items-center justify-center min-h-screen p-6 text-center">
-        <div>
-          <Monitor className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
-          <p className="text-neutral-300 text-lg font-medium mb-2">
-            {t('newsletterAdmin.editor.desktopOnly', 'Desktop Required')}
-          </p>
-          <p className="text-neutral-500 text-sm mb-6">
-            {t('newsletterAdmin.editor.desktopOnlyDesc', 'Please use a desktop browser to edit newsletters.')}
-          </p>
+      {/* ── Mobile Toolbar ── */}
+      <div className="lg:hidden bg-surface-900 border-b border-surface-700 flex-shrink-0">
+        {/* Row 1: Back, name, save */}
+        <div className="flex items-center justify-between px-3 py-2 gap-2">
           <button
-            onClick={() => navigate('/admin/newsletters/templates')}
-            className="text-primary-400 hover:text-primary-300 text-sm"
+            onClick={handleBack}
+            className="p-1.5 text-neutral-400 hover:text-white transition-colors shrink-0"
           >
-            {t('newsletterAdmin.editor.backToTemplates', 'Back to Templates')}
+            <ArrowLeft className="w-4 h-4" />
           </button>
+          <input
+            type="text"
+            value={templateName}
+            onChange={(e) => { setTemplateName(e.target.value); setHasUnsavedChanges(true); }}
+            className="bg-transparent border-none text-white font-semibold text-sm focus:outline-none focus:ring-0 min-w-0 flex-1 truncate"
+          />
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={undo}
+              disabled={historyIndex <= 0}
+              className="p-1.5 text-neutral-400 hover:text-white disabled:opacity-30 transition-colors rounded-lg"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={redo}
+              disabled={historyIndex >= history.length - 1}
+              className="p-1.5 text-neutral-400 hover:text-white disabled:opacity-30 transition-colors rounded-lg"
+            >
+              <Redo2 className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors text-xs font-medium"
+            >
+              <Save className="w-3.5 h-3.5" />
+              {saving ? '...' : t('newsletterAdmin.editor.saveDraft', 'Save')}
+            </button>
+          </div>
+        </div>
+        {/* Row 2: Edit/Preview toggle + unsaved indicator */}
+        <div className="flex items-center justify-between px-3 pb-2">
+          <div className="flex items-center bg-surface-800 rounded-lg border border-surface-600 overflow-hidden">
+            <button
+              onClick={() => setMobilePanel('edit')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
+                mobilePanel === 'edit'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <PencilLine className="w-3.5 h-3.5" />
+              Edit
+            </button>
+            <button
+              onClick={() => setMobilePanel('preview')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
+                mobilePanel === 'preview'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Preview
+            </button>
+          </div>
+          {hasUnsavedChanges && (
+            <span className="text-[10px] text-yellow-400">
+              {t('newsletterAdmin.editor.unsaved', 'Unsaved')}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Desktop Editor */}
+      {/* ── Mobile Editor Body ── */}
+      <div className="lg:hidden flex-1 flex flex-col overflow-hidden">
+        {/* Edit panel */}
+        {mobilePanel === 'edit' && (
+          <div className="flex-1 flex flex-col overflow-hidden bg-surface-850">
+            {/* Blocks / Global Styles tabs */}
+            <div className="flex border-b border-surface-700 shrink-0">
+              <button
+                onClick={() => {
+                  setLeftPanelMode('blocks');
+                  setSelectedBlockId(null);
+                }}
+                className={`flex-1 px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors ${
+                  leftPanelMode === 'blocks' || leftPanelMode === 'settings'
+                    ? 'text-primary-400 border-b-2 border-primary-500'
+                    : 'text-neutral-500 hover:text-neutral-300'
+                }`}
+              >
+                {t('newsletterAdmin.editor.blocksTab', 'Blocks')}
+              </button>
+              <button
+                onClick={() => setLeftPanelMode('globalStyles')}
+                className={`flex-1 px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors ${
+                  leftPanelMode === 'globalStyles'
+                    ? 'text-primary-400 border-b-2 border-primary-500'
+                    : 'text-neutral-500 hover:text-neutral-300'
+                }`}
+              >
+                {t('newsletterAdmin.editor.globalStylesTab', 'Styles')}
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-3">
+              {leftPanelMode === 'blocks' && (
+                <BlockPalette onAddBlock={addBlock} />
+              )}
+
+              {leftPanelMode === 'settings' && selectedBlock && (
+                <BlockSettings
+                  block={selectedBlock}
+                  onUpdate={(settings) => updateBlockSettings(selectedBlock.id, settings)}
+                  onDuplicate={() => duplicateBlock(selectedBlock.id)}
+                  onDelete={() => deleteBlock(selectedBlock.id)}
+                  onBack={() => {
+                    setLeftPanelMode('blocks');
+                    setSelectedBlockId(null);
+                  }}
+                />
+              )}
+
+              {leftPanelMode === 'globalStyles' && (
+                <GlobalStylesPanel
+                  globalStyles={globalStyles}
+                  socialMediaConfig={socialMediaConfig}
+                  footerConfig={footerConfig}
+                  onUpdateGlobalStyles={(s) => { setGlobalStyles(s); setHasUnsavedChanges(true); }}
+                  onUpdateSocialMedia={(c) => { setSocialMediaConfig(c); setHasUnsavedChanges(true); }}
+                  onUpdateFooter={(f) => { setFooterConfig(f); setHasUnsavedChanges(true); }}
+                />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Preview panel */}
+        {mobilePanel === 'preview' && (
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+            <EmailPreview
+              blocks={blocks}
+              globalStyles={globalStyles}
+              socialMediaConfig={socialMediaConfig}
+              footerConfig={footerConfig}
+              selectedBlockId={selectedBlockId}
+              deviceMode="mobile"
+              onSelectBlock={(id) => {
+                setSelectedBlockId(id);
+                setMobilePanel('edit');
+              }}
+              onDeleteBlock={deleteBlock}
+              onMoveBlock={moveBlock}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ── Desktop Editor ── */}
       <div className="hidden lg:flex flex-col h-full">
         {/* Top Toolbar */}
         <div className="bg-surface-900 border-b border-surface-700 px-4 py-3 space-y-3 flex-shrink-0">

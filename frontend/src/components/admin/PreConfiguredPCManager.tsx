@@ -267,8 +267,8 @@ const PreConfiguredPCManager: React.FC = () => {
 
   // Get tier color
   const getTierColor = (tier?: PCTier) => {
-    if (!tier) return 'bg-neutral-100 text-neutral-600';
-    return TIER_OPTIONS.find(t => t.value === tier)?.color || 'bg-neutral-100 text-neutral-600';
+    if (!tier) return 'bg-neutral-800 text-neutral-400';
+    return TIER_OPTIONS.find(t => t.value === tier)?.color || 'bg-neutral-800 text-neutral-400';
   };
 
   return (
@@ -276,38 +276,39 @@ const PreConfiguredPCManager: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <div>
-          <h2 className="text-3xl sm:text-4xl font-thin text-white flex items-center gap-2">
-            <FaDesktop className="text-primary-400" />
+          <h2 className="text-2xl sm:text-4xl font-thin text-white flex items-center gap-2">
+            <FaDesktop className="text-primary-400 shrink-0" />
             Pre-Configured PCs
           </h2>
           <p className="font-medium text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-500 mt-2">Manage Pre-Built PCs</p>
         </div>
         <button
           onClick={() => navigate('/pc-builder')}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-500 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 text-sm bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-500 transition-colors"
         >
           <FaPlus size={14} />
-          Create in PC Builder
+          <span className="hidden sm:inline">Create in PC Builder</span>
+          <span className="sm:hidden">Create</span>
         </button>
       </div>
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          <div className="bg-surface-850 rounded-xl border border-surface-700 p-4">
-            <p className="text-sm text-neutral-400 font-medium">Total</p>
-            <p className="text-2xl font-bold text-white">{stats.total}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          <div className="bg-surface-850 rounded-xl border border-surface-700 p-3 sm:p-4">
+            <p className="text-xs sm:text-sm text-neutral-400 font-medium">Total</p>
+            <p className="text-xl sm:text-2xl font-bold text-white">{stats.total}</p>
           </div>
-          <div className="bg-surface-850 rounded-xl border border-surface-700 p-4">
-            <p className="text-sm text-neutral-400 font-medium">Featured</p>
-            <p className="text-2xl font-bold text-primary-400">{stats.featured}</p>
+          <div className="bg-surface-850 rounded-xl border border-surface-700 p-3 sm:p-4">
+            <p className="text-xs sm:text-sm text-neutral-400 font-medium">Featured</p>
+            <p className="text-xl sm:text-2xl font-bold text-primary-400">{stats.featured}</p>
           </div>
-          <div className="bg-surface-850 rounded-xl border border-surface-700 p-4">
-            <p className="text-sm text-neutral-400 font-medium">Avg. Price</p>
-            <AdminPriceDisplay price={stats.averagePrice} primaryClassName="text-2xl font-bold text-green-600" />
+          <div className="bg-surface-850 rounded-xl border border-surface-700 p-3 sm:p-4">
+            <p className="text-xs sm:text-sm text-neutral-400 font-medium">Avg. Price</p>
+            <AdminPriceDisplay price={stats.averagePrice} primaryClassName="text-xl sm:text-2xl font-bold text-green-400" />
           </div>
-          <div className="bg-surface-850 rounded-xl border border-surface-700 p-4">
-            <p className="text-sm text-neutral-400 font-medium">By Tier</p>
+          <div className="bg-surface-850 rounded-xl border border-surface-700 p-3 sm:p-4">
+            <p className="text-xs sm:text-sm text-neutral-400 font-medium">By Tier</p>
             <div className="flex gap-1 mt-1 flex-wrap">
               {Object.entries(stats.byTier).map(([tier, count]) => (
                 count > 0 && (
@@ -322,8 +323,8 @@ const PreConfiguredPCManager: React.FC = () => {
       )}
 
       {/* Info Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-        <p className="text-blue-800 text-sm">
+      <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-3 sm:p-4 mb-6">
+        <p className="text-blue-300 text-xs sm:text-sm">
           <strong>How to create a pre-configured PC:</strong> First, create a PC configuration using the PC Builder.
           Then, from the PC Configurations manager, you can "Promote" it to a pre-configured PC for sale.
         </p>
@@ -335,7 +336,7 @@ const PreConfiguredPCManager: React.FC = () => {
           <LoadingSpinner size="sm" />
         </div>
       ) : configurations.length === 0 ? (
-        <div className="bg-surface-850 rounded-xl border border-surface-700 p-8 text-center">
+        <div className="bg-surface-850 rounded-xl border border-surface-700 p-6 sm:p-8 text-center">
           <FaDesktop className="mx-auto text-neutral-600 mb-3" size={48} />
           <p className="text-neutral-400 mb-4">No pre-configured PCs yet</p>
           <button
@@ -346,49 +347,51 @@ const PreConfiguredPCManager: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {configurations.map((config) => (
             <div
               key={config.id}
-              className="bg-surface-850 rounded-xl border border-surface-700 overflow-hidden hover:border-primary-400 transition-colors"
+              className="bg-surface-850 rounded-xl border border-surface-700 overflow-hidden hover:border-primary-400 transition-colors flex sm:flex-col"
             >
               {/* Image */}
-              <div className="aspect-video bg-surface-800 relative">
+              <div className="w-28 shrink-0 sm:w-auto aspect-square sm:aspect-video bg-surface-800 relative">
                 {(config.imageUrls && config.imageUrls.length > 0) || config.imageUrl ? (
                   <>
                     <img
                       src={(config.imageUrls && config.imageUrls.length > 0) ? config.imageUrls[0] : config.imageUrl}
                       alt={config.name_en || 'PC'}
-                      className="w-full h-full object-contain p-4"
+                      className="w-full h-full object-contain p-2 sm:p-4"
                     />
                     {/* Image count badge */}
                     {config.imageUrls && config.imageUrls.length > 1 && (
-                      <div className="absolute bottom-2 right-2 px-2 py-1 bg-black bg-opacity-60 text-white text-xs rounded-full flex items-center gap-1">
-                        <FaImage size={10} />
+                      <div className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-black bg-opacity-60 text-white text-[10px] sm:text-xs rounded-full flex items-center gap-1">
+                        <FaImage size={8} className="sm:hidden" />
+                        <FaImage size={10} className="hidden sm:block" />
                         {config.imageUrls.length}
                       </div>
                     )}
                   </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <FaDesktop className="text-neutral-600" size={48} />
+                    <FaDesktop className="text-neutral-600 text-2xl sm:text-5xl" />
                   </div>
                 )}
 
                 {/* Featured Badge */}
                 {config.isFeatured && (
-                  <div className="absolute top-2 right-2">
-                    <span className="px-2 py-1 bg-primary-600 text-white text-xs font-bold rounded-full flex items-center gap-1">
-                      <FaStar size={10} />
-                      Featured
+                  <div className="absolute top-1 right-1 sm:top-2 sm:right-2">
+                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary-600 text-white text-[10px] sm:text-xs font-bold rounded-full flex items-center gap-1">
+                      <FaStar size={8} className="sm:hidden" />
+                      <FaStar size={10} className="hidden sm:block" />
+                      <span className="hidden sm:inline">Featured</span>
                     </span>
                   </div>
                 )}
 
                 {/* Tier Badge */}
                 {config.tier && (
-                  <div className="absolute top-2 left-2">
-                    <span className={`px-2 py-1 text-xs font-bold rounded-full ${getTierColor(config.tier)}`}>
+                  <div className="absolute top-1 left-1 sm:top-2 sm:left-2">
+                    <span className={`px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold rounded-full ${getTierColor(config.tier)}`}>
                       {config.tier.charAt(0).toUpperCase() + config.tier.slice(1)}
                     </span>
                   </div>
@@ -396,11 +399,11 @@ const PreConfiguredPCManager: React.FC = () => {
               </div>
 
               {/* Content */}
-              <div className="p-4">
-                <h3 className="font-bold text-white mb-1 truncate">
+              <div className="flex-1 min-w-0 p-3 sm:p-4 flex flex-col">
+                <h3 className="font-bold text-white mb-0.5 sm:mb-1 truncate text-sm sm:text-base">
                   {config.name_en || `Config #${config.id.slice(0, 8)}`}
                 </h3>
-                <p className="text-sm text-neutral-400 mb-3 line-clamp-2">
+                <p className="text-xs sm:text-sm text-neutral-400 mb-2 sm:mb-3 line-clamp-1 sm:line-clamp-2">
                   {config.shortDescription_en || 'No description'}
                 </p>
 
@@ -413,21 +416,22 @@ const PreConfiguredPCManager: React.FC = () => {
                   const originalTotal = config.totalPrice + buildServiceCharge;
 
                   return (
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-2">
+                    <div className="mb-2 sm:mb-4">
+                      <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
                         {hasDiscount ? (
                           <>
-                            <span className="text-neutral-500 line-through text-sm">{formatPrice(originalTotal)}</span>
-                            <AdminPriceDisplay price={grandTotal} primaryClassName="text-red-600 font-bold text-lg" />
+                            <span className="text-neutral-500 line-through text-xs sm:text-sm">{formatPrice(originalTotal)}</span>
+                            <AdminPriceDisplay price={grandTotal} primaryClassName="text-red-400 font-bold text-sm sm:text-lg" />
                           </>
                         ) : (
-                          <AdminPriceDisplay price={grandTotal} primaryClassName="text-white font-bold text-lg" />
+                          <AdminPriceDisplay price={grandTotal} primaryClassName="text-white font-bold text-sm sm:text-lg" />
                         )}
                       </div>
                       {config.includesBuildService && (
-                        <p className="text-purple-600 text-xs mt-1 flex items-center gap-1">
-                          <FaWrench size={10} />
-                          Build service: +{formatPrice(buildServiceCharge)}
+                        <p className="text-purple-400 text-[10px] sm:text-xs mt-0.5 sm:mt-1 flex items-center gap-1">
+                          <FaWrench size={8} className="shrink-0" />
+                          <span className="sm:hidden">+{formatPrice(buildServiceCharge)}</span>
+                          <span className="hidden sm:inline">Build service: +{formatPrice(buildServiceCharge)}</span>
                         </p>
                       )}
                     </div>
@@ -435,40 +439,44 @@ const PreConfiguredPCManager: React.FC = () => {
                 })()}
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 sm:gap-2 mt-auto">
                   <button
                     onClick={() => handleToggleFeatured(config.id)}
-                    className={`p-2 rounded-lg transition-colors ${
+                    className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                       config.isFeatured
                         ? 'bg-primary-600/20 text-primary-400 hover:bg-primary-600/30'
                         : 'bg-surface-800 text-neutral-400 hover:bg-surface-700'
                     }`}
                     title={config.isFeatured ? 'Remove from featured' : 'Add to featured'}
                   >
-                    {config.isFeatured ? <FaStar size={14} /> : <FaRegStar size={14} />}
+                    {config.isFeatured ? <FaStar size={12} className="sm:hidden" /> : <FaRegStar size={12} className="sm:hidden" />}
+                    {config.isFeatured ? <FaStar size={14} className="hidden sm:block" /> : <FaRegStar size={14} className="hidden sm:block" />}
                   </button>
                   <button
                     onClick={() => handleOpenEdit(config)}
-                    className="p-2 bg-blue-900/30 text-blue-400 rounded-lg hover:bg-blue-900/40 transition-colors"
+                    className="p-1.5 sm:p-2 bg-blue-900/30 text-blue-400 rounded-lg hover:bg-blue-900/40 transition-colors"
                     title="Edit"
                   >
-                    <FaEdit size={14} />
+                    <FaEdit size={12} className="sm:hidden" />
+                    <FaEdit size={14} className="hidden sm:block" />
                   </button>
                   <a
                     href={`/pre-configured-pcs/${config.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 bg-surface-800 text-neutral-400 rounded-lg hover:bg-surface-700 transition-colors"
+                    className="p-1.5 sm:p-2 bg-surface-800 text-neutral-400 rounded-lg hover:bg-surface-700 transition-colors"
                     title="View"
                   >
-                    <FaExternalLinkAlt size={14} />
+                    <FaExternalLinkAlt size={12} className="sm:hidden" />
+                    <FaExternalLinkAlt size={14} className="hidden sm:block" />
                   </a>
                   <button
                     onClick={() => handleDelete(config.id)}
-                    className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors ml-auto"
+                    className="p-1.5 sm:p-2 bg-red-900/30 text-red-400 rounded-lg hover:bg-red-900/40 transition-colors ml-auto"
                     title="Delete"
                   >
-                    <FaTrash size={14} />
+                    <FaTrash size={12} className="sm:hidden" />
+                    <FaTrash size={14} className="hidden sm:block" />
                   </button>
                 </div>
               </div>
@@ -482,7 +490,7 @@ const PreConfiguredPCManager: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-surface-900 rounded-xl shadow-dark-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-surface-900 p-4 border-b border-surface-700 flex justify-between items-center">
-              <h3 className="text-xl font-bold text-white">Edit Pre-Configured PC</h3>
+              <h3 className="text-base sm:text-xl font-bold text-white">Edit Pre-Configured PC</h3>
               <button
                 onClick={() => setIsEditModalOpen(false)}
                 className="p-2 text-neutral-400 hover:text-neutral-300 hover:bg-surface-700 rounded-lg"
@@ -499,7 +507,7 @@ const PreConfiguredPCManager: React.FC = () => {
                   type="text"
                   value={editForm.name_en || ''}
                   onChange={(e) => setEditForm({ ...editForm, name_en: e.target.value })}
-                  className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                  className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
                 />
               </div>
 
@@ -510,7 +518,7 @@ const PreConfiguredPCManager: React.FC = () => {
                   type="text"
                   value={editForm.name_sv || ''}
                   onChange={(e) => setEditForm({ ...editForm, name_sv: e.target.value })}
-                  className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                  className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
                 />
               </div>
 
@@ -521,7 +529,7 @@ const PreConfiguredPCManager: React.FC = () => {
                   value={editForm.shortDescription_en || ''}
                   onChange={(e) => setEditForm({ ...editForm, shortDescription_en: e.target.value })}
                   rows={2}
-                  className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                  className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
                 />
               </div>
 
@@ -532,7 +540,7 @@ const PreConfiguredPCManager: React.FC = () => {
                   value={editForm.shortDescription_sv || ''}
                   onChange={(e) => setEditForm({ ...editForm, shortDescription_sv: e.target.value })}
                   rows={2}
-                  className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                  className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
                 />
               </div>
 
@@ -549,7 +557,7 @@ const PreConfiguredPCManager: React.FC = () => {
                 <select
                   value={editForm.tier || ''}
                   onChange={(e) => setEditForm({ ...editForm, tier: e.target.value as PCTier || undefined })}
-                  className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                  className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
                 >
                   <option value="">No Tier</option>
                   {TIER_OPTIONS.map((tier) => (
@@ -561,13 +569,13 @@ const PreConfiguredPCManager: React.FC = () => {
               </div>
 
               {/* Prices */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <AdminPriceInput
                   label="Price"
                   value={editForm.totalPrice || ''}
                   onChange={(v) => setEditForm({ ...editForm, totalPrice: parseFloat(v) || undefined })}
                   labelClassName="block text-sm font-medium text-neutral-300 mb-1"
-                  inputClassName="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                  inputClassName="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
                 />
                 <AdminPriceInput
                   label="Discounted Price"
@@ -575,19 +583,19 @@ const PreConfiguredPCManager: React.FC = () => {
                   onChange={(v) => setEditForm({ ...editForm, discountedPrice: parseFloat(v) || undefined })}
                   placeholder="Optional"
                   labelClassName="block text-sm font-medium text-neutral-300 mb-1"
-                  inputClassName="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                  inputClassName="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
                 />
               </div>
 
               {/* Stock & Display Order */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-neutral-300 mb-1">Stock Quantity</label>
                   <input
                     type="number"
                     value={editForm.stock ?? 0}
                     onChange={(e) => setEditForm({ ...editForm, stock: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                    className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
                     min={0}
                   />
                   <p className="text-xs text-neutral-400 mt-1">Units available for sale</p>
@@ -598,7 +606,7 @@ const PreConfiguredPCManager: React.FC = () => {
                     type="number"
                     value={editForm.displayOrder || 0}
                     onChange={(e) => setEditForm({ ...editForm, displayOrder: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
+                    className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500"
                     min={0}
                   />
                   <p className="text-xs text-neutral-400 mt-1">Lower numbers appear first</p>
@@ -620,7 +628,7 @@ const PreConfiguredPCManager: React.FC = () => {
               </div>
 
               {/* Build Service Section */}
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 space-y-3">
+              <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-3 sm:p-4 space-y-3">
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
@@ -654,7 +662,7 @@ const PreConfiguredPCManager: React.FC = () => {
                               : 0,
                           });
                         }}
-                        className="w-full px-3 py-2 border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-3 py-2 bg-surface-800 text-white border border-surface-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                       >
                         <option value="">Select a build service...</option>
                         {buildServiceOptions.filter(opt => opt.isActive).map((option) => (

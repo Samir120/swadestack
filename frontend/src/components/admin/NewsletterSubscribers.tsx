@@ -402,7 +402,7 @@ const NewsletterSubscribers: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h2 className="text-3xl sm:text-4xl font-thin text-white">{t('newsletterAdmin.subscribers.title')}</h2>
+          <h2 className="text-2xl sm:text-4xl font-thin text-white">{t('newsletterAdmin.subscribers.title')}</h2>
           <p className="font-medium text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-500 mt-2">
             {t('newsletterAdmin.subscribers.subtitle')}
           </p>
@@ -418,10 +418,11 @@ const NewsletterSubscribers: React.FC = () => {
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition-colors"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition-colors"
           >
             <FaPlus className="text-xs" />
-            {t('newsletterAdmin.subscribers.addSubscriber')}
+            <span className="hidden sm:inline">{t('newsletterAdmin.subscribers.addSubscriber')}</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
@@ -480,7 +481,7 @@ const NewsletterSubscribers: React.FC = () => {
       <div className="flex gap-1 mb-4">
         <button
           onClick={() => setActiveTab('subscribers')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+          className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors ${
             activeTab === 'subscribers' ? 'bg-primary-600 text-white' : 'bg-surface-800 text-neutral-300 hover:bg-surface-700 border border-surface-700'
           }`}
         >
@@ -488,7 +489,7 @@ const NewsletterSubscribers: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('segments')}
-          className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+          className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-colors ${
             activeTab === 'segments' ? 'bg-primary-600 text-white' : 'bg-surface-800 text-neutral-300 hover:bg-surface-700 border border-surface-700'
           }`}
         >
@@ -548,7 +549,7 @@ const NewsletterSubscribers: React.FC = () => {
                   setSortOrder(order);
                   setPage(1);
                 }}
-                className="px-3 py-2 bg-surface-800 border border-surface-700 rounded-lg text-xs sm:text-sm text-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+                className="flex-1 min-w-0 sm:flex-none px-3 py-2 bg-surface-800 border border-surface-700 rounded-lg text-xs sm:text-sm text-neutral-300 focus:outline-none focus:ring-2 focus:ring-primary-500/50"
               >
                 <option value="createdAt-desc">Newest First</option>
                 <option value="createdAt-asc">Oldest First</option>
@@ -606,7 +607,7 @@ const NewsletterSubscribers: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="text-sm font-bold text-white truncate">{sub.email}</p>
+                            <p className="text-sm font-bold text-white truncate break-all">{sub.email}</p>
                             {(sub.firstName || sub.lastName) && (
                               <p className="text-xs text-neutral-400">{sub.firstName} {sub.lastName}</p>
                             )}
@@ -766,11 +767,11 @@ const NewsletterSubscribers: React.FC = () => {
       {/* Segments Tab Content */}
       {activeTab === 'segments' && (
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white">{t('newsletterAdmin.segments.title')}</h3>
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <h3 className="text-base sm:text-lg font-bold text-white">{t('newsletterAdmin.segments.title')}</h3>
             <button
               onClick={() => setShowSegmentModal(true)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition-colors"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white bg-primary-600 rounded-lg hover:bg-primary-500 transition-colors shrink-0"
             >
               <FaPlus className="text-xs" />
               {t('newsletterAdmin.segments.create')}
@@ -780,7 +781,7 @@ const NewsletterSubscribers: React.FC = () => {
           {isLoadingSegments ? (
             <div className="flex justify-center items-center h-32"><LoadingSpinner /></div>
           ) : segments.length === 0 ? (
-            <div className="bg-surface-850 rounded-2xl shadow-dark-md border border-surface-700 p-12">
+            <div className="bg-surface-850 rounded-2xl shadow-dark-md border border-surface-700 p-6 sm:p-12">
               <div className="text-center">
                 <h3 className="text-base font-bold text-white mb-2">{t('newsletterAdmin.segments.noSegments')}</h3>
                 <p className="text-sm text-neutral-400 mb-4">{t('newsletterAdmin.segments.noSegmentsDesc')}</p>
@@ -855,7 +856,7 @@ const NewsletterSubscribers: React.FC = () => {
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-bold text-neutral-300 mb-1">{t('newsletterAdmin.subscribers.addModal.firstName')}</label>
                   <input
@@ -923,7 +924,7 @@ const NewsletterSubscribers: React.FC = () => {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <p className="text-xs font-bold text-neutral-500 uppercase mb-1">{t('newsletterAdmin.subscribers.status')}</p>
                   {getStatusBadge(selectedSubscriber.status)}

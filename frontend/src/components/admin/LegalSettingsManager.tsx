@@ -173,17 +173,20 @@ const LegalSettingsManager: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Legal & Company Settings</h1>
-          <p className="text-sm text-neutral-400 mt-1">
-            Manage your legal entity information, terms, and privacy policy
+          <h2 className="text-2xl sm:text-4xl font-thin text-white flex items-center gap-2">
+            <FaBuilding className="text-primary-400 shrink-0" size={22} />
+            Legal & Company
+          </h2>
+          <p className="font-medium text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-500 mt-2">
+            Manage legal entity, terms & privacy
           </p>
         </div>
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+          className="flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
         >
           <FaSave size={14} />
           {isSaving ? 'Saving...' : 'Save Changes'}
@@ -319,7 +322,7 @@ const LegalSettingsManager: React.FC = () => {
           />
           {expandedSections.footerNotice && (
             <div className="px-4 sm:px-5 pb-5 space-y-4">
-              <div className="flex items-center justify-between bg-surface-800 border border-surface-600 rounded-lg p-4">
+              <div className="flex items-center justify-between bg-surface-800 border border-surface-600 rounded-lg p-3 sm:p-4">
                 <div>
                   <p className="text-sm font-medium text-white">Show legal entity in footer</p>
                   <p className="text-xs text-neutral-400 mt-0.5">
@@ -354,7 +357,7 @@ const LegalSettingsManager: React.FC = () => {
                           <span className="text-slate-300 font-medium">{settings.companyName || 'Company Name'}</span>
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-slate-500 justify-center">
+                      <div className="flex items-center gap-2 sm:gap-4 text-xs text-slate-500 justify-center flex-wrap">
                         <span>Org.nr: {settings.orgNumber || 'XXXXXX-XXXX'}</span>
                         {(settings.vatNumber || !settings.orgNumber) && (
                           <>
@@ -385,7 +388,7 @@ const LegalSettingsManager: React.FC = () => {
           />
           {expandedSections.consent && (
             <div className="px-4 sm:px-5 pb-5 space-y-4">
-              <div className="flex items-center justify-between bg-surface-800 border border-surface-600 rounded-lg p-4">
+              <div className="flex items-center justify-between bg-surface-800 border border-surface-600 rounded-lg p-3 sm:p-4">
                 <div>
                   <p className="text-sm font-medium text-white">Show consent checkbox at checkout</p>
                   <p className="text-xs text-neutral-400 mt-0.5">
@@ -394,7 +397,7 @@ const LegalSettingsManager: React.FC = () => {
                 </div>
                 <button
                   onClick={() => handleChange('showCheckoutConsent', !settings.showCheckoutConsent)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ml-3 ${
                     settings.showCheckoutConsent ? 'bg-primary-600' : 'bg-surface-600'
                   }`}
                 >
@@ -452,7 +455,7 @@ const LegalSettingsManager: React.FC = () => {
           />
           {expandedSections.disclaimer && (
             <div className="px-4 sm:px-5 pb-5 space-y-4">
-              <div className="flex items-center justify-between bg-surface-800 border border-surface-600 rounded-lg p-4">
+              <div className="flex items-center justify-between bg-surface-800 border border-surface-600 rounded-lg p-3 sm:p-4">
                 <div>
                   <p className="text-sm font-medium text-white">Show disclaimer on invoices</p>
                   <p className="text-xs text-neutral-400 mt-0.5">
@@ -461,7 +464,7 @@ const LegalSettingsManager: React.FC = () => {
                 </div>
                 <button
                   onClick={() => handleChange('showInvoiceDisclaimer', !settings.showInvoiceDisclaimer)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ml-3 ${
                     settings.showInvoiceDisclaimer ? 'bg-primary-600' : 'bg-surface-600'
                   }`}
                 >
@@ -496,7 +499,7 @@ const LegalSettingsManager: React.FC = () => {
                       className="w-full px-3 py-2.5 bg-surface-800 border border-surface-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-colors text-sm resize-y"
                     />
                     {(settings.invoiceDisclaimer_en || settings.companyName) && (
-                      <div className="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 mt-2 border border-slate-200 dark:border-slate-800">
+                      <div className="text-xs text-neutral-400 bg-surface-900/50 rounded-lg p-3 mt-2 border border-surface-700">
                         <span className="text-neutral-500 text-[10px] uppercase tracking-wider font-medium block mb-1">Preview</span>
                         {(settings.invoiceDisclaimer_en || 'All payments and invoices are issued by {CompanyName} (Org.nr: {OrganizationNumber}, VAT: {VatNumber}), {StreetAddress}, {PostalCode} {City}. {TradingName} is a trading name of {CompanyName}.')
                           .replace(/\{CompanyName\}/g, settings.companyName || '')
@@ -524,7 +527,7 @@ const LegalSettingsManager: React.FC = () => {
                       className="w-full px-3 py-2.5 bg-surface-800 border border-surface-600 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-colors text-sm resize-y"
                     />
                     {(settings.invoiceDisclaimer_sv || settings.companyName) && (
-                      <div className="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3 mt-2 border border-slate-200 dark:border-slate-800">
+                      <div className="text-xs text-neutral-400 bg-surface-900/50 rounded-lg p-3 mt-2 border border-surface-700">
                         <span className="text-neutral-500 text-[10px] uppercase tracking-wider font-medium block mb-1">Förhandsgranskning</span>
                         {(settings.invoiceDisclaimer_sv || 'Alla betalningar och fakturor utfärdas av {CompanyName} (Org.nr: {OrganizationNumber}, Moms.nr: {VatNumber}), {StreetAddress}, {PostalCode} {City}. {TradingName} är ett handelsnamn för {CompanyName}.')
                           .replace(/\{CompanyName\}/g, settings.companyName || '')
@@ -549,7 +552,7 @@ const LegalSettingsManager: React.FC = () => {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
+          className="flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
         >
           <FaSave size={14} />
           {isSaving ? 'Saving...' : 'Save All Changes'}

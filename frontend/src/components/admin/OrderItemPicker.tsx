@@ -124,10 +124,10 @@ const OrderItemPicker: React.FC<OrderItemPickerProps> = ({ orderId, onSelect, on
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60" onClick={onClose} />
 
-      <div className="relative bg-surface-850 rounded-2xl border border-surface-700 shadow-dark-lg w-full max-w-3xl flex flex-col" style={{ maxHeight: '85vh', minWidth: 700 }}>
+      <div className="relative bg-surface-850 rounded-2xl border border-surface-700 shadow-dark-lg w-full max-w-3xl flex flex-col max-h-[85vh]">
         {/* ── Header ── */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-surface-700 flex-shrink-0">
-          <h3 className="text-base font-semibold text-white">Add Product or Service</h3>
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-surface-700 flex-shrink-0">
+          <h3 className="text-sm sm:text-base font-semibold text-white">Add Product or Service</h3>
           <button
             onClick={onClose}
             className="p-1.5 text-neutral-400 hover:text-white hover:bg-surface-700 rounded-lg transition-colors"
@@ -137,7 +137,7 @@ const OrderItemPicker: React.FC<OrderItemPickerProps> = ({ orderId, onSelect, on
         </div>
 
         {/* ── Search bar ── */}
-        <div className="px-5 py-3 border-b border-surface-700 flex-shrink-0">
+        <div className="px-4 sm:px-5 py-3 border-b border-surface-700 flex-shrink-0">
           <div className="relative">
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-neutral-500" />
             <input
@@ -145,8 +145,8 @@ const OrderItemPicker: React.FC<OrderItemPickerProps> = ({ orderId, onSelect, on
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search all products and services..."
-              className="w-full bg-surface-900 border border-surface-600 rounded-lg pl-9 pr-3 py-2.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+              placeholder="Search products & services..."
+              className="w-full bg-surface-900 border border-surface-600 rounded-lg pl-9 pr-8 py-2.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50"
             />
             {query && (
               <button
@@ -157,13 +157,42 @@ const OrderItemPicker: React.FC<OrderItemPickerProps> = ({ orderId, onSelect, on
               </button>
             )}
           </div>
+
+          {/* Mobile category pills */}
+          {categories.length > 0 && (
+            <div className="sm:hidden flex gap-1.5 mt-2.5 overflow-x-auto scrollbar-hide pb-0.5">
+              <button
+                onClick={() => handleCategoryClick('')}
+                className={`shrink-0 px-3 py-1.5 text-xs font-bold rounded-full border transition-colors ${
+                  activeCategory === ''
+                    ? 'border-primary-500 bg-primary-600/20 text-primary-400'
+                    : 'border-surface-600 text-neutral-400 hover:border-surface-500'
+                }`}
+              >
+                All
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryClick(cat)}
+                  className={`shrink-0 px-3 py-1.5 text-xs font-bold rounded-full border transition-colors ${
+                    activeCategory === cat
+                      ? 'border-primary-500 bg-primary-600/20 text-primary-400'
+                      : 'border-surface-600 text-neutral-400 hover:border-surface-500'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ── Body: sidebar + grid ── */}
         <div className="flex flex-1 min-h-0">
-          {/* Sidebar — categories */}
+          {/* Sidebar — categories (hidden on mobile, shown as pills above) */}
           {categories.length > 0 && (
-            <div className="w-44 flex-shrink-0 border-r border-surface-700 overflow-y-auto py-2">
+            <div className="hidden sm:block w-44 flex-shrink-0 border-r border-surface-700 overflow-y-auto py-2">
               <button
                 onClick={() => handleCategoryClick('')}
                 className={`w-full text-left px-4 py-2 text-sm transition-colors ${
@@ -191,7 +220,7 @@ const OrderItemPicker: React.FC<OrderItemPickerProps> = ({ orderId, onSelect, on
           )}
 
           {/* Main grid area */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4">
             {/* Search active indicator */}
             {query && (
               <p className="text-xs text-neutral-500 mb-3">
@@ -199,15 +228,15 @@ const OrderItemPicker: React.FC<OrderItemPickerProps> = ({ orderId, onSelect, on
               </p>
             )}
 
-            {/* Product grid */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Product grid — single column on mobile, 2 columns on sm+ */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {products.map((product) => (
                 <div
                   key={`${product.type}-${product.id}`}
-                  className="bg-surface-800 rounded-xl border border-surface-700 hover:border-primary-500/40 transition-colors group flex flex-col"
+                  className="bg-surface-800 rounded-xl border border-surface-700 hover:border-primary-500/40 transition-colors group flex sm:flex-col"
                 >
-                  {/* Thumbnail */}
-                  <div className="h-28 rounded-t-xl bg-surface-900 overflow-hidden flex items-center justify-center">
+                  {/* Thumbnail — horizontal on mobile, stacked on desktop */}
+                  <div className="w-20 h-20 sm:w-full sm:h-28 rounded-l-xl sm:rounded-l-none sm:rounded-t-xl bg-surface-900 overflow-hidden flex items-center justify-center shrink-0">
                     {product.imageUrl ? (
                       <img
                         src={product.imageUrl}
@@ -217,37 +246,35 @@ const OrderItemPicker: React.FC<OrderItemPickerProps> = ({ orderId, onSelect, on
                     ) : (
                       <div className="flex flex-col items-center gap-1 text-neutral-600">
                         {product.type === 'gaming-pc' ? (
-                          <FaDesktop className="text-2xl" />
+                          <FaDesktop className="text-xl sm:text-2xl" />
                         ) : product.type === 'pc-component' ? (
-                          <FaMicrochip className="text-2xl" />
+                          <FaMicrochip className="text-xl sm:text-2xl" />
                         ) : (
-                          <FaBoxOpen className="text-2xl" />
+                          <FaBoxOpen className="text-xl sm:text-2xl" />
                         )}
                       </div>
                     )}
                   </div>
 
-                  {/* Info */}
-                  <div className="p-3 flex-1 flex flex-col">
+                  {/* Info + Select — row layout on mobile */}
+                  <div className="flex-1 flex flex-col p-3 min-w-0">
                     <p className="text-sm font-bold text-white leading-tight truncate" title={product.name}>
                       {product.name}
                     </p>
                     <p className="text-[10px] text-neutral-500 mt-0.5 uppercase tracking-wide">
                       {product.category}
                     </p>
-                    <p className="text-sm font-semibold text-primary-400 mt-2">
-                      {product.price}
-                    </p>
-                  </div>
-
-                  {/* Select button */}
-                  <div className="px-3 pb-3">
-                    <button
-                      onClick={() => handleSelect(product)}
-                      className="w-full px-3 py-2 text-xs font-bold bg-primary-600 text-white rounded-lg hover:bg-primary-500 transition-colors"
-                    >
-                      Select
-                    </button>
+                    <div className="flex items-center justify-between mt-2 sm:flex-col sm:items-start sm:gap-2">
+                      <p className="text-sm font-semibold text-primary-400">
+                        {product.price}
+                      </p>
+                      <button
+                        onClick={() => handleSelect(product)}
+                        className="px-4 py-1.5 sm:w-full sm:py-2 text-xs font-bold bg-primary-600 text-white rounded-lg hover:bg-primary-500 transition-colors"
+                      >
+                        Select
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -287,7 +314,7 @@ const OrderItemPicker: React.FC<OrderItemPickerProps> = ({ orderId, onSelect, on
         </div>
 
         {/* ── Footer ── */}
-        <div className="px-5 py-3 border-t border-surface-700 flex items-center justify-between flex-shrink-0">
+        <div className="px-4 sm:px-5 py-3 border-t border-surface-700 flex items-center justify-between flex-shrink-0">
           <span className="text-xs text-neutral-500">
             {total} product{total !== 1 ? 's' : ''}
             {activeCategory ? ` in ${activeCategory}` : ''}

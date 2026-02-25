@@ -69,7 +69,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div>
       <div className="mb-4 sm:mb-8">
-        <h2 className="text-3xl sm:text-4xl font-thin text-white">Dashboard Overview</h2>
+        <h2 className="text-2xl sm:text-4xl font-thin text-white">Dashboard Overview</h2>
         <p className="font-medium text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-500 mt-2">Overview</p>
       </div>
 
@@ -79,7 +79,7 @@ const AdminDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
             <div className="order-2 sm:order-1">
               <p className="text-[10px] sm:text-sm font-bold text-neutral-400 uppercase tracking-wider">Total Orders</p>
-              <p className="text-3xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{stats.totalOrders}</p>
+              <p className="text-2xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{stats.totalOrders}</p>
             </div>
             <div className="order-1 sm:order-2 w-10 h-10 sm:w-12 sm:h-12 bg-primary-600/10 rounded-lg sm:rounded-2xl flex items-center justify-center text-primary-400">
               <FaShoppingCart className="text-base sm:text-xl" />
@@ -91,10 +91,10 @@ const AdminDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
             <div className="order-2 sm:order-1">
               <p className="text-[10px] sm:text-sm font-bold text-neutral-400 uppercase tracking-wider">Total Revenue</p>
-              <div className="mt-0.5 sm:mt-2">
+              <div className="mt-0.5 sm:mt-2 overflow-hidden">
                 <AdminPriceDisplay
                   price={stats.totalRevenue}
-                  primaryClassName="text-lg sm:text-3xl font-bold text-white"
+                  primaryClassName="text-base sm:text-3xl font-bold text-white flex flex-wrap items-baseline gap-x-1"
                   secondaryClassName="block text-[10px] sm:text-xs text-neutral-400 font-normal"
                 />
               </div>
@@ -109,7 +109,7 @@ const AdminDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
             <div className="order-2 sm:order-1">
               <p className="text-[10px] sm:text-sm font-bold text-neutral-400 uppercase tracking-wider">Pending Orders</p>
-              <p className="text-3xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{stats.pendingOrders}</p>
+              <p className="text-2xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{stats.pendingOrders}</p>
             </div>
             <div className="order-1 sm:order-2 w-10 h-10 sm:w-12 sm:h-12 bg-primary-600/10 rounded-lg sm:rounded-2xl flex items-center justify-center text-primary-400">
               <FaClock className="text-base sm:text-xl" />
@@ -121,7 +121,7 @@ const AdminDashboard: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
             <div className="order-2 sm:order-1">
               <p className="text-[10px] sm:text-sm font-bold text-neutral-400 uppercase tracking-wider">Active Services</p>
-              <p className="text-3xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{services?.length || 0}</p>
+              <p className="text-2xl sm:text-4xl font-thin text-white mt-0.5 sm:mt-2">{services?.length || 0}</p>
             </div>
             <div className="order-1 sm:order-2 w-10 h-10 sm:w-12 sm:h-12 bg-primary-600/10 rounded-lg sm:rounded-2xl flex items-center justify-center text-primary-400">
               <FaBox className="text-base sm:text-xl" />

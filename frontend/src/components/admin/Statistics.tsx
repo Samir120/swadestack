@@ -90,7 +90,7 @@ const Statistics: React.FC = () => {
   return (
     <div>
       <div className="mb-4 sm:mb-8">
-        <h2 className="text-3xl sm:text-4xl font-thin text-white">Statistics & Analytics</h2>
+        <h2 className="text-2xl sm:text-4xl font-thin text-white">Statistics & Analytics</h2>
         <p className="font-medium text-[10px] sm:text-xs uppercase tracking-[0.2em] text-neutral-500 mt-2">Analytics</p>
       </div>
 
@@ -111,12 +111,12 @@ const Statistics: React.FC = () => {
 
         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-dark-md p-3 sm:p-6 text-white">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-            <div className="order-2 sm:order-1">
+            <div className="order-2 sm:order-1 min-w-0">
               <p className="text-[10px] sm:text-sm font-bold text-green-100 uppercase tracking-wider">Total Revenue</p>
-              <div className="mt-0.5 sm:mt-2">
+              <div className="mt-0.5 sm:mt-2 overflow-hidden">
                 <AdminPriceDisplay
                   price={stats.totalRevenue}
-                  primaryClassName="text-xl sm:text-3xl font-bold text-white truncate"
+                  primaryClassName="text-base sm:text-3xl font-bold text-white flex flex-wrap items-baseline gap-x-1"
                   secondaryClassName="block text-[10px] sm:text-xs text-green-100 font-normal"
                 />
               </div>
@@ -252,7 +252,7 @@ const Statistics: React.FC = () => {
                     cy="48"
                   />
                   <circle
-                    className="text-purple-600"
+                    className="text-purple-400"
                     strokeWidth="6"
                     strokeLinecap="round"
                     stroke="currentColor"

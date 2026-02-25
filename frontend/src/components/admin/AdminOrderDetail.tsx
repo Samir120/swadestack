@@ -52,10 +52,10 @@ const ConfirmModal: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60" onClick={onCancel} />
-      <div className="relative bg-surface-850 rounded-2xl border border-surface-700 shadow-dark-lg w-full max-w-md p-6">
-        <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
+      <div className="relative bg-surface-850 rounded-2xl border border-surface-700 shadow-dark-lg w-full max-w-md p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-white mb-2">{title}</h3>
         <p className="text-sm text-neutral-400 mb-4">{message}</p>
-        <div className="flex justify-end gap-3">
+        <div className="flex justify-end gap-2 sm:gap-3">
           <button
             onClick={onCancel}
             className="px-4 py-2 text-sm font-bold text-neutral-400 border border-surface-600 rounded-lg hover:bg-surface-700 transition-colors"
@@ -520,7 +520,7 @@ const AdminOrderDetailPage: React.FC = () => {
   return (
     <div>
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-neutral-400 mb-6">
+      <div className="flex items-center gap-2 text-sm text-neutral-400 mb-4 sm:mb-6">
         <Link to="/admin/orders" className="hover:text-white transition-colors">
           Orders
         </Link>
@@ -578,8 +578,8 @@ const AdminOrderDetailPage: React.FC = () => {
                 <FaUser className="text-xs text-neutral-500" />
                 {order.firstName} {order.lastName}
               </span>
-              <span className="flex items-center gap-1.5">
-                <FaEnvelope className="text-xs text-neutral-500" />
+              <span className="flex items-center gap-1.5 break-all sm:break-normal">
+                <FaEnvelope className="text-xs text-neutral-500 shrink-0" />
                 {order.email}
               </span>
               {order.userId && (
@@ -594,9 +594,9 @@ const AdminOrderDetailPage: React.FC = () => {
 
             {/* Address */}
             {order.address && (
-              <p className="text-sm text-neutral-400 flex items-center gap-1.5">
-                <FaMapMarkerAlt className="text-xs text-neutral-500" />
-                {order.address}, {order.postalCode} {order.city}, {order.country}
+              <p className="text-sm text-neutral-400 flex items-start gap-1.5">
+                <FaMapMarkerAlt className="text-xs text-neutral-500 mt-0.5 shrink-0" />
+                <span>{order.address}, {order.postalCode} {order.city}, {order.country}</span>
               </p>
             )}
 
@@ -637,19 +637,19 @@ const AdminOrderDetailPage: React.FC = () => {
             </h4>
             <div className="space-y-2">
               {order.payments.map(payment => (
-                <div key={payment.id} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-3">
+                <div key={payment.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 text-sm">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                     <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${getStatusColor(payment.status)}`}>
                       {payment.status}
                     </span>
                     <span className="text-neutral-400 capitalize">{payment.phase}</span>
                     {payment.paymentIntentId && (
-                      <span className="text-[10px] text-neutral-500 font-mono">
+                      <span className="hidden sm:inline text-[10px] text-neutral-500 font-mono">
                         {payment.paymentIntentId.substring(0, 20)}...
                       </span>
                     )}
                   </div>
-                  <span className="font-bold text-white">{formatCurrency(payment.amount, payment.currency)}</span>
+                  <span className="font-bold text-white shrink-0">{formatCurrency(payment.amount, payment.currency)}</span>
                 </div>
               ))}
             </div>
@@ -658,25 +658,26 @@ const AdminOrderDetailPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-surface-700 mb-6">
-        <div className="flex gap-0 overflow-x-auto">
+      <div className="border-b border-surface-700 mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex gap-0 overflow-x-auto scrollbar-hide">
           {([
-            { key: 'details' as TabKey, label: 'Items & Adjustments', icon: FaShoppingBag },
-            { key: 'notes' as TabKey, label: 'Notes', icon: FaStickyNote },
-            { key: 'activity' as TabKey, label: 'Activity', icon: FaHistory },
-            { key: 'emails' as TabKey, label: 'Emails', icon: FaPaperPlane },
+            { key: 'details' as TabKey, label: 'Items', labelFull: 'Items & Adjustments', icon: FaShoppingBag },
+            { key: 'notes' as TabKey, label: 'Notes', labelFull: 'Notes', icon: FaStickyNote },
+            { key: 'activity' as TabKey, label: 'Activity', labelFull: 'Activity', icon: FaHistory },
+            { key: 'emails' as TabKey, label: 'Emails', labelFull: 'Emails', icon: FaPaperPlane },
           ]).map(tab => (
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`flex items-center gap-1.5 px-4 sm:px-6 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
+              className={`flex items-center gap-1.5 px-3 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
                 activeTab === tab.key
                   ? 'border-primary-500 text-primary-400'
                   : 'border-transparent text-neutral-400 hover:text-neutral-300 hover:border-surface-600'
               }`}
             >
               <tab.icon className="text-xs" />
-              {tab.label}
+              <span className="hidden sm:inline">{tab.labelFull}</span>
+              <span className="sm:hidden">{tab.label}</span>
             </button>
           ))}
         </div>
@@ -812,7 +813,7 @@ const AdminOrderDetailPage: React.FC = () => {
                   }
 
                   return (
-                    <div key={item.id} className="px-4 sm:px-6 py-4 flex items-center justify-between">
+                    <div key={item.id} className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-white">{item.serviceName}</p>
                         {pcConfig ? (
@@ -849,7 +850,7 @@ const AdminOrderDetailPage: React.FC = () => {
                           Qty: {item.quantity} x <AdminPriceDisplay price={item.price} currency={order.currency} primaryClassName="text-xs text-neutral-500" secondaryClassName="text-[10px] text-neutral-600 font-normal" />
                         </p>
                       </div>
-                      <AdminPriceDisplay price={item.price * item.quantity} currency={order.currency} primaryClassName="text-sm font-bold text-white" />
+                      <AdminPriceDisplay price={item.price * item.quantity} currency={order.currency} primaryClassName="text-sm font-bold text-white shrink-0" />
                     </div>
                   );
                 })}
@@ -864,9 +865,9 @@ const AdminOrderDetailPage: React.FC = () => {
             </div>
             <div className="divide-y divide-surface-700">
               {order.adjustments.map(adj => (
-                <div key={adj.id} className="px-4 sm:px-6 py-3 flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
+                <div key={adj.id} className="px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className={`text-xs font-bold uppercase ${getAdjustmentColor(adj.type)}`}>{adj.type}</span>
                       <span className="text-sm text-white">{adj.description}</span>
                     </div>
@@ -874,7 +875,7 @@ const AdminOrderDetailPage: React.FC = () => {
                       by {adj.adminUserName} &middot; {getRelativeTime(adj.createdAt)}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 shrink-0">
                     <span className={`text-sm font-bold ${adj.amount < 0 ? 'text-red-400' : 'text-green-400'}`}>
                       {adj.amount > 0 ? '+' : ''}{formatCurrency(adj.amount, order.currency)}
                     </span>
@@ -892,13 +893,13 @@ const AdminOrderDetailPage: React.FC = () => {
 
               {/* Pending adjustments (during edit) */}
               {pendingAdjustments.map((adj, index) => (
-                <div key={`pending-${index}`} className="px-4 sm:px-6 py-3 flex items-center justify-between bg-primary-900/10">
-                  <div className="flex items-center gap-2">
+                <div key={`pending-${index}`} className="px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 bg-primary-900/10">
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
                     <span className={`text-xs font-bold uppercase ${getAdjustmentColor(adj.type)}`}>{adj.type}</span>
                     <span className="text-sm text-white">{adj.description}</span>
                     <span className="text-[10px] text-primary-400 font-bold">NEW</span>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 shrink-0">
                     <span className={`text-sm font-bold ${adj.amount < 0 ? 'text-red-400' : 'text-green-400'}`}>
                       {adj.amount > 0 ? '+' : ''}{formatCurrency(adj.amount, order.currency)}
                     </span>
@@ -1015,9 +1016,9 @@ const AdminOrderDetailPage: React.FC = () => {
                   )}
 
                   {/* Order Total */}
-                  <div className="pt-2 border-t border-surface-700 flex justify-between">
-                    <span className="text-base font-bold text-white">Order Total (inkl. moms)</span>
-                    <span className="text-xl font-bold text-primary-400">
+                  <div className="pt-2 border-t border-surface-700 flex justify-between items-baseline gap-2">
+                    <span className="text-sm sm:text-base font-bold text-white">Order Total (inkl. moms)</span>
+                    <span className="text-lg sm:text-xl font-bold text-primary-400 shrink-0">
                       {formatCurrency(orderTotalGross, order.currency)}
                     </span>
                   </div>
@@ -1089,7 +1090,7 @@ const AdminOrderDetailPage: React.FC = () => {
               <LoadingSpinner />
             </div>
           ) : notes.length === 0 ? (
-            <div className="p-12 text-center">
+            <div className="p-6 sm:p-12 text-center">
               <FaStickyNote className="text-3xl text-neutral-600 mx-auto mb-3" />
               <h4 className="text-base font-bold text-white mb-1">No notes yet</h4>
               <p className="text-sm text-neutral-400">Add the first internal note for this order.</p>
@@ -1170,7 +1171,7 @@ const AdminOrderDetailPage: React.FC = () => {
               <LoadingSpinner />
             </div>
           ) : auditLogs.length === 0 ? (
-            <div className="p-12 text-center">
+            <div className="p-6 sm:p-12 text-center">
               <FaHistory className="text-3xl text-neutral-600 mx-auto mb-3" />
               <h4 className="text-base font-bold text-white mb-1">No activity yet</h4>
               <p className="text-sm text-neutral-400">Order actions will appear here.</p>
@@ -1267,7 +1268,7 @@ const AdminOrderDetailPage: React.FC = () => {
               <LoadingSpinner />
             </div>
           ) : emailHistory.length === 0 ? (
-            <div className="p-12 text-center">
+            <div className="p-6 sm:p-12 text-center">
               <FaEnvelope className="text-3xl text-neutral-600 mx-auto mb-3" />
               <h4 className="text-base font-bold text-white mb-1">No emails sent</h4>
               <p className="text-sm text-neutral-400">Email history for this order will appear here.</p>
@@ -1276,17 +1277,25 @@ const AdminOrderDetailPage: React.FC = () => {
             <div className="divide-y divide-surface-700">
               {emailHistory.map(email => (
                 <div key={email.id} className="px-4 sm:px-6 py-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <FaEnvelope className={`text-sm flex-shrink-0 ${getEmailTypeIcon(email.templateType)}`} />
+                  <div className="flex items-start sm:items-center justify-between gap-2">
+                    <div className="flex items-start sm:items-center gap-2 sm:gap-3 min-w-0">
+                      <FaEnvelope className={`text-sm flex-shrink-0 mt-0.5 sm:mt-0 ${getEmailTypeIcon(email.templateType)}`} />
                       <div className="min-w-0">
                         <p className="text-sm text-white font-medium truncate">{email.subject}</p>
-                        <p className="text-[10px] text-neutral-500">
+                        <p className="text-[10px] text-neutral-500 break-all sm:break-normal">
                           {email.templateType.replace(/-/g, ' ')} &middot; {email.to}
                         </p>
+                        <div className="flex items-center gap-2 mt-1 sm:hidden">
+                          <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${getEmailStatusBadge(email.status)}`}>
+                            {email.status}
+                          </span>
+                          <span className="text-[10px] text-neutral-500">
+                            {getRelativeTime(email.sentAt || email.createdAt)}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
                       <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${getEmailStatusBadge(email.status)}`}>
                         {email.status}
                       </span>
