@@ -10,9 +10,6 @@ import { Feature } from '../../models/types/feature.types';
 
 const ACCENT_COLORS = [
   { bg: 'bg-indigo-500', hex: '#6366f1', shadow: 'shadow-indigo-500/25', hoverShadow: 'shadow-indigo-500/40', modalBg: 'bg-indigo-500' },
-  { bg: 'bg-emerald-500', hex: '#10b981', shadow: 'shadow-emerald-500/25', hoverShadow: 'shadow-emerald-500/40', modalBg: 'bg-emerald-500' },
-  { bg: 'bg-amber-500', hex: '#f59e0b', shadow: 'shadow-amber-500/25', hoverShadow: 'shadow-amber-500/40', modalBg: 'bg-amber-500' },
-  { bg: 'bg-rose-500', hex: '#f43f5e', shadow: 'shadow-rose-500/25', hoverShadow: 'shadow-rose-500/40', modalBg: 'bg-rose-500' },
   { bg: 'bg-sky-500', hex: '#0ea5e9', shadow: 'shadow-sky-500/25', hoverShadow: 'shadow-sky-500/40', modalBg: 'bg-sky-500' },
   { bg: 'bg-violet-500', hex: '#8b5cf6', shadow: 'shadow-violet-500/25', hoverShadow: 'shadow-violet-500/40', modalBg: 'bg-violet-500' },
 ];
@@ -106,8 +103,9 @@ const MonitorMockup: React.FC<{ imageUrl?: string | null }> = ({ imageUrl }) => 
     transition={{ duration: 0.6, type: 'spring', stiffness: 100, damping: 15 }}
     className="relative"
   >
-    {/* Ambient glow */}
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[130%] bg-primary-200/20 dark:bg-primary-500/[0.05] rounded-full -z-10 blur-3xl pointer-events-none" />
+    {/* Ambient glow — stronger layered effect */}
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[130%] bg-primary-300/25 dark:bg-primary-500/[0.08] rounded-full -z-10 blur-3xl pointer-events-none" />
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100%] h-[90%] bg-primary-400/15 dark:bg-primary-400/[0.06] rounded-full -z-10 blur-2xl pointer-events-none" />
 
     {/* Dot grid pattern behind monitor */}
     <div
@@ -120,7 +118,7 @@ const MonitorMockup: React.FC<{ imageUrl?: string | null }> = ({ imageUrl }) => 
 
     <div className="flex flex-col items-center">
       {/* Monitor body — gradient bezel for depth */}
-      <div className="w-[300px] sm:w-[340px] lg:w-[340px] xl:w-[400px] 2xl:w-[440px] rounded-t-2xl rounded-b-lg overflow-hidden shadow-2xl shadow-black/20 dark:shadow-black/50 ring-1 ring-white/[0.08] dark:ring-white/[0.04]">
+      <div className="w-[300px] sm:w-[340px] lg:w-[340px] xl:w-[400px] 2xl:w-[440px] rounded-t-2xl rounded-b-lg overflow-hidden shadow-2xl shadow-black/25 dark:shadow-primary-900/30 ring-1 ring-gray-300/40 dark:ring-white/[0.08]">
         {/* Top bezel — subtle gradient */}
         <div className="flex items-center justify-center h-5 lg:h-7 bg-gradient-to-b from-neutral-700 to-neutral-800 dark:from-zinc-800 dark:to-zinc-900">
           <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-neutral-500/60 dark:bg-zinc-600/50" />
@@ -331,7 +329,8 @@ const FeatureDetailModal: React.FC<{
     >
       {/* Backdrop */}
       <motion.div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60"
+        style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
         onClick={onClose}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -340,11 +339,12 @@ const FeatureDetailModal: React.FC<{
 
       {/* Popup */}
       <motion.div
-        className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto bg-white dark:bg-surface-850 rounded-2xl shadow-2xl ring-1 ring-black/5 dark:ring-white/10"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto bg-white dark:bg-surface-850 rounded-2xl ring-1 ring-gray-200/60 dark:ring-white/[0.12]"
+        style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.15)' }}
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
