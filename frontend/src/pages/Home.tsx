@@ -367,9 +367,6 @@ const Home: React.FC = () => {
         <HighlightsBanner scrollToSection={scrollToSection} />
       </div>
 
-      {/* Hero bottom gradient fade */}
-      <div className="relative z-[1] h-20 -mt-20 bg-gradient-to-b from-transparent to-white dark:to-surface-900 pointer-events-none" />
-
       {/* Shopping Cart */}
       <ShoppingCart />
 

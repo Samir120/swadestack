@@ -3,6 +3,7 @@ import { useAppSelector } from '../../store/hooks';
 import apiClient from '../../models/api/apiClient';
 import { Banner } from '../../models/types/bannerTypes';
 import LoadingSpinner from './LoadingSpinner';
+import useReducedMotion from '../../hooks/useReducedMotion';
 
 interface HighlightsBannerProps {
   scrollToSection: (sectionId: string) => void;
@@ -12,6 +13,8 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
   // 1. Get Language + Settings from Redux Store
   const language = useAppSelector((state) => state.ui.language);
   const { settings } = useAppSelector((state) => state.siteSettings);
+
+  const reduceMotion = useReducedMotion();
 
   // 2. State for Dynamic Data
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -110,12 +113,37 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
     ? (settings?.heroButtonSecondary_en || 'Our Services')
     : (settings?.heroButtonSecondary_sv || 'Våra Tjänster');
 
-  // 8. Render Loading State
+  // Scroll indicator handler — scroll past the banner
+  const handleScrollDown = () => {
+    const bannerHeight = window.innerWidth < 640 ? window.innerHeight * 0.85 : window.innerHeight;
+    window.scrollTo({ top: bannerHeight, behavior: 'smooth' });
+  };
+
+  // Shared scroll indicator
+  const ScrollIndicator = () => (
+    <button
+      onClick={handleScrollDown}
+      className="absolute bottom-7 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 text-white/60 hover:text-white/90 transition-colors duration-300"
+      aria-label="Scroll down"
+    >
+      <svg
+        className="w-5 h-5 sm:w-6 sm:h-6 animate-bounce"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+      </svg>
+    </button>
+  );
+
+  // Loading State
   if (isLoading) {
     return (
-      <div className="relative z-0 w-full min-h-[50vh] sm:min-h-[55vh] md:min-h-[65vh] md:max-h-[75vh] bg-gray-200 dark:bg-surface-800 flex flex-col items-center justify-center gap-3">
+      <div className="relative z-0 w-full h-[85vh] sm:h-screen bg-black flex flex-col items-center justify-center gap-3">
         <LoadingSpinner />
-        <span className="text-gray-500 dark:text-neutral-400 text-xs sm:text-sm">Loading highlights...</span>
+        <span className="text-neutral-400 text-xs sm:text-sm">Loading highlights...</span>
       </div>
     );
   }
@@ -131,63 +159,74 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
       : 'Building Digital Excellence';
 
     return (
-      <div className="relative z-0 w-full min-h-[50vh] sm:min-h-[55vh] md:min-h-[65vh] md:max-h-[75vh] overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-surface-900">
+      <div className="relative z-0 w-full h-[85vh] sm:h-screen overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-surface-900">
         {/* Decorative gradient blobs */}
         <div className="absolute top-[10%] right-[-5%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-primary-600/20 rounded-full blur-[100px] sm:blur-[150px]" />
         <div className="absolute bottom-[-10%] left-[-5%] w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-accent-500/10 rounded-full blur-[100px] sm:blur-[150px]" />
 
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/30" />
+
         {/* Content */}
-        <div className="absolute inset-0 flex flex-col justify-center items-center text-white px-4 sm:px-10 text-center z-10">
-          <div className="inline-flex items-center justify-center px-3 sm:px-5 py-1 sm:py-2 mb-3 sm:mb-7 border border-primary-400/30 rounded-full bg-primary-500/15 backdrop-blur-sm">
-            <span className="w-1.5 sm:w-2.5 h-1.5 sm:h-2.5 rounded-full bg-primary-400 mr-1.5 sm:mr-2.5 animate-pulse"></span>
-            <span className="text-primary-200 text-[9px] sm:text-sm font-bold tracking-widest uppercase">
+        <div className="absolute inset-0 flex flex-col justify-center items-center text-white px-5 sm:px-6 text-center z-10">
+          <div className="inline-flex items-center justify-center px-4 sm:px-5 py-1.5 sm:py-2 mb-4 sm:mb-8 border border-white/20 rounded-full bg-white/10 backdrop-blur-sm">
+            <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-primary-400 mr-2 sm:mr-2.5 animate-pulse"></span>
+            <span className="text-white/80 text-[10px] sm:text-xs font-semibold tracking-[0.2em] uppercase">
               {heroStatusText}
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-thin text-transparent bg-clip-text bg-gradient-to-r from-primary-300 via-primary-400 to-accent-300 mb-3 sm:mb-6 leading-[1.1] tracking-wide drop-shadow-lg">
+          <h1
+            className="text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-3 sm:mb-6 leading-[1.1] tracking-tight"
+            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}
+          >
             {heroHeading}
           </h1>
 
           {tagline && (
-            <p className="text-sm sm:text-lg md:text-xl lg:text-2xl text-white/70 mb-5 sm:mb-10 max-w-4xl font-light leading-relaxed">
+            <p
+              className="text-sm sm:text-lg md:text-xl mb-5 sm:mb-10 max-w-2xl font-light leading-relaxed"
+              style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}
+            >
               {tagline}
             </p>
           )}
 
-          <div className="flex flex-row items-center justify-center gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 w-full sm:w-auto">
             <button
               onClick={() => scrollToSection('portfolio')}
-              className="group inline-flex items-center gap-2 sm:gap-2.5 px-5 sm:px-8 py-2.5 sm:py-3 bg-white text-primary-700 rounded-lg text-xs sm:text-sm font-semibold hover:bg-white/90 transition-all duration-300 active:scale-[0.97] shadow-lg hover:shadow-xl"
+              className="group inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-6 py-3 sm:px-9 sm:py-4 bg-primary-600 text-white rounded-[10px] text-sm sm:text-base font-bold backdrop-blur-sm hover:bg-primary-500 hover:shadow-glow transition-all duration-300 active:scale-[0.97]"
             >
               {heroPrimaryButton}
-              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </button>
             <button
               onClick={() => scrollToSection('services')}
-              className="group inline-flex items-center gap-2 sm:gap-2.5 px-5 sm:px-8 py-2.5 sm:py-3 border border-white/25 text-white/90 rounded-lg text-xs sm:text-sm font-medium hover:bg-white/10 hover:border-white/40 hover:text-white transition-all duration-300 active:scale-[0.97] backdrop-blur-sm"
+              className="group inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-6 py-3 sm:px-9 sm:py-4 border-2 border-white text-white rounded-[10px] text-sm sm:text-base font-semibold backdrop-blur-sm hover:bg-white hover:text-gray-900 transition-all duration-300 active:scale-[0.97]"
             >
               {heroSecondaryButton}
-              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </button>
           </div>
         </div>
+
+        <ScrollIndicator />
       </div>
     );
   }
 
-  // 9. Main Render — Carousel with persistent hero overlay
+  // Main Render — Full-viewport carousel (Corsair-style)
   return (
     <div
-      className="relative z-0 w-full min-h-[50vh] sm:min-h-[55vh] md:min-h-[65vh] md:max-h-[75vh] overflow-hidden bg-gray-100 dark:bg-surface-900"
+      className="relative z-0 w-full h-[85vh] sm:h-screen overflow-hidden bg-black"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Image slides — background + Ken Burns + gradient only */}
+      {/* Image slides */}
       {banners.map((banner, index) => {
         const isActive = index === currentSlide;
 
@@ -204,30 +243,22 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
               style={{
                 backgroundImage: `url(${banner.image_url})`,
                 backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                backgroundPosition: reduceMotion ? 'top center' : 'center',
               }}
             />
 
-            {/* Multi-layer gradient overlay for depth */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30"></div>
-            {/* Cinematic vignette overlay */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)',
-              }}
-            />
+            {/* Dark semi-transparent overlay */}
+            <div className="absolute inset-0 bg-black/40"></div>
           </div>
         );
       })}
 
-      {/* Persistent content overlay — positioned lower for cinematic feel */}
-      <div className="absolute inset-0 z-[15] flex flex-col justify-end items-center text-white px-4 sm:px-10 pb-14 sm:pb-20 md:pb-24 text-center pointer-events-none">
+      {/* Centered content overlay */}
+      <div className="absolute inset-0 z-[15] flex flex-col justify-center items-center text-white px-5 sm:px-6 text-center pointer-events-none">
         {/* Status badge */}
-        <div className="inline-flex items-center justify-center px-3 sm:px-5 py-1 sm:py-2 mb-3 sm:mb-5 border border-primary-400/30 rounded-full bg-primary-500/15 backdrop-blur-sm pointer-events-auto">
-          <span className="w-1.5 sm:w-2.5 h-1.5 sm:h-2.5 rounded-full bg-primary-400 mr-1.5 sm:mr-2.5 animate-pulse"></span>
-          <span className="text-primary-200 text-[9px] sm:text-sm font-bold tracking-widest uppercase">
+        <div className="inline-flex items-center justify-center px-4 sm:px-5 py-1.5 sm:py-2 mb-4 sm:mb-8 border border-white/20 rounded-full bg-white/10 backdrop-blur-sm pointer-events-auto">
+          <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-primary-400 mr-2 sm:mr-2.5 animate-pulse"></span>
+          <span className="text-white/80 text-[10px] sm:text-xs font-semibold tracking-[0.2em] uppercase">
             {heroStatusText}
           </span>
         </div>
@@ -235,99 +266,120 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
         {/* Per-slide title + description */}
         <div key={currentSlide} className="max-w-4xl">
           <h2
-            className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-thin mb-2 sm:mb-3 md:mb-4 drop-shadow-lg leading-tight tracking-wide animate-bannerTextIn"
-            style={{ animationDelay: '0.15s' }}
+            className={`text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-5 md:mb-6 leading-tight tracking-tight text-white${reduceMotion ? '' : ' animate-bannerTextIn'}`}
+            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)', ...(!reduceMotion ? { animationDelay: '0.15s' } : {}) }}
           >
             {getLocalizedContent(banners[currentSlide]).title}
           </h2>
           <p
-            className="text-xs sm:text-base md:text-lg lg:text-xl drop-shadow-md max-w-3xl mx-auto font-light leading-relaxed text-white/80 animate-bannerTextIn line-clamp-2 sm:line-clamp-none"
-            style={{ animationDelay: '0.4s' }}
+            className={`text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto font-light leading-relaxed${reduceMotion ? '' : ' animate-bannerTextIn'}`}
+            style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 6px rgba(0,0,0,0.5)', ...(!reduceMotion ? { animationDelay: '0.4s' } : {}) }}
           >
             {getLocalizedContent(banners[currentSlide]).desc}
           </p>
         </div>
 
         {/* CTA buttons */}
-        <div className="flex flex-row items-center justify-center gap-3 sm:gap-4 mt-4 sm:mt-7 pointer-events-auto animate-bannerTextIn" style={{ animationDelay: '0.6s' }}>
+        <div
+          className={`flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 mt-5 sm:mt-10 w-full sm:w-auto pointer-events-auto${reduceMotion ? '' : ' animate-bannerTextIn'}`}
+          style={!reduceMotion ? { animationDelay: '0.6s' } : undefined}
+        >
           <button
             onClick={() => scrollToSection('portfolio')}
-            className="group inline-flex items-center gap-2 sm:gap-2.5 px-5 sm:px-8 py-2.5 sm:py-3 bg-white text-primary-700 rounded-lg text-xs sm:text-sm font-semibold hover:bg-white/90 transition-all duration-300 active:scale-[0.97] shadow-lg hover:shadow-xl"
+            className="group inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-6 py-3 sm:px-9 sm:py-4 bg-primary-600 text-white rounded-[10px] text-sm sm:text-base font-bold backdrop-blur-sm hover:bg-primary-500 hover:shadow-glow transition-all duration-300 active:scale-[0.97]"
           >
             {heroPrimaryButton}
-            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+            <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </button>
           <button
             onClick={() => scrollToSection('services')}
-            className="group inline-flex items-center gap-2 sm:gap-2.5 px-5 sm:px-8 py-2.5 sm:py-3 border border-white/25 text-white/90 rounded-lg text-xs sm:text-sm font-medium hover:bg-white/10 hover:border-white/40 hover:text-white transition-all duration-300 active:scale-[0.97] backdrop-blur-sm"
+            className="group inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-6 py-3 sm:px-9 sm:py-4 border-2 border-white text-white rounded-[10px] text-sm sm:text-base font-semibold backdrop-blur-sm hover:bg-white hover:text-gray-900 transition-all duration-300 active:scale-[0.97]"
           >
             {heroSecondaryButton}
-            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
           </button>
         </div>
       </div>
 
-      {/* Navigation Buttons - hidden on mobile, dots are sufficient */}
+      {/* Navigation arrows — subtle dark style */}
       {banners.length > 1 && (
         <>
           <button
             onClick={prevSlide}
-            className="hidden sm:flex absolute top-1/2 left-4 md:left-5 -translate-y-1/2 z-20 bg-white/15 backdrop-blur-sm hover:bg-white/30 border border-white/20 rounded-full w-10 h-10 md:w-12 md:h-12 items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95"
+            className="hidden sm:flex absolute top-1/2 left-4 md:left-6 -translate-y-1/2 z-20 bg-black/30 backdrop-blur-sm hover:bg-black/50 border border-white/10 rounded-full w-10 h-10 md:w-11 md:h-11 items-center justify-center text-white/70 hover:text-white transition-all duration-300 active:scale-95"
             aria-label="Previous Slide"
           >
-            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <button
             onClick={nextSlide}
-            className="hidden sm:flex absolute top-1/2 right-4 md:right-5 -translate-y-1/2 z-20 bg-white/15 backdrop-blur-sm hover:bg-white/30 border border-white/20 rounded-full w-10 h-10 md:w-12 md:h-12 items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95"
+            className="hidden sm:flex absolute top-1/2 right-4 md:right-6 -translate-y-1/2 z-20 bg-black/30 backdrop-blur-sm hover:bg-black/50 border border-white/10 rounded-full w-10 h-10 md:w-11 md:h-11 items-center justify-center text-white/70 hover:text-white transition-all duration-300 active:scale-95"
             aria-label="Next Slide"
           >
-            <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </>
       )}
 
-      {/* Slide Indicators + Play/Pause */}
-      <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 left-0 right-0 flex items-center justify-center gap-3 sm:gap-4 z-20">
-        <div className="flex items-center space-x-2 sm:space-x-3">
+      {/* Slide indicators + play/pause — above scroll indicator */}
+      <div className="absolute bottom-[68px] sm:bottom-16 left-0 right-0 flex items-center justify-center gap-3 sm:gap-4 z-20">
+        <div className="flex items-center gap-2 sm:gap-2.5 px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-sm">
           {banners.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 ${
+              className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
                 index === currentSlide
-                  ? 'bg-white w-6 sm:w-8'
-                  : 'bg-white/40 w-2 sm:w-2.5 hover:bg-white/60'
+                  ? 'bg-white w-5 sm:w-6'
+                  : 'bg-white/40 w-1.5 sm:w-2 hover:bg-white/60'
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
+          <div className="w-px h-3 bg-white/20 mx-0.5"></div>
+          <button
+            onClick={() => setIsPlaying((prev) => !prev)}
+            className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+            aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}
+          >
+            {isPlaying ? (
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                <rect x="6" y="4" width="4" height="16" rx="1" />
+                <rect x="14" y="4" width="4" height="16" rx="1" />
+              </svg>
+            ) : (
+              <svg className="w-3 h-3 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            )}
+          </button>
         </div>
-        <button
-          onClick={() => setIsPlaying((prev) => !prev)}
-          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-all active:scale-90"
-          aria-label={isPlaying ? 'Pause slideshow' : 'Play slideshow'}
-        >
-          {isPlaying ? (
-            <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="currentColor" viewBox="0 0 24 24">
-              <rect x="6" y="4" width="4" height="16" rx="1" />
-              <rect x="14" y="4" width="4" height="16" rx="1" />
-            </svg>
-          ) : (
-            <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          )}
-        </button>
       </div>
+
+      {/* Scroll-down indicator */}
+      <button
+        onClick={handleScrollDown}
+        className="absolute bottom-7 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center text-white/50 hover:text-white/80 transition-colors duration-300"
+        aria-label="Scroll down"
+      >
+        <svg
+          className="w-5 h-5 sm:w-6 sm:h-6 animate-bounce"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.5}
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+        </svg>
+      </button>
     </div>
   );
 };
