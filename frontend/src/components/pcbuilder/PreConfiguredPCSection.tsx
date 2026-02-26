@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchFeaturedPCs } from '../../store/slices/preConfiguredPCSlice';
 import useReducedMotion from '../../hooks/useReducedMotion';
 import PreConfiguredPCCard from './PreConfiguredPCCard';
 import LoadingSpinner from '../common/LoadingSpinner';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import AutoCarousel from '../common/AutoCarousel';
+import { motion } from 'framer-motion';
 
 /**
  * Pre-Configured PC Section for Home Page
- * Displays hero banner with CTAs and featured PC cards
- * Uses slice-based pagination (same pattern as Expertise pricing cards)
+ * Displays hero banner with CTAs and featured PC cards via AutoCarousel
  */
 
 const PreConfiguredPCSection: React.FC = () => {
@@ -23,44 +22,9 @@ const PreConfiguredPCSection: React.FC = () => {
   );
   const reduceMotion = useReducedMotion();
 
-  // Pagination state
-  const [startIndex, setStartIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 640);
-  const [isTablet, setIsTablet] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 640 && window.innerWidth < 1024);
-
   useEffect(() => {
     dispatch(fetchFeaturedPCs(8));
   }, [dispatch]);
-
-  useEffect(() => {
-    const checkSize = () => {
-      setIsMobile(window.innerWidth < 640);
-      setIsTablet(window.innerWidth >= 640 && window.innerWidth < 1024);
-    };
-    window.addEventListener('resize', checkSize);
-    return () => window.removeEventListener('resize', checkSize);
-  }, []);
-
-  const perPage = isMobile ? 1 : isTablet ? 2 : 3;
-  const needsPagination = featuredPCs.length > perPage;
-
-  // Reset when screen size changes
-  useEffect(() => { setStartIndex(0); }, [perPage]);
-
-  const visiblePCs = needsPagination
-    ? featuredPCs.slice(startIndex, startIndex + perPage)
-    : featuredPCs;
-
-  const canGoBack = startIndex > 0;
-  const canGoForward = startIndex + perPage < featuredPCs.length;
-  const goBack = () => setStartIndex(Math.max(0, startIndex - 1));
-  const goForward = () => setStartIndex(Math.min(featuredPCs.length - perPage, startIndex + 1));
-  const totalDots = featuredPCs.length - perPage + 1;
-
-  const gridCols =
-    visiblePCs.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
-    visiblePCs.length === 2 ? 'grid-cols-2 max-w-3xl mx-auto' :
-    'grid-cols-3';
 
   // Don't render if section is hidden in admin settings
   if (settings?.gamingPcSectionVisible === false) {
@@ -190,7 +154,7 @@ const PreConfiguredPCSection: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Section Header — no arrows here */}
+        {/* Section Header */}
         <motion.h3
           className="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-white mb-8 pl-5 border-l-[4px] border-primary-500"
           initial={reduceMotion ? false : { opacity: 0, x: -20 }}
@@ -215,61 +179,12 @@ const PreConfiguredPCSection: React.FC = () => {
               : (settings?.gamingPcEmptyMessage_sv || 'Kunde inte ladda datorer')}
           </div>
         ) : (
-          <div className={`relative pt-4 ${needsPagination ? 'lg:mx-[-2.5rem]' : ''}`}>
-            <div className={needsPagination ? 'px-7 lg:px-[2.5rem]' : ''}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={startIndex}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className={`grid ${gridCols} gap-6 items-stretch`}
-                >
-                  {visiblePCs.map((pc) => (
-                    <div key={pc.id} className="flex">
-                      <PreConfiguredPCCard pc={pc} language={language} />
-                    </div>
-                  ))}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* Arrows */}
-            {needsPagination && canGoBack && (
-              <button
-                onClick={goBack}
-                className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center hover:shadow-lg transition-all z-10 active:scale-95"
-              >
-                <ChevronLeft className="w-[18px] h-[18px] text-slate-600 dark:text-slate-300" />
-              </button>
-            )}
-            {needsPagination && canGoForward && (
-              <button
-                onClick={goForward}
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center hover:shadow-lg transition-all z-10 active:scale-95"
-              >
-                <ChevronRight className="w-[18px] h-[18px] text-slate-600 dark:text-slate-300" />
-              </button>
-            )}
-
-            {/* Dots */}
-            {needsPagination && (
-              <div className="flex justify-center gap-2 mt-8">
-                {Array.from({ length: totalDots }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setStartIndex(i)}
-                    className={`rounded-full transition-all ${
-                      i === startIndex
-                        ? 'w-2.5 h-2.5 bg-indigo-500'
-                        : 'w-2 h-2 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          <AutoCarousel
+            items={featuredPCs.map(pc => <PreConfiguredPCCard key={pc.id} pc={pc} language={language} />)}
+            itemKeys={featuredPCs.map(pc => pc.id)}
+            interval={4500}
+            gap={24}
+          />
         )}
 
         {/* See All Button */}

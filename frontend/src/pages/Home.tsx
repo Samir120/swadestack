@@ -18,7 +18,7 @@ import { useVatRate } from '../hooks/useVatRate';
 import { netToGross } from '../utils/vat';
 
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 // Inline SVG icons to avoid loading the 857KB lucide-react chunk
 const CircleCheck: React.FC<{ className?: string }> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
@@ -26,12 +26,7 @@ const CircleCheck: React.FC<{ className?: string }> = ({ className }) => (
 const XCircle: React.FC<{ className?: string }> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
 );
-const ChevronLeft: React.FC<{ className?: string }> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"/></svg>
-);
-const ChevronRight: React.FC<{ className?: string }> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"/></svg>
-);
+import AutoCarousel from '../components/common/AutoCarousel';
 
 // Lazy-load below-fold heavy components
 const FeatureFocus = lazy(() => import('../components/sections/FeatureFocus'));
@@ -46,105 +41,6 @@ const Lottie = lazy(() => import('lottie-react'));
 import emptyContentAnimation from '../assets/animations/empty-content.json';
 import paperPlaneSendAnimation from '../assets/animations/paper-plane-send.json';
 
-// --- Service Category Cards ---
-// Simple responsive grid with slice-based pagination.
-// No CSS transforms, no translateX, no overflow tricks.
-// Mobile: 1 card, Tablet: 2 cards, Desktop: 3 cards.
-const ServiceCategoryCards: React.FC<{ cards: React.ReactNode[]; cardIds: string[] }> = ({ cards, cardIds }) => {
-  const [startIndex, setStartIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 640);
-  const [isTablet, setIsTablet] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 640 && window.innerWidth < 1024);
-
-  useEffect(() => {
-    const checkSize = () => {
-      setIsMobile(window.innerWidth < 640);
-      setIsTablet(window.innerWidth >= 640 && window.innerWidth < 1024);
-    };
-    window.addEventListener('resize', checkSize);
-    return () => window.removeEventListener('resize', checkSize);
-  }, []);
-
-  const perPage = isMobile ? 1 : isTablet ? 2 : 3;
-  const needsPagination = cards.length > perPage;
-
-  // Reset when screen size changes
-  useEffect(() => { setStartIndex(0); }, [perPage]);
-
-  const visibleCards = needsPagination
-    ? cards.slice(startIndex, startIndex + perPage)
-    : cards;
-  const visibleIds = needsPagination
-    ? cardIds.slice(startIndex, startIndex + perPage)
-    : cardIds;
-
-  const canGoBack = startIndex > 0;
-  const canGoForward = startIndex + perPage < cards.length;
-  const goBack = () => setStartIndex(Math.max(0, startIndex - 1));
-  const goForward = () => setStartIndex(Math.min(cards.length - perPage, startIndex + 1));
-  const totalDots = cards.length - perPage + 1;
-
-  const gridCols =
-    visibleCards.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
-    visibleCards.length === 2 ? 'grid-cols-2 max-w-3xl mx-auto' :
-    'grid-cols-3';
-
-  return (
-    <div className={`relative pt-4 ${needsPagination ? 'lg:mx-[-2.5rem]' : ''}`}>
-      {/* Inner wrapper with padding to create breathing room for arrows */}
-      <div className={needsPagination ? 'px-7 lg:px-[2.5rem]' : ''}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={startIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className={`grid ${gridCols} gap-6 items-stretch`}
-          >
-            {visibleCards.map((card, i) => (
-              <div key={visibleIds[i]} className="flex">{card}</div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Arrows — only if pagination needed */}
-      {needsPagination && canGoBack && (
-        <button
-          onClick={goBack}
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center hover:shadow-lg transition-all z-10 active:scale-95"
-        >
-          <ChevronLeft className="w-[18px] h-[18px] text-slate-600 dark:text-slate-300" />
-        </button>
-      )}
-      {needsPagination && canGoForward && (
-        <button
-          onClick={goForward}
-          className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center hover:shadow-lg transition-all z-10 active:scale-95"
-        >
-          <ChevronRight className="w-[18px] h-[18px] text-slate-600 dark:text-slate-300" />
-        </button>
-      )}
-
-      {/* Dots — only if pagination needed */}
-      {needsPagination && (
-        <div className="flex justify-center gap-2 mt-8">
-          {Array.from({ length: totalDots }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setStartIndex(i)}
-              className={`rounded-full transition-all ${
-                i === startIndex
-                  ? 'w-2.5 h-2.5 bg-indigo-500'
-                  : 'w-2 h-2 bg-slate-300 dark:bg-slate-600 hover:bg-slate-400 dark:hover:bg-slate-500'
-              }`}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const Home: React.FC = () => {
   const toast = useToast();
@@ -741,9 +637,11 @@ const Home: React.FC = () => {
                     </motion.h3>
 
                     {/* Cards grid with optional pagination */}
-                    <ServiceCategoryCards
-                      cards={categoryServices.map((service) => renderCard(service))}
-                      cardIds={categoryServices.map((service) => service.id)}
+                    <AutoCarousel
+                      items={categoryServices.map((service) => renderCard(service))}
+                      itemKeys={categoryServices.map((service) => service.id)}
+                      interval={4500}
+                      gap={24}
                     />
                   </div>
                 );
