@@ -119,6 +119,8 @@ export class BannersService {
       desc_sv: banner.desc_sv,
       image_url: banner.image_url,
       image_file: banner.image_file,
+      mobile_image_url: banner.mobile_image_url,
+      mobile_image_file: banner.mobile_image_file,
       is_active: banner.is_active
     };
   }

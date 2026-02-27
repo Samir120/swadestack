@@ -15,8 +15,12 @@ router.get('/admin/all', authenticate, requireAdmin, bannersController.getAll);
 router.get('/:id', bannersController.getById);
 
 // Admin routes
-router.post('/', authenticate, requireAdmin, upload.single('imageFile'), bannersController.create);
-router.put('/:id', authenticate, requireAdmin, upload.single('imageFile'), bannersController.update);
+const bannerUploadFields = upload.fields([
+  { name: 'imageFile', maxCount: 1 },
+  { name: 'mobileImageFile', maxCount: 1 },
+]);
+router.post('/', authenticate, requireAdmin, bannerUploadFields, bannersController.create);
+router.put('/:id', authenticate, requireAdmin, bannerUploadFields, bannersController.update);
 router.delete('/:id', authenticate, requireAdmin, bannersController.delete);
 router.patch('/:id/toggle-active', authenticate, requireAdmin, bannersController.toggleActive);
 

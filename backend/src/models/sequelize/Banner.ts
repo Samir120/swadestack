@@ -10,6 +10,8 @@ export interface BannerAttributes {
   desc_sv: string;
   image_url: string;
   image_file?: string;
+  mobile_image_url?: string;
+  mobile_image_file?: string;
   is_active: boolean;
 }
 
@@ -25,8 +27,10 @@ class Banner extends Model<BannerAttributes, BannerCreationAttributes> implement
   public desc_sv!: string;
   public image_url!: string;
   public image_file?: string;
+  public mobile_image_url?: string;
+  public mobile_image_file?: string;
   public is_active!: boolean;
-  
+
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -67,6 +71,14 @@ Banner.init(
       type: DataTypes.TEXT,
       allowNull: true,
       comment: 'Base64 encoded image data',
+    },
+    mobile_image_url: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    mobile_image_file: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     is_active: {
       type: DataTypes.BOOLEAN,

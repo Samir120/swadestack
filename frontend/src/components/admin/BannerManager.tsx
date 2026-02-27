@@ -26,6 +26,7 @@ const BannersManager: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [rawFile, setRawFile] = useState<File | null>(null);
+  const [rawMobileFile, setRawMobileFile] = useState<File | null>(null);
 
   // Adjusted form data for Banners (removed price, category, excluded features)
   const [formData, setFormData] = useState({
@@ -35,6 +36,8 @@ const BannersManager: React.FC = () => {
     desc_sv: '',
     image_url: '',
     image_file: '',
+    mobile_image_url: '',
+    mobile_image_file: '',
     is_active: true,
   });
 
@@ -67,9 +70,12 @@ const BannersManager: React.FC = () => {
       desc_sv: '',
       image_url: '',
       image_file: '',
+      mobile_image_url: '',
+      mobile_image_file: '',
       is_active: true,
     });
     setRawFile(null);
+    setRawMobileFile(null);
     setShowModal(true);
   };
 
@@ -82,9 +88,12 @@ const BannersManager: React.FC = () => {
       desc_sv: banner.desc_sv || '',
       image_url: banner.image_url || '',
       image_file: banner.image_file || '',
+      mobile_image_url: banner.mobile_image_url || '',
+      mobile_image_file: banner.mobile_image_file || '',
       is_active: banner.is_active,
     });
     setRawFile(null);
+    setRawMobileFile(null);
     setShowModal(true);
   };
 
@@ -103,6 +112,12 @@ const BannersManager: React.FC = () => {
       } else if (formData.image_url) {
         data.append('image_url', formData.image_url);
         data.append('image_file', formData.image_file);
+      }
+      if (rawMobileFile) {
+        data.append('mobileImageFile', rawMobileFile);
+      } else if (formData.mobile_image_url) {
+        data.append('mobile_image_url', formData.mobile_image_url);
+        data.append('mobile_image_file', formData.mobile_image_file);
       }
 
       if (editingBanner) {
@@ -428,23 +443,42 @@ const BannersManager: React.FC = () => {
                 </div>
               </div>
 
-              {/* File Upload Component */}
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-2">
-                  Banner Image
-                </label>
-                <FileUpload
-                  label=""
-                  accept="image/*"
-                  maxSize={5}
-                  onFileSelect={(base64, file) => { setFormData({ ...formData, image_file: base64, image_url: base64 }); setRawFile(file); }}
-                  currentUrl={formData.image_file || formData.image_url}
-                  preview={true}
-                  previewClassName="h-32 sm:h-48 w-full object-cover rounded-lg border border-surface-700"
-                />
-                <p className="text-[10px] sm:text-xs text-neutral-400 mt-1">
-                  Recommended size: 1920x600px, max 5MB
-                </p>
+              {/* File Upload Components */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-2">
+                    Desktop Image
+                  </label>
+                  <FileUpload
+                    label=""
+                    accept="image/*"
+                    maxSize={5}
+                    onFileSelect={(base64, file) => { setFormData({ ...formData, image_file: base64, image_url: base64 }); setRawFile(file); }}
+                    currentUrl={formData.image_file || formData.image_url}
+                    preview={true}
+                    previewClassName="h-32 sm:h-48 w-full object-cover rounded-lg border border-surface-700"
+                  />
+                  <p className="text-[10px] sm:text-xs text-neutral-400 mt-1">
+                    Landscape image for desktop (1920x1080)
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-2">
+                    Mobile Image
+                  </label>
+                  <FileUpload
+                    label=""
+                    accept="image/*"
+                    maxSize={5}
+                    onFileSelect={(base64, file) => { setFormData({ ...formData, mobile_image_file: base64, mobile_image_url: base64 }); setRawMobileFile(file); }}
+                    currentUrl={formData.mobile_image_file || formData.mobile_image_url}
+                    preview={true}
+                    previewClassName="h-32 sm:h-48 w-full object-cover rounded-lg border border-surface-700"
+                  />
+                  <p className="text-[10px] sm:text-xs text-neutral-400 mt-1">
+                    Recommended: portrait or square image (1080x1920 or 1080x1080) for optimal mobile display
+                  </p>
+                </div>
               </div>
 
               {/* Active Toggle */}

@@ -115,7 +115,8 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
 
   // Scroll indicator handler — scroll past the banner
   const handleScrollDown = () => {
-    const bannerHeight = window.innerWidth < 640 ? window.innerHeight * 0.85 : window.innerHeight;
+    const el = document.querySelector('[data-banner-root]');
+    const bannerHeight = el ? el.clientHeight : window.innerHeight;
     window.scrollTo({ top: bannerHeight, behavior: 'smooth' });
   };
 
@@ -141,7 +142,7 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
   // Loading State
   if (isLoading) {
     return (
-      <div className="relative z-0 w-full h-[85vh] sm:h-screen bg-black flex flex-col items-center justify-center gap-3">
+      <div className="relative z-0 w-full h-[75vh] sm:h-screen bg-black flex flex-col items-center justify-center gap-3">
         <LoadingSpinner />
         <span className="text-neutral-400 text-xs sm:text-sm">Loading highlights...</span>
       </div>
@@ -159,7 +160,7 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
       : 'Building Digital Excellence';
 
     return (
-      <div className="relative z-0 w-full h-[85vh] sm:h-screen overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-surface-900">
+      <div className="relative z-0 w-full h-[75vh] sm:h-screen overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-surface-900">
         {/* Decorative gradient blobs */}
         <div className="absolute top-[10%] right-[-5%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-primary-600/20 rounded-full blur-[100px] sm:blur-[150px]" />
         <div className="absolute bottom-[-10%] left-[-5%] w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-accent-500/10 rounded-full blur-[100px] sm:blur-[150px]" />
@@ -220,15 +221,21 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
   }
 
   // Main Render — Full-viewport carousel (Corsair-style)
+  // Use 100vh when any banner has a dedicated mobile image, 75vh fallback otherwise
+  const hasMobileImage = banners.some((b) => b.mobile_image_url);
+  const mobileHeight = hasMobileImage ? 'h-screen' : 'h-[75vh]';
+
   return (
     <div
-      className="relative z-0 w-full h-[85vh] sm:h-screen overflow-hidden bg-black"
+      data-banner-root
+      className={`relative z-0 w-full ${mobileHeight} sm:h-screen overflow-hidden bg-black`}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {/* Image slides */}
       {banners.map((banner, index) => {
         const isActive = index === currentSlide;
+        const hasBannerMobileImg = !!banner.mobile_image_url;
 
         return (
           <div
@@ -236,16 +243,28 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
             className="absolute inset-0 overflow-hidden"
             style={getSlideStyle(index)}
           >
-            {/* Background image with Ken Burns zoom */}
+            {/* Background image with Ken Burns zoom + <picture> for responsive */}
             <div
               className={isActive ? 'absolute inset-0 animate-kenBurns' : 'absolute inset-0'}
               key={isActive ? `kb-${index}-${currentSlide}` : `idle-${index}`}
-              style={{
-                backgroundImage: `url(${banner.image_url})`,
-                backgroundSize: 'cover',
-                backgroundPosition: reduceMotion ? 'top center' : 'center',
-              }}
-            />
+            >
+              <picture>
+                <source
+                  media="(max-width: 768px)"
+                  srcSet={banner.mobile_image_url || banner.image_url}
+                />
+                <img
+                  src={banner.image_url}
+                  alt={language === 'en' ? banner.title_en : banner.title_sv}
+                  className="w-full h-full object-cover"
+                  style={
+                    !hasBannerMobileImg
+                      ? { objectPosition: 'center 30%' }
+                      : undefined
+                  }
+                />
+              </picture>
+            </div>
 
             {/* Dark semi-transparent overlay */}
             <div className="absolute inset-0 bg-black/40"></div>

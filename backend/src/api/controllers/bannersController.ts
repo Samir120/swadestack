@@ -66,9 +66,14 @@ export class BannersController {
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const data = req.body;
-      if (req.file) {
-        data.image_url = `/uploads/${req.file.filename}`;
-        data.image_file = `/uploads/${req.file.filename}`;
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      if (files?.imageFile?.[0]) {
+        data.image_url = `/uploads/${files.imageFile[0].filename}`;
+        data.image_file = `/uploads/${files.imageFile[0].filename}`;
+      }
+      if (files?.mobileImageFile?.[0]) {
+        data.mobile_image_url = `/uploads/${files.mobileImageFile[0].filename}`;
+        data.mobile_image_file = `/uploads/${files.mobileImageFile[0].filename}`;
       }
       if (typeof data.is_active === 'string') data.is_active = data.is_active === 'true';
       const banner = await this.bannersService.createBanner(data);
@@ -87,9 +92,14 @@ export class BannersController {
     try {
       const { id } = req.params;
       const data = req.body;
-      if (req.file) {
-        data.image_url = `/uploads/${req.file.filename}`;
-        data.image_file = `/uploads/${req.file.filename}`;
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      if (files?.imageFile?.[0]) {
+        data.image_url = `/uploads/${files.imageFile[0].filename}`;
+        data.image_file = `/uploads/${files.imageFile[0].filename}`;
+      }
+      if (files?.mobileImageFile?.[0]) {
+        data.mobile_image_url = `/uploads/${files.mobileImageFile[0].filename}`;
+        data.mobile_image_file = `/uploads/${files.mobileImageFile[0].filename}`;
       }
       if (typeof data.is_active === 'string') data.is_active = data.is_active === 'true';
       const banner = await this.bannersService.updateBanner(id, data);
