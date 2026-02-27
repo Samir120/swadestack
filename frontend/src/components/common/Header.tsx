@@ -93,9 +93,9 @@ const Header: React.FC<HeaderProps> = ({
       {/* Fixed positioning wrapper — top offset by notification banner height */}
       <div className="fixed left-0 right-0 z-50 px-3 lg:px-5 pt-2 sm:pt-3" style={{ top: 'var(--nb-height, 0px)' }}>
         {/* Floating bar */}
-        <nav className="max-w-[1400px] mx-auto rounded-xl sm:rounded-2xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-lg shadow-black/5 dark:shadow-black/20 border border-slate-200/50 dark:border-slate-700/50">
+        <nav className="max-w-[1400px] mx-auto rounded-xl sm:rounded-2xl bg-white/80 dark:bg-[rgba(10,10,30,0.70)] backdrop-blur-2xl shadow-lg shadow-black/5 dark:shadow-black/20 border border-slate-200/50 dark:border-slate-700/50">
           {/* Bar content */}
-          <div className="flex items-center justify-between h-14">
+          <div className="flex items-center justify-between h-16">
             {/* Left: Logo + Nav */}
             <div className="flex items-center h-full">
               {/* Logo — square block, full height, flush left, corners match bar */}
@@ -118,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({
                     <button
                       key={link.id}
                       onClick={() => handleNavClick(link.id)}
-                      className={`text-sm font-medium relative py-1 transition-colors ${
+                      className={`group text-sm font-medium relative py-1 transition-colors duration-300 ${
                         activeSection === link.id
                           ? 'text-primary-600 dark:text-primary-400 font-bold'
                           : 'text-slate-700 dark:text-slate-200 hover:text-primary-600 dark:hover:text-primary-400'
@@ -127,7 +127,7 @@ const Header: React.FC<HeaderProps> = ({
                       {link.label}
                       <span
                         className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary-500 transform origin-left transition-transform duration-300 ${
-                          activeSection === link.id ? 'scale-x-100' : 'scale-x-0'
+                          activeSection === link.id ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                         }`}
                       />
                     </button>
@@ -138,7 +138,7 @@ const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Right: Utilities */}
-            <div className="flex items-center gap-3 sm:gap-4 pr-4 sm:pr-6">
+            <div className="flex items-center gap-4 sm:gap-5 pr-4 sm:pr-6">
               {/* Theme Toggle - Desktop */}
               <button
                 onClick={handleThemeToggle}
@@ -165,7 +165,7 @@ const Header: React.FC<HeaderProps> = ({
               >
                 <FaShoppingCart size={20} />
                 {cart.totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-[11px] font-bold rounded-full w-[18px] h-[18px] flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-[11px] font-bold rounded-full w-[18px] h-[18px] flex items-center justify-center shadow-sm shadow-primary-500/40">
                     {cart.totalItems > 9 ? '9+' : cart.totalItems}
                   </span>
                 )}
