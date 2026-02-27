@@ -195,12 +195,12 @@ const DynamicFooter: React.FC = () => {
             <p className="text-xs text-slate-500">
               Powered by{' '}
               <a
-                href="https://minne24.com"
+                href="https://swadestack.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary-400/70 hover:text-primary-400 font-medium transition-colors"
               >
-                Minne24
+                Swadestack
               </a>
             </p>
           </div>
