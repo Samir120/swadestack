@@ -267,7 +267,7 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
             </div>
 
             {/* Dark semi-transparent overlay */}
-            <div className="absolute inset-0 bg-black/40"></div>
+            <div className="absolute inset-0 bg-black/25"></div>
           </div>
         );
       })}
