@@ -160,7 +160,7 @@ const DeviceShowcase: React.FC<{
       >
         <div className="rounded-[16px] sm:rounded-[20px] lg:rounded-[24px] border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 p-[1px] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.45)]">
           {/* Phone screen with overlaid indicators */}
-          <div className="relative rounded-[15px] sm:rounded-[19px] lg:rounded-[23px] overflow-hidden" style={{ aspectRatio: '9 / 19.5' }}>
+          <div className="relative rounded-[14px] sm:rounded-[18px] lg:rounded-[22px] overflow-hidden" style={{ aspectRatio: '9 / 19.5' }}>
             {phoneImageUrl ? (
               <img
                 src={phoneImageUrl}
