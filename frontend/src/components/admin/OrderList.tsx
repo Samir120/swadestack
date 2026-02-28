@@ -3,7 +3,7 @@ import { useToast } from '../common/Toast';
 import apiClient from '../../models/api/apiClient';
 import { ordersApi } from '../../models/api/ordersApi';
 import { Order, OrderStatus, PaymentSummary } from '../../models/types/order.types';
-import { FaTimes, FaEye, FaCheck, FaShoppingBag, FaUser, FaEnvelope, FaMapMarkerAlt, FaCreditCard, FaCalendarAlt } from 'react-icons/fa';
+import { FaTimes, FaEye, FaCheck, FaShoppingBag, FaUser, FaEnvelope, FaMapMarkerAlt, FaCreditCard, FaCalendarAlt, FaLock, FaLockOpen } from 'react-icons/fa';
 import LoadingSpinner from '../common/LoadingSpinner';
 import AdminPriceDisplay, { formatAdminCurrency } from './common/AdminPriceDisplay';
 
@@ -16,9 +16,19 @@ const OrderList: React.FC = () => {
   const [paymentSummary, setPaymentSummary] = useState<PaymentSummary | null>(null);
   const [isMarkingReady, setIsMarkingReady] = useState(false);
 
+  // Lock state for completed orders
+  const [isLockOverridden, setIsLockOverridden] = useState(false);
+  const [showOverrideModal, setShowOverrideModal] = useState(false);
+  const [overrideLoading, setOverrideLoading] = useState(false);
+
   useEffect(() => {
     loadOrders();
   }, [filter]);
+
+  // Reset lock override when a different order is selected
+  useEffect(() => {
+    setIsLockOverridden(false);
+  }, [selectedOrder?.id]);
 
   useEffect(() => {
     if (selectedOrder?.requiresPartialPayment) {
@@ -94,6 +104,25 @@ const OrderList: React.FC = () => {
       toast.error(errorMessage);
     } finally {
       setIsMarkingReady(false);
+    }
+  };
+
+  const isLockedStatus = selectedOrder?.status === 'completed';
+
+  const handleOverrideLock = async () => {
+    if (!selectedOrder) return;
+    setOverrideLoading(true);
+    try {
+      const response = await ordersApi.overrideLock(selectedOrder.id);
+      if (response.success) {
+        setIsLockOverridden(true);
+        setShowOverrideModal(false);
+        toast.success('Order unlocked for editing');
+      }
+    } catch {
+      toast.error('Failed to override lock');
+    } finally {
+      setOverrideLoading(false);
     }
   };
 
@@ -349,6 +378,29 @@ const OrderList: React.FC = () => {
             </div>
 
             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              {/* Locked Order Banner */}
+              {isLockedStatus && !isLockOverridden && (
+                <div className="rounded-2xl border p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-amber-900/20 border-amber-600/30">
+                  <div className="flex items-start gap-3">
+                    <FaLock className="text-sm mt-0.5 flex-shrink-0 text-amber-400" />
+                    <div>
+                      <p className="text-sm font-bold text-amber-400">
+                        This order is completed and locked for editing.
+                      </p>
+                      <p className="text-xs text-neutral-400 mt-0.5">
+                        To make changes, override the lock or create a new order.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowOverrideModal(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-400 border border-amber-500/30 rounded-lg hover:bg-amber-900/20 transition-colors whitespace-nowrap self-start sm:self-auto"
+                  >
+                    <FaLockOpen className="text-[10px]" /> Override Lock
+                  </button>
+                </div>
+              )}
+
               {/* Customer Information */}
               <div className="bg-surface-800 rounded-xl p-4">
                 <h4 className="text-xs sm:text-sm font-semibold text-white mb-3 flex items-center gap-2">
@@ -585,9 +637,9 @@ const OrderList: React.FC = () => {
                       <button
                         key={status}
                         onClick={() => handleUpdateStatus(selectedOrder.id, status)}
-                        disabled={selectedOrder.status === status}
+                        disabled={selectedOrder.status === status || (isLockedStatus && !isLockOverridden)}
                         className={`px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors active:scale-[0.98] ${
-                          selectedOrder.status === status
+                          selectedOrder.status === status || (isLockedStatus && !isLockOverridden)
                             ? 'bg-surface-800 text-neutral-500 cursor-not-allowed'
                             : status === 'cancelled'
                             ? 'bg-red-500 text-white hover:bg-red-600'
@@ -600,6 +652,33 @@ const OrderList: React.FC = () => {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Override Lock Confirmation Modal */}
+      {showOverrideModal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowOverrideModal(false)} />
+          <div className="relative bg-surface-850 rounded-2xl shadow-dark-lg border border-surface-700 p-6 max-w-sm w-full">
+            <h3 className="text-lg font-bold text-white mb-2">Override Edit Lock</h3>
+            <p className="text-sm text-neutral-400 mb-6">
+              Editing completed orders can create accounting discrepancies. Are you sure you want to unlock this order for editing?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowOverrideModal(false)}
+                className="px-4 py-2 text-sm font-bold text-neutral-400 hover:text-neutral-300 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleOverrideLock}
+                disabled={overrideLoading}
+                className="px-4 py-2 text-sm font-bold text-white bg-amber-600 hover:bg-amber-500 rounded-lg disabled:opacity-50 transition-colors"
+              >
+                {overrideLoading ? 'Overriding...' : 'Override Lock'}
+              </button>
             </div>
           </div>
         </div>
