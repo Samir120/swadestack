@@ -6,15 +6,15 @@ import useReducedMotion from '../../hooks/useReducedMotion';
 import DynamicLucideIcon from '../common/DynamicLucideIcon';
 import { Feature } from '../../models/types/feature.types';
 
-/* ═══════════════════════ Accent Color Palette ═══════════════════════ */
+/* ═══════════════════════ Accent Color ═══════════════════════ */
 
-const ACCENT_COLORS = [
-  { bg: 'bg-indigo-500', hex: '#6366f1', shadow: 'shadow-indigo-500/25', hoverShadow: 'shadow-indigo-500/40', modalBg: 'bg-indigo-500' },
-  { bg: 'bg-sky-500', hex: '#0ea5e9', shadow: 'shadow-sky-500/25', hoverShadow: 'shadow-sky-500/40', modalBg: 'bg-sky-500' },
-  { bg: 'bg-violet-500', hex: '#8b5cf6', shadow: 'shadow-violet-500/25', hoverShadow: 'shadow-violet-500/40', modalBg: 'bg-violet-500' },
-];
-
-const getAccent = (index: number) => ACCENT_COLORS[index % ACCENT_COLORS.length];
+const ACCENT = {
+  bg: 'bg-indigo-500',
+  hex: '#6366f1',
+  shadow: 'shadow-indigo-500/25',
+  hoverShadow: 'shadow-indigo-500/40',
+  modalBg: 'bg-indigo-500',
+};
 
 /* ═══════════════════════ Abstract Dashboard Fallback ═══════════════════════ */
 
@@ -29,7 +29,7 @@ const AbstractDashboard: React.FC = () => (
       <div className="w-[3%] aspect-square rounded-full bg-gray-300 dark:bg-surface-600" />
     </div>
     <div className="flex-1 flex min-h-0">
-      {/* Sidebar — darker in light mode for contrast */}
+      {/* Sidebar */}
       <div className="w-[15%] bg-gray-50 dark:bg-surface-850 border-r border-gray-300/60 dark:border-surface-700/60 py-[4%] px-[2.5%] flex flex-col gap-[8%]">
         {[true, false, false, false, false].map((active, i) => (
           <div
@@ -44,7 +44,7 @@ const AbstractDashboard: React.FC = () => (
       </div>
       {/* Main content area */}
       <div className="flex-1 p-[4%] flex flex-col gap-[4%] min-h-0">
-        {/* Stat cards — better defined */}
+        {/* Stat cards */}
         <div className="flex gap-[3%] h-[25%]">
           {[true, false, false].map((accent, i) => (
             <div
@@ -64,7 +64,7 @@ const AbstractDashboard: React.FC = () => (
             </div>
           ))}
         </div>
-        {/* Chart area — more colorful bars */}
+        {/* Chart area */}
         <div className="flex-1 bg-white dark:bg-surface-800 rounded border border-gray-300/50 dark:border-surface-700/40 p-[4%] flex flex-col min-h-0">
           <div className="w-[22%] h-[6%] min-h-[2px] rounded-sm bg-gray-300 dark:bg-surface-600 mb-[4%]" />
           <div className="flex-1 flex items-end gap-[2.5%]">
@@ -93,21 +93,18 @@ const AbstractDashboard: React.FC = () => (
   </div>
 );
 
-/* ═══════════════════════ Monitor Mockup ═══════════════════════ */
+/* ═══════════════════════ Device Showcase (Laptop + Phone) ═══════════════════════ */
 
-const MonitorMockup: React.FC<{ imageUrl?: string | null }> = ({ imageUrl }) => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.85 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    viewport={{ once: true, margin: '-80px' }}
-    transition={{ duration: 0.6, type: 'spring', stiffness: 100, damping: 15 }}
-    className="relative"
-  >
-    {/* Ambient glow — stronger layered effect */}
+const DeviceShowcase: React.FC<{
+  laptopImageUrl?: string | null;
+  phoneImageUrl?: string | null;
+}> = ({ laptopImageUrl, phoneImageUrl }) => (
+  <div className="relative">
+    {/* Ambient glow */}
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[130%] bg-primary-300/25 dark:bg-primary-500/[0.08] rounded-full -z-10 blur-3xl pointer-events-none" />
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100%] h-[90%] bg-primary-400/15 dark:bg-primary-400/[0.06] rounded-full -z-10 blur-2xl pointer-events-none" />
 
-    {/* Dot grid pattern behind monitor */}
+    {/* Dot grid pattern */}
     <div
       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[140%] -z-20 pointer-events-none opacity-20 dark:opacity-10 text-gray-400 dark:text-neutral-600"
       style={{
@@ -116,51 +113,85 @@ const MonitorMockup: React.FC<{ imageUrl?: string | null }> = ({ imageUrl }) => 
       }}
     />
 
-    <div className="flex flex-col items-center">
-      {/* Monitor body — gradient bezel for depth */}
-      <div className="w-[300px] sm:w-[340px] lg:w-[340px] xl:w-[400px] 2xl:w-[440px] rounded-t-2xl rounded-b-lg overflow-hidden shadow-2xl shadow-black/25 dark:shadow-primary-900/30 ring-1 ring-gray-300/40 dark:ring-white/[0.08]">
-        {/* Top bezel — subtle gradient */}
-        <div className="flex items-center justify-center h-5 lg:h-7 bg-gradient-to-b from-neutral-700 to-neutral-800 dark:from-zinc-800 dark:to-zinc-900">
-          <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-neutral-500/60 dark:bg-zinc-600/50" />
+    <div className="relative w-[300px] sm:w-[340px] lg:w-[340px] xl:w-[400px] 2xl:w-[440px]">
+      {/* Laptop */}
+      <motion.div
+        initial={{ opacity: 0, x: -60 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 0.7, type: 'spring', stiffness: 80, damping: 18 }}
+        className="relative"
+      >
+        <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
+          {/* Title bar — slim, matching Selected Work */}
+          <div className="h-6 lg:h-7 bg-slate-100 dark:bg-slate-700 flex items-center relative">
+            <div className="flex gap-1.5 ml-3">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#22C55E]" />
+            </div>
+          </div>
+
+          {/* Screen — near-borderless */}
+          <div className="relative aspect-[16/10] overflow-hidden">
+            {laptopImageUrl ? (
+              <img
+                src={laptopImageUrl}
+                alt="Feature showcase"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            ) : (
+              <AbstractDashboard />
+            )}
+          </div>
         </div>
+      </motion.div>
 
-        {/* Screen */}
-        <div className="relative aspect-[16/10] overflow-hidden">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt="Feature showcase"
-              loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          ) : (
-            <AbstractDashboard />
-          )}
+      {/* Phone — overlapping laptop's bottom-right */}
+      <motion.div
+        initial={{ opacity: 0, x: 40 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 0.7, delay: 0.2, type: 'spring', stiffness: 80, damping: 18 }}
+        className="absolute -bottom-4 -right-6 xl:-right-8 z-10"
+        style={{ width: '28%' }}
+      >
+        <div className="rounded-[30px] border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 p-[3px] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.45)]">
+          {/* Phone screen with overlaid indicators */}
+          <div className="relative rounded-[27px] overflow-hidden" style={{ aspectRatio: '9 / 19.5' }}>
+            {phoneImageUrl ? (
+              <img
+                src={phoneImageUrl}
+                alt="Mobile preview"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ objectPosition: 'top center' }}
+              />
+            ) : laptopImageUrl ? (
+              <img
+                src={laptopImageUrl}
+                alt="Mobile preview"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ objectPosition: 'top center' }}
+              />
+            ) : (
+              <div className="absolute inset-0 overflow-hidden">
+                <AbstractDashboard />
+              </div>
+            )}
+
+            {/* Dynamic island — overlaid on screen */}
+            <div className="absolute top-[6px] left-1/2 -translate-x-1/2 bg-black rounded-[10px] z-10" style={{ width: '60px', height: '16px' }} />
+
+            {/* Home indicator — overlaid on screen */}
+            <div className="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[40%] h-[4px] rounded-sm bg-gray-400/60 z-10" />
+          </div>
         </div>
-
-        {/* Bottom bezel — subtle gradient */}
-        <div className="h-3 lg:h-4 bg-gradient-to-b from-neutral-800 to-neutral-900 dark:from-zinc-900 dark:to-black" />
-      </div>
-
-      {/* Stand neck — gradient from darker (top) to lighter (bottom) */}
-      <div className="w-10 lg:w-12 h-6 lg:h-7 bg-gradient-to-b from-neutral-400 to-neutral-300 dark:from-surface-700 dark:to-surface-600 border-x border-neutral-400/30 dark:border-surface-500/20" />
-
-      {/* Stand base */}
-      <div className="w-28 lg:w-32 h-2.5 bg-gradient-to-b from-neutral-300 to-neutral-400 dark:from-surface-600 dark:to-surface-700 rounded-full" />
-
-      {/* Elliptical shadow beneath base */}
-      <div
-        className="mt-1 pointer-events-none"
-        style={{
-          width: '120px',
-          height: '8px',
-          borderRadius: '50%',
-          background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, transparent 70%)',
-          filter: 'blur(2px)',
-        }}
-      />
+      </motion.div>
     </div>
-  </motion.div>
+  </div>
 );
 
 /* ═══════════════════════ Desktop Feature Item ═══════════════════════ */
@@ -168,14 +199,13 @@ const MonitorMockup: React.FC<{ imageUrl?: string | null }> = ({ imageUrl }) => 
 const DesktopFeatureItem: React.FC<{
   feature: Feature;
   align: 'left' | 'right';
-  index: number;
   delay: number;
   getTitle: (f: Feature) => string;
   getShortDescription: (f: Feature) => string;
   onClick: () => void;
-}> = ({ feature, align, index, delay, getTitle, getShortDescription, onClick }) => {
+}> = ({ feature, align, delay, getTitle, getShortDescription, onClick }) => {
   const isLeft = align === 'left';
-  const accent = getAccent(index);
+  const accent = ACCENT;
 
   return (
     <motion.div
@@ -257,14 +287,13 @@ const DesktopFeatureItem: React.FC<{
 
 const MobileFeatureCard: React.FC<{
   feature: Feature;
-  index: number;
   delay: number;
   getTitle: (f: Feature) => string;
   getShortDescription: (f: Feature) => string;
   onClick: () => void;
   reduceMotion?: boolean;
-}> = ({ feature, index, delay, getTitle, getShortDescription, onClick, reduceMotion }) => {
-  const accent = getAccent(index);
+}> = ({ feature, delay, getTitle, getShortDescription, onClick, reduceMotion }) => {
+  const accent = ACCENT;
 
   return (
     <motion.div
@@ -299,13 +328,12 @@ const MobileFeatureCard: React.FC<{
 
 const FeatureDetailModal: React.FC<{
   feature: Feature;
-  colorIndex: number;
   onClose: () => void;
   getTitle: (f: Feature) => string;
   getShortDescription: (f: Feature) => string;
   getFullDescription: (f: Feature) => string;
-}> = ({ feature, colorIndex, onClose, getTitle, getShortDescription, getFullDescription }) => {
-  const accent = getAccent(colorIndex);
+}> = ({ feature, onClose, getTitle, getShortDescription, getFullDescription }) => {
+  const accent = ACCENT;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -394,7 +422,6 @@ const FeatureFocus: React.FC = () => {
   const reduceMotion = useReducedMotion();
 
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const mid = Math.ceil(features.length / 2);
   const leftFeatures = features.slice(0, mid);
@@ -411,7 +438,8 @@ const FeatureFocus: React.FC = () => {
       ? settings?.featureSectionSubtitle_en
       : settings?.featureSectionSubtitle_sv) || (language === 'en' ? 'Our Core Capabilities' : 'Våra Kärnkompetenser');
 
-  const monitorImage = settings?.featureSectionImageFile || null;
+  const laptopImage = settings?.featureSectionImageFile || null;
+  const phoneImage = settings?.featureSectionMobileImageFile || null;
 
   if (isLoading) {
     return (
@@ -461,10 +489,10 @@ const FeatureFocus: React.FC = () => {
       role="region"
       aria-label={language === 'en' ? 'Features' : 'Funktioner'}
     >
-      {/* Top section divider — theme-aware */}
+      {/* Top section divider */}
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-300/60 to-transparent dark:via-neutral-600/40" />
 
-      {/* Bottom section divider — theme-aware */}
+      {/* Bottom section divider */}
       <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gray-300/60 to-transparent dark:via-neutral-600/40" />
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -490,7 +518,7 @@ const FeatureFocus: React.FC = () => {
           </motion.p>
         </div>
 
-        {/* ═══ Desktop: CSS Grid — shared row tracks, compact layout ═══ */}
+        {/* Desktop: CSS Grid */}
         <div
           className="hidden lg:grid"
           style={{
@@ -507,19 +535,17 @@ const FeatureFocus: React.FC = () => {
               <DesktopFeatureItem
                 feature={feature}
                 align="left"
-                index={i}
                 delay={i * 0.12}
                 getTitle={getTitle}
                 getShortDescription={getShortDescription}
                 onClick={() => {
                   setSelectedFeature(feature);
-                  setSelectedIndex(i);
                 }}
               />
             </div>
           ))}
 
-          {/* Center: Monitor — spans all rows, offset up to align screen (not stand) with features */}
+          {/* Center: Device Showcase — spans all rows */}
           <div
             style={{
               gridColumn: 2,
@@ -529,7 +555,7 @@ const FeatureFocus: React.FC = () => {
               marginBottom: '-2.75rem',
             }}
           >
-            <MonitorMockup imageUrl={monitorImage} />
+            <DeviceShowcase laptopImageUrl={laptopImage} phoneImageUrl={phoneImage} />
           </div>
 
           {/* Right column features */}
@@ -538,23 +564,21 @@ const FeatureFocus: React.FC = () => {
               <DesktopFeatureItem
                 feature={feature}
                 align="right"
-                index={mid + i}
                 delay={i * 0.12}
                 getTitle={getTitle}
                 getShortDescription={getShortDescription}
                 onClick={() => {
                   setSelectedFeature(feature);
-                  setSelectedIndex(mid + i);
                 }}
               />
             </div>
           ))}
         </div>
 
-        {/* ═══ Mobile: Monitor on top + card grid ═══ */}
+        {/* Mobile: Monitor on top + card grid */}
         <div className="lg:hidden">
           <div className="flex justify-center mb-12">
-            <MonitorMockup imageUrl={monitorImage} />
+            <DeviceShowcase laptopImageUrl={laptopImage} phoneImageUrl={phoneImage} />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -562,14 +586,12 @@ const FeatureFocus: React.FC = () => {
               <MobileFeatureCard
                 key={feature.id}
                 feature={feature}
-                index={i}
                 delay={i * 0.08}
                 getTitle={getTitle}
                 getShortDescription={getShortDescription}
                 reduceMotion={reduceMotion}
                 onClick={() => {
                   setSelectedFeature(feature);
-                  setSelectedIndex(i);
                 }}
               />
             ))}
@@ -582,7 +604,6 @@ const FeatureFocus: React.FC = () => {
         {selectedFeature && (
           <FeatureDetailModal
             feature={selectedFeature}
-            colorIndex={selectedIndex}
             onClose={() => setSelectedFeature(null)}
             getTitle={getTitle}
             getShortDescription={getShortDescription}

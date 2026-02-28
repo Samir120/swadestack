@@ -177,6 +177,40 @@ export class SiteSettingsController {
   };
 
   /**
+   * POST /api/settings/feature-mobile-image
+   * Upload feature section mobile image (admin only)
+   */
+  uploadFeatureMobileImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ success: false, message: 'No file uploaded' });
+        return;
+      }
+
+      const filePath = `/uploads/${req.file.filename}`;
+
+      // Delete old uploaded feature mobile image if it exists
+      const current = await this.service.getSettings();
+      if (current.featureSectionMobileImageFile && current.featureSectionMobileImageFile.startsWith('/uploads/')) {
+        const oldPath = path.join(__dirname, '../../../', current.featureSectionMobileImageFile);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+
+      const settings = await this.service.updateSettings({
+        featureSectionMobileImageFile: filePath,
+      });
+
+      res.json({
+        success: true,
+        data: settings,
+        message: 'Feature section mobile image uploaded successfully',
+      });
+    } catch (error: any) {
+      next(error);
+    }
+  };
+
+  /**
    * POST /api/settings/maintenance/toggle
    * Toggle maintenance mode (admin only)
    */

@@ -83,6 +83,7 @@ export interface SiteSettings {
   featureSectionSubtitle_en?: string;
   featureSectionSubtitle_sv?: string;
   featureSectionImageFile?: string | null;
+  featureSectionMobileImageFile?: string | null;
 
   // Analytics
   googleAnalyticsId?: string;

@@ -15,6 +15,7 @@ router.put('/', authenticate, requireAdmin, controller.updateSettings);
 router.post('/logo', authenticate, requireAdmin, upload.single('logoFile'), controller.uploadLogo);
 router.post('/favicon', authenticate, requireAdmin, upload.single('faviconFile'), controller.uploadFavicon);
 router.post('/feature-image', authenticate, requireAdmin, upload.single('featureImageFile'), controller.uploadFeatureImage);
+router.post('/feature-mobile-image', authenticate, requireAdmin, upload.single('featureMobileImageFile'), controller.uploadFeatureMobileImage);
 router.post('/maintenance/toggle', authenticate, requireAdmin, controller.toggleMaintenanceMode);
 
 export default router;

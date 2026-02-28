@@ -149,6 +149,7 @@ export class SiteSettingsService {
       featureSectionSubtitle_en: settings.featureSectionSubtitle_en,
       featureSectionSubtitle_sv: settings.featureSectionSubtitle_sv,
       featureSectionImageFile: settings.featureSectionImageFile,
+      featureSectionMobileImageFile: settings.featureSectionMobileImageFile,
       // Gaming PC Section
       gamingPcSectionVisible: settings.gamingPcSectionVisible,
       gamingPcBadge_en: settings.gamingPcBadge_en,

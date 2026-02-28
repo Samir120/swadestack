@@ -118,6 +118,7 @@ export interface SiteSettingsAttributes {
   featureSectionSubtitle_en: string;
   featureSectionSubtitle_sv: string;
   featureSectionImageFile: string | null;
+  featureSectionMobileImageFile: string | null;
 
   // Gaming PC Section
   gamingPcSectionVisible: boolean;
@@ -284,6 +285,7 @@ class SiteSettings extends Model<SiteSettingsAttributes> implements SiteSettings
   public featureSectionSubtitle_en!: string;
   public featureSectionSubtitle_sv!: string;
   public featureSectionImageFile!: string | null;
+  public featureSectionMobileImageFile!: string | null;
 
   // Gaming PC Section
   public gamingPcSectionVisible!: boolean;
@@ -766,6 +768,10 @@ SiteSettings.init(
       defaultValue: 'Våra Kärnkompetenser',
     },
     featureSectionImageFile: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    featureSectionMobileImageFile: {
       type: DataTypes.TEXT,
       allowNull: true,
     },

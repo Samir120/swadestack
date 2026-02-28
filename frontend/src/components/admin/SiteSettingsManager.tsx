@@ -113,6 +113,7 @@ interface SiteSettingsData {
   featureSectionSubtitle_en: string;
   featureSectionSubtitle_sv: string;
   featureSectionImageFile: string | null;
+  featureSectionMobileImageFile: string | null;
 
   // Analytics
   googleAnalyticsId: string;
@@ -199,6 +200,7 @@ const SiteSettingsManager: React.FC = () => {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
   const [featureImagePreview, setFeatureImagePreview] = useState<string | null>(null);
+  const [featureMobileImagePreview, setFeatureMobileImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     loadSettings();
@@ -225,6 +227,7 @@ const SiteSettingsManager: React.FC = () => {
         setLogoPreview(response.data.logoUrl || response.data.logoFile);
         setFaviconPreview(response.data.faviconUrl || response.data.faviconFile);
         setFeatureImagePreview(response.data.featureSectionImageFile || null);
+        setFeatureMobileImagePreview(response.data.featureSectionMobileImageFile || null);
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
@@ -383,6 +386,49 @@ const SiteSettingsManager: React.FC = () => {
     setFeatureImagePreview(null);
     if (settings) {
       setSettings({ ...settings, featureSectionImageFile: null });
+    }
+  };
+
+  const handleFeatureMobileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image file is too large. Maximum size is 5MB.');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('featureMobileImageFile', file);
+
+    try {
+      const response = await apiClient.post<any>('/settings/feature-mobile-image', formData);
+      if (response.success && response.data) {
+        const uploadedPath = response.data.featureSectionMobileImageFile;
+        setFeatureMobileImagePreview(uploadedPath);
+        if (settings) {
+          setSettings({
+            ...settings,
+            featureSectionMobileImageFile: uploadedPath,
+          });
+        }
+        toast.success('Mobile preview image uploaded successfully');
+      }
+    } catch (error) {
+      console.error('Failed to upload mobile preview image:', error);
+      toast.error('Failed to upload image. Please try again.');
+    }
+  };
+
+  const handleRemoveFeatureMobileImage = () => {
+    setFeatureMobileImagePreview(null);
+    if (settings) {
+      setSettings({ ...settings, featureSectionMobileImageFile: null });
     }
   };
 
@@ -1161,6 +1207,50 @@ const SiteSettingsManager: React.FC = () => {
                             accept="image/*"
                             className="hidden"
                             onChange={handleFeatureImageUpload}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Preview Image */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-neutral-400 uppercase tracking-wider mb-2">
+                      Mobile Preview Image (Optional)
+                    </label>
+                    <p className="text-[10px] sm:text-xs text-neutral-400 mb-3">
+                      This image appears inside the phone mockup. If not set, the desktop image is cropped to fit. Recommended: 9:19.5 aspect ratio (portrait).
+                    </p>
+                    <div className="flex items-start gap-4">
+                      {featureMobileImagePreview ? (
+                        <div className="relative rounded-lg overflow-hidden border border-surface-600 bg-surface-800 flex-shrink-0" style={{ width: '56px', height: '121px' }}>
+                          <img
+                            src={featureMobileImagePreview}
+                            alt="Mobile preview"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            onClick={handleRemoveFeatureMobileImage}
+                            className="absolute top-1 right-1 w-5 h-5 bg-red-600 rounded-full flex items-center justify-center text-white text-[10px] hover:bg-red-500 transition"
+                            title="Remove image"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border-2 border-dashed border-surface-600 bg-surface-800/50 flex items-center justify-center flex-shrink-0" style={{ width: '56px', height: '121px' }}>
+                          <span className="text-[10px] text-neutral-500">No image</span>
+                        </div>
+                      )}
+                      <div>
+                        <label className="inline-flex items-center gap-2 px-4 py-2 bg-surface-700 text-neutral-200 rounded-lg hover:bg-surface-600 cursor-pointer transition text-sm font-bold">
+                          <FaFileAlt size={12} />
+                          {featureMobileImagePreview ? 'Replace Image' : 'Upload Image'}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleFeatureMobileImageUpload}
                           />
                         </label>
                       </div>
