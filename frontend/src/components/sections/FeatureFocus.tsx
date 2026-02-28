@@ -154,8 +154,8 @@ const DeviceShowcase: React.FC<{
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.7, delay: 0.2, type: 'spring', stiffness: 80, damping: 18 }}
-        className="absolute -bottom-4 -right-6 xl:-right-8 z-10"
-        style={{ width: '28%' }}
+        className="absolute z-10"
+        style={{ width: '28%', bottom: '-18%', right: '-8%', transform: 'rotate(3deg)' }}
       >
         <div className="rounded-[30px] border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 p-[3px] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.45)]">
           {/* Phone screen with overlaid indicators */}
@@ -485,7 +485,7 @@ const FeatureFocus: React.FC = () => {
 
   return (
     <section
-      className="py-24 bg-white dark:bg-surface-900 overflow-hidden relative z-10"
+      className="pt-24 pb-32 bg-white dark:bg-surface-900 overflow-hidden relative z-10"
       role="region"
       aria-label={language === 'en' ? 'Features' : 'Funktioner'}
     >
@@ -525,7 +525,7 @@ const FeatureFocus: React.FC = () => {
             gridTemplateColumns: '1fr auto 1fr',
             gridTemplateRows: `repeat(${rowCount}, auto)`,
             columnGap: '2.5rem',
-            rowGap: '1.5rem',
+            rowGap: '2.75rem',
             alignItems: 'center',
           }}
         >
@@ -552,7 +552,6 @@ const FeatureFocus: React.FC = () => {
               gridRow: '1 / -1',
               alignSelf: 'center',
               justifySelf: 'center',
-              marginBottom: '-2.75rem',
             }}
           >
             <DeviceShowcase laptopImageUrl={laptopImage} phoneImageUrl={phoneImage} />
