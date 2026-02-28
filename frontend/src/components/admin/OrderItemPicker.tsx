@@ -124,7 +124,7 @@ const OrderItemPicker: React.FC<OrderItemPickerProps> = ({ orderId, onSelect, on
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60" onClick={onClose} />
 
-      <div className="relative bg-surface-850 rounded-2xl border border-surface-700 shadow-dark-lg w-full max-w-3xl flex flex-col max-h-[85vh]">
+      <div className="relative bg-surface-850 rounded-2xl border border-surface-700 shadow-dark-lg w-full max-w-3xl flex flex-col max-h-modal">
         {/* ── Header ── */}
         <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-surface-700 flex-shrink-0">
           <h3 className="text-sm sm:text-base font-semibold text-white">Add Product or Service</h3>

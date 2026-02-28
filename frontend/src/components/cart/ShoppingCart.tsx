@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { toggleCart } from '../../store/slices/uiSlice';
@@ -32,6 +32,16 @@ const ShoppingCart: React.FC = () => {
   } = useCartViewModel();
 
   const { getServiceName } = useServicesViewModel();
+
+  // Prevent background scrolling when cart is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
 
   const handleCheckout = () => {
     dispatch(toggleCart());

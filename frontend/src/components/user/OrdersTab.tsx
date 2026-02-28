@@ -293,7 +293,7 @@ const OrdersTab: React.FC = () => {
           onClick={() => setSelectedOrder(null)}
         >
           <div
-            className="bg-white dark:bg-surface-850 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] overflow-y-auto"
+            className="bg-white dark:bg-surface-850 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-modal overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

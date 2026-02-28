@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useFeaturesViewModel } from '../../viewmodels/featuresViewModel';
 import { useAppSelector } from '../../store/hooks';
@@ -349,7 +350,7 @@ const FeatureDetailModal: React.FC<{
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -367,7 +368,7 @@ const FeatureDetailModal: React.FC<{
 
       {/* Popup */}
       <motion.div
-        className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto bg-white dark:bg-surface-850 rounded-2xl ring-1 ring-gray-200/60 dark:ring-white/[0.12]"
+        className="relative w-full max-w-lg max-h-modal overflow-y-auto bg-white dark:bg-surface-850 rounded-2xl ring-1 ring-gray-200/60 dark:ring-white/[0.12]"
         style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.15)' }}
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -596,18 +597,21 @@ const FeatureFocus: React.FC = () => {
         </div>
       </div>
 
-      {/* Detail popup */}
-      <AnimatePresence>
-        {selectedFeature && (
-          <FeatureDetailModal
-            feature={selectedFeature}
-            onClose={() => setSelectedFeature(null)}
-            getTitle={getTitle}
-            getShortDescription={getShortDescription}
-            getFullDescription={getFullDescription}
-          />
-        )}
-      </AnimatePresence>
+      {/* Detail popup — portal to body to escape section stacking context */}
+      {createPortal(
+        <AnimatePresence>
+          {selectedFeature && (
+            <FeatureDetailModal
+              feature={selectedFeature}
+              onClose={() => setSelectedFeature(null)}
+              getTitle={getTitle}
+              getShortDescription={getShortDescription}
+              getFullDescription={getFullDescription}
+            />
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </section>
   );
 };

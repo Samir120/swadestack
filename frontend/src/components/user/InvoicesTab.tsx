@@ -241,7 +241,7 @@ const InvoicesTab: React.FC = () => {
           onClick={() => setSelectedInvoice(null)}
         >
           <div
-            className="bg-white dark:bg-surface-850 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-3xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto"
+            className="bg-white dark:bg-surface-850 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-3xl max-h-modal-lg sm:max-h-modal overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

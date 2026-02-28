@@ -144,6 +144,20 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Dynamic viewport height — fixes Chrome mobile address bar overflow on modals */
+  .max-h-modal {
+    max-height: 85vh;
+    max-height: 85dvh;
+  }
+  .max-h-modal-lg {
+    max-height: 90vh;
+    max-height: 90dvh;
+  }
+  .h-dvh {
+    height: 100vh;
+    height: 100dvh;
+  }
 }
 
 /* Light scrollbar (default) */
