@@ -113,7 +113,7 @@ const DeviceShowcase: React.FC<{
       }}
     />
 
-    <div className="relative w-[300px] sm:w-[340px] lg:w-[300px] xl:w-[350px] 2xl:w-[390px]">
+    <div className="relative w-[300px] sm:w-[420px] lg:w-[300px] xl:w-[350px] 2xl:w-[390px]">
       {/* Laptop */}
       <motion.div
         initial={{ opacity: 0, x: -60 }}
@@ -124,11 +124,11 @@ const DeviceShowcase: React.FC<{
       >
         <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
           {/* Title bar — slim, matching Selected Work */}
-          <div className="h-6 lg:h-7 bg-slate-100 dark:bg-slate-700 flex items-center relative">
-            <div className="flex gap-1.5 ml-3">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#22C55E]" />
+          <div className="h-4 lg:h-5 bg-slate-100 dark:bg-slate-700 flex items-center relative">
+            <div className="flex gap-1 ml-2 lg:ml-2.5">
+              <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-[#EF4444]" />
+              <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-[#F59E0B]" />
+              <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-[#22C55E]" />
             </div>
           </div>
 
@@ -154,12 +154,12 @@ const DeviceShowcase: React.FC<{
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.7, delay: 0.2, type: 'spring', stiffness: 80, damping: 18 }}
-        className="absolute z-10"
-        style={{ width: '28%', bottom: '-18%', right: '-8%', transform: 'rotate(3deg)' }}
+        className="absolute z-10 -right-[4%] lg:-right-[8%]"
+        style={{ width: '28%', bottom: '-18%', transform: 'rotate(3deg)' }}
       >
-        <div className="rounded-[24px] border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 p-[2px] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.45)]">
+        <div className="rounded-[16px] sm:rounded-[20px] lg:rounded-[24px] border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 p-[1px] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.45)]">
           {/* Phone screen with overlaid indicators */}
-          <div className="relative rounded-[22px] overflow-hidden" style={{ aspectRatio: '9 / 19.5' }}>
+          <div className="relative rounded-[15px] sm:rounded-[19px] lg:rounded-[23px] overflow-hidden" style={{ aspectRatio: '9 / 19.5' }}>
             {phoneImageUrl ? (
               <img
                 src={phoneImageUrl}
@@ -183,7 +183,7 @@ const DeviceShowcase: React.FC<{
             )}
 
             {/* Dynamic island — overlaid on screen */}
-            <div className="absolute top-[3px] left-1/2 -translate-x-1/2 bg-black rounded-full z-10" style={{ width: '30%', height: '10px' }} />
+            <div className="absolute top-[2px] sm:top-[3px] left-1/2 -translate-x-1/2 bg-black rounded-full z-10 h-[6px] sm:h-[8px] lg:h-[10px]" style={{ width: '30%' }} />
 
             {/* Home indicator — overlaid on screen */}
             <div className="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[40%] h-[4px] rounded-sm bg-gray-400/60 z-10" />
@@ -572,13 +572,13 @@ const FeatureFocus: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile: Monitor on top + card grid */}
+        {/* Mobile/Tablet: Device on top + card grid */}
         <div className="lg:hidden">
-          <div className="flex justify-center mb-12">
+          <div className="flex justify-center pb-10 mb-6 sm:mb-8" style={{ transform: 'translateX(-3%)' }}>
             <DeviceShowcase laptopImageUrl={laptopImage} phoneImageUrl={phoneImage} />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
             {features.map((feature, i) => (
               <MobileFeatureCard
                 key={feature.id}
