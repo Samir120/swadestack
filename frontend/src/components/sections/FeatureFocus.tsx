@@ -113,7 +113,7 @@ const DeviceShowcase: React.FC<{
       }}
     />
 
-    <div className="relative w-[300px] sm:w-[340px] lg:w-[340px] xl:w-[400px] 2xl:w-[440px]">
+    <div className="relative w-[300px] sm:w-[340px] lg:w-[300px] xl:w-[350px] 2xl:w-[390px]">
       {/* Laptop */}
       <motion.div
         initial={{ opacity: 0, x: -60 }}
@@ -157,9 +157,9 @@ const DeviceShowcase: React.FC<{
         className="absolute z-10"
         style={{ width: '28%', bottom: '-18%', right: '-8%', transform: 'rotate(3deg)' }}
       >
-        <div className="rounded-[30px] border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 p-[3px] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.45)]">
+        <div className="rounded-[24px] border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 p-[2px] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.45)]">
           {/* Phone screen with overlaid indicators */}
-          <div className="relative rounded-[27px] overflow-hidden" style={{ aspectRatio: '9 / 19.5' }}>
+          <div className="relative rounded-[22px] overflow-hidden" style={{ aspectRatio: '9 / 19.5' }}>
             {phoneImageUrl ? (
               <img
                 src={phoneImageUrl}
@@ -183,7 +183,7 @@ const DeviceShowcase: React.FC<{
             )}
 
             {/* Dynamic island — overlaid on screen */}
-            <div className="absolute top-[6px] left-1/2 -translate-x-1/2 bg-black rounded-[10px] z-10" style={{ width: '60px', height: '16px' }} />
+            <div className="absolute top-[3px] left-1/2 -translate-x-1/2 bg-black rounded-full z-10" style={{ width: '30%', height: '10px' }} />
 
             {/* Home indicator — overlaid on screen */}
             <div className="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[40%] h-[4px] rounded-sm bg-gray-400/60 z-10" />
@@ -241,7 +241,7 @@ const DesktopFeatureItem: React.FC<{
             <div
               className="absolute top-1/2 -translate-y-1/2 left-full h-[1.5px]"
               style={{
-                width: '34px',
+                width: '26px',
                 background: `linear-gradient(to right, ${accent.hex}60, transparent)`,
               }}
             />
@@ -262,7 +262,7 @@ const DesktopFeatureItem: React.FC<{
             <div
               className="absolute top-1/2 -translate-y-1/2 right-full h-[1.5px]"
               style={{
-                width: '34px',
+                width: '26px',
                 background: `linear-gradient(to right, transparent, ${accent.hex}60)`,
               }}
             />
@@ -426,7 +426,6 @@ const FeatureFocus: React.FC = () => {
   const mid = Math.ceil(features.length / 2);
   const leftFeatures = features.slice(0, mid);
   const rightFeatures = features.slice(mid);
-  const rowCount = Math.max(leftFeatures.length, rightFeatures.length);
 
   const sectionTitle =
     (language === 'en'
@@ -485,7 +484,7 @@ const FeatureFocus: React.FC = () => {
 
   return (
     <section
-      className="pt-24 pb-32 bg-white dark:bg-surface-900 overflow-hidden relative z-10"
+      className="pt-28 pb-36 bg-white dark:bg-surface-900 overflow-hidden relative z-10"
       role="region"
       aria-label={language === 'en' ? 'Features' : 'Funktioner'}
     >
@@ -523,16 +522,15 @@ const FeatureFocus: React.FC = () => {
           className="hidden lg:grid"
           style={{
             gridTemplateColumns: '1fr auto 1fr',
-            gridTemplateRows: `repeat(${rowCount}, auto)`,
-            columnGap: '2.5rem',
-            rowGap: '2.75rem',
+            columnGap: '4rem',
             alignItems: 'center',
           }}
         >
-          {/* Left column features */}
-          {leftFeatures.map((feature, i) => (
-            <div key={feature.id} style={{ gridColumn: 1, gridRow: i + 1 }}>
+          {/* Left column features — single cell, flex centered */}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '1.75rem' }}>
+            {leftFeatures.map((feature, i) => (
               <DesktopFeatureItem
+                key={feature.id}
                 feature={feature}
                 align="left"
                 delay={i * 0.12}
@@ -542,25 +540,25 @@ const FeatureFocus: React.FC = () => {
                   setSelectedFeature(feature);
                 }}
               />
-            </div>
-          ))}
+            ))}
+          </div>
 
-          {/* Center: Device Showcase — spans all rows */}
+          {/* Center: Device Showcase */}
           <div
             style={{
-              gridColumn: 2,
-              gridRow: '1 / -1',
               alignSelf: 'center',
               justifySelf: 'center',
+              transform: 'translateX(-14px)',
             }}
           >
             <DeviceShowcase laptopImageUrl={laptopImage} phoneImageUrl={phoneImage} />
           </div>
 
-          {/* Right column features */}
-          {rightFeatures.map((feature, i) => (
-            <div key={feature.id} style={{ gridColumn: 3, gridRow: i + 1 }}>
+          {/* Right column features — single cell, flex centered */}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '1.75rem' }}>
+            {rightFeatures.map((feature, i) => (
               <DesktopFeatureItem
+                key={feature.id}
                 feature={feature}
                 align="right"
                 delay={i * 0.12}
@@ -570,8 +568,8 @@ const FeatureFocus: React.FC = () => {
                   setSelectedFeature(feature);
                 }}
               />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Mobile: Monitor on top + card grid */}
