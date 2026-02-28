@@ -115,6 +115,13 @@ const PreConfiguredPCDetail: React.FC = () => {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const navDirection = useRef(0); // 1 = forward, -1 = backward
 
+  // Touch/swipe refs
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchStartTime = useRef(0);
+  const isHorizontalSwipe = useRef<boolean | null>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+
   // Get all images (imageUrls array or fall back to imageUrl)
   const getAllImages = useCallback((): string[] => {
     if (!currentPC) return [];
@@ -151,6 +158,56 @@ const PreConfiguredPCDetail: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isLightboxOpen]);
+
+  // Non-passive touchmove to prevent page scroll during horizontal image swipe
+  useEffect(() => {
+    const el = imageContainerRef.current;
+    if (!el) return;
+    const onTouchMove = (e: TouchEvent) => {
+      if (getAllImages().length <= 1) return;
+      const dx = e.touches[0].clientX - touchStartX.current;
+      const dy = e.touches[0].clientY - touchStartY.current;
+      if (isHorizontalSwipe.current === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+        isHorizontalSwipe.current = Math.abs(dx) > Math.abs(dy);
+      }
+      if (isHorizontalSwipe.current) {
+        e.preventDefault();
+      }
+    };
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    return () => el.removeEventListener('touchmove', onTouchMove);
+  }, [getAllImages]);
+
+  // Touch handlers for image swipe navigation
+  const handleImageTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchStartTime.current = Date.now();
+    isHorizontalSwipe.current = null;
+  }, []);
+
+  const handleImageTouchMove = useCallback((e: React.TouchEvent) => {
+    if (getAllImages().length <= 1) return;
+    const dx = e.touches[0].clientX - touchStartX.current;
+    const dy = e.touches[0].clientY - touchStartY.current;
+    if (isHorizontalSwipe.current === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      isHorizontalSwipe.current = Math.abs(dx) > Math.abs(dy);
+    }
+  }, [getAllImages]);
+
+  const handleImageTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (getAllImages().length <= 1 || !isHorizontalSwipe.current) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const elapsed = Date.now() - touchStartTime.current;
+    const velocity = Math.abs(dx) / elapsed;
+    if (velocity > 0.25 || Math.abs(dx) > 50) {
+      if (dx < 0) {
+        goToNextImage();
+      } else {
+        goToPrevImage();
+      }
+    }
+  }, [getAllImages, goToNextImage, goToPrevImage]);
 
   // Load PC details
   useEffect(() => {
@@ -308,7 +365,7 @@ const PreConfiguredPCDetail: React.FC = () => {
             >
               <div className="bg-white dark:bg-surface-850 rounded-2xl border border-gray-200 dark:border-surface-700/50 overflow-hidden sticky top-24 shadow-sm">
                 {/* Main Image */}
-                <div className="relative group bg-gray-50 dark:bg-surface-800 p-6 sm:p-10">
+                <div ref={imageContainerRef} className="relative group bg-gray-50 dark:bg-surface-800 p-6 sm:p-10" onTouchStart={handleImageTouchStart} onTouchEnd={handleImageTouchEnd}>
                   {/* Badges - top left */}
                   <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
                     {tierColors && currentPC.tier && (
@@ -343,10 +400,10 @@ const PreConfiguredPCDetail: React.FC = () => {
                         alt={name || 'Pre-configured PC'}
                         className="w-full aspect-square object-contain cursor-pointer"
                         onClick={() => setIsLightboxOpen(true)}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
+                        initial={{ opacity: 0, x: navDirection.current * 40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: navDirection.current * -40 }}
+                        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                       />
                     ) : (
                       <div className="w-full aspect-square flex items-center justify-center">
@@ -362,13 +419,13 @@ const PreConfiguredPCDetail: React.FC = () => {
                     <>
                       <button
                         onClick={(e) => { e.stopPropagation(); goToPrevImage(); }}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm text-gray-600 dark:text-neutral-300 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-white dark:hover:bg-surface-700 shadow-sm border border-gray-200/50 dark:border-surface-600/50"
+                        className="hidden lg:flex absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm text-gray-600 dark:text-neutral-300 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-white dark:hover:bg-surface-700 shadow-sm border border-gray-200/50 dark:border-surface-600/50 items-center justify-center"
                       >
                         <FaChevronLeft size={14} />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); goToNextImage(); }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm text-gray-600 dark:text-neutral-300 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-white dark:hover:bg-surface-700 shadow-sm border border-gray-200/50 dark:border-surface-600/50"
+                        className="hidden lg:flex absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-white/80 dark:bg-surface-800/80 backdrop-blur-sm text-gray-600 dark:text-neutral-300 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-white dark:hover:bg-surface-700 shadow-sm border border-gray-200/50 dark:border-surface-600/50 items-center justify-center"
                       >
                         <FaChevronRight size={14} />
                       </button>
@@ -769,7 +826,7 @@ const PreConfiguredPCDetail: React.FC = () => {
             {images.length > 1 && (
               <button
                 onClick={(e) => { e.stopPropagation(); goToPrevImage(); }}
-                className="absolute left-6 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 hover:scale-105 transition-all duration-200"
+                className="hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm items-center justify-center text-white hover:bg-white/20 hover:scale-105 transition-all duration-200"
               >
                 <ChevronLeft size={24} />
               </button>
@@ -779,7 +836,7 @@ const PreConfiguredPCDetail: React.FC = () => {
             {images.length > 1 && (
               <button
                 onClick={(e) => { e.stopPropagation(); goToNextImage(); }}
-                className="absolute right-6 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 hover:scale-105 transition-all duration-200"
+                className="hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm items-center justify-center text-white hover:bg-white/20 hover:scale-105 transition-all duration-200"
               >
                 <ChevronRight size={24} />
               </button>
@@ -789,6 +846,9 @@ const PreConfiguredPCDetail: React.FC = () => {
             <motion.div
               className="relative rounded-xl overflow-hidden shadow-2xl max-w-[85vw] sm:max-w-[80vw]"
               onClick={(e) => e.stopPropagation()}
+              onTouchStart={handleImageTouchStart}
+              onTouchMove={handleImageTouchMove}
+              onTouchEnd={handleImageTouchEnd}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}

@@ -360,10 +360,10 @@ const AutoCarousel: React.FC<AutoCarouselProps> = ({
         </div>
       </div>
 
-      {/* Left Arrow — hidden on mobile, visible from md+ */}
+      {/* Left Arrow — hidden on mobile/tablet, visible from lg+ */}
       <button
         onClick={goPrev}
-        className="hidden md:flex absolute -left-5 lg:-left-12 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md items-center justify-center hover:shadow-lg transition-all z-10 active:scale-95"
+        className="hidden lg:flex absolute -left-12 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md items-center justify-center hover:shadow-lg transition-all z-10 active:scale-95"
         aria-label="Previous"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-slate-600 dark:text-slate-300">
@@ -371,10 +371,10 @@ const AutoCarousel: React.FC<AutoCarouselProps> = ({
         </svg>
       </button>
 
-      {/* Right Arrow — hidden on mobile, visible from md+ */}
+      {/* Right Arrow — hidden on mobile/tablet, visible from lg+ */}
       <button
         onClick={goNext}
-        className="hidden md:flex absolute -right-5 lg:-right-12 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md items-center justify-center hover:shadow-lg transition-all z-10 active:scale-95"
+        className="hidden lg:flex absolute -right-12 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-md items-center justify-center hover:shadow-lg transition-all z-10 active:scale-95"
         aria-label="Next"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-slate-600 dark:text-slate-300">
