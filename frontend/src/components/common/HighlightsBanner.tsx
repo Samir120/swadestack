@@ -250,7 +250,7 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
             >
               <picture>
                 <source
-                  media="(max-width: 768px)"
+                  media="(max-width: 1024px)"
                   srcSet={banner.mobile_image_url || banner.image_url}
                 />
                 <img
