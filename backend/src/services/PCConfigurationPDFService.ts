@@ -607,10 +607,9 @@ export class PCConfigurationPDFService {
 
     let browser;
     try {
-      // Launch headless browser using system Chromium (ARM-compatible)
+      // Launch headless browser using Puppeteer's bundled Chrome
       browser = await puppeteer.launch({
         headless: true,
-        executablePath: '/usr/bin/chromium',
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
       });
 
