@@ -169,8 +169,8 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
         <div className="absolute inset-0 bg-black/30" />
 
         {/* Content */}
-        <div className="absolute inset-0 flex flex-col justify-center items-center text-white px-5 sm:px-6 text-center z-10">
-          <div className="inline-flex items-center justify-center px-4 sm:px-5 py-1.5 sm:py-2 mb-4 sm:mb-8 border border-white/20 rounded-full bg-white/10 backdrop-blur-sm">
+        <div className="absolute inset-0 flex flex-col justify-center items-center text-white px-5 sm:px-6 text-center z-10 max-md:pt-[10vh]">
+          <div className="inline-flex items-center justify-center px-4 sm:px-5 py-1.5 sm:py-2 mb-3 md:mb-8 border border-white/20 rounded-full bg-white/10 backdrop-blur-sm">
             <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-primary-400 mr-2 sm:mr-2.5 animate-pulse"></span>
             <span className="text-white/80 text-[10px] sm:text-xs font-semibold tracking-[0.2em] uppercase">
               {heroStatusText}
@@ -178,7 +178,7 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
           </div>
 
           <h1
-            className="text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-3 sm:mb-6 leading-[1.1] tracking-tight"
+            className="text-2xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-[10px] md:mb-6 leading-[1.1] tracking-[0.5px] md:tracking-tight"
             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}
           >
             {heroHeading}
@@ -186,17 +186,17 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
 
           {tagline && (
             <p
-              className="text-sm sm:text-lg md:text-xl mb-5 sm:mb-10 max-w-2xl font-light leading-relaxed"
+              className="text-[0.85rem] md:text-lg lg:text-xl mb-5 md:mb-10 max-w-2xl font-light leading-[1.5] md:leading-relaxed line-clamp-3 md:line-clamp-none"
               style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}
             >
               {tagline}
             </p>
           )}
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 w-full sm:w-auto">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-[10px] md:gap-5 w-full md:w-auto">
             <button
               onClick={() => scrollToSection('portfolio')}
-              className="group inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-6 py-3 sm:px-9 sm:py-4 bg-primary-600 text-white rounded-[10px] text-sm sm:text-base font-bold backdrop-blur-sm hover:bg-primary-500 hover:shadow-glow transition-all duration-300 active:scale-[0.97]"
+              className="group inline-flex items-center justify-center gap-2.5 w-full md:w-auto py-3 px-0 md:px-9 md:py-4 bg-primary-600 text-white rounded-[10px] text-[0.9rem] md:text-base font-bold backdrop-blur-sm hover:bg-primary-500 hover:shadow-glow transition-all duration-300 active:scale-[0.97]"
             >
               {heroPrimaryButton}
               <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -205,7 +205,7 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
             </button>
             <button
               onClick={() => scrollToSection('services')}
-              className="group inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-6 py-3 sm:px-9 sm:py-4 border-2 border-white text-white rounded-[10px] text-sm sm:text-base font-semibold backdrop-blur-sm hover:bg-white hover:text-gray-900 transition-all duration-300 active:scale-[0.97]"
+              className="group inline-flex items-center justify-center gap-2.5 w-full md:w-auto py-3 px-0 md:px-9 md:py-4 border-2 border-white text-white rounded-[10px] text-[0.9rem] md:text-base font-semibold backdrop-blur-sm hover:bg-white hover:text-gray-900 transition-all duration-300 active:scale-[0.97]"
             >
               {heroSecondaryButton}
               <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -266,16 +266,16 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
               </picture>
             </div>
 
-            {/* Dark semi-transparent overlay */}
-            <div className="absolute inset-0 bg-black/25"></div>
+            {/* Uniform dark overlay for text readability */}
+            <div className="absolute inset-0 bg-black/35"></div>
           </div>
         );
       })}
 
       {/* Centered content overlay */}
-      <div className="absolute inset-0 z-[15] flex flex-col justify-center items-center text-white px-5 sm:px-6 text-center pointer-events-none">
+      <div className="absolute inset-0 z-[15] flex flex-col justify-center items-center text-white px-5 sm:px-6 text-center pointer-events-none max-md:pt-[10vh]">
         {/* Status badge */}
-        <div className="inline-flex items-center justify-center px-4 sm:px-5 py-1.5 sm:py-2 mb-4 sm:mb-8 border border-white/20 rounded-full bg-white/10 backdrop-blur-sm pointer-events-auto">
+        <div className="inline-flex items-center justify-center px-4 sm:px-5 py-1.5 sm:py-2 mb-3 md:mb-8 border border-white/20 rounded-full bg-white/10 backdrop-blur-sm pointer-events-auto">
           <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-primary-400 mr-2 sm:mr-2.5 animate-pulse"></span>
           <span className="text-white/80 text-[10px] sm:text-xs font-semibold tracking-[0.2em] uppercase">
             {heroStatusText}
@@ -285,13 +285,13 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
         {/* Per-slide title + description */}
         <div key={currentSlide} className="max-w-4xl">
           <h2
-            className={`text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-5 md:mb-6 leading-tight tracking-tight text-white${reduceMotion ? '' : ' animate-bannerTextIn'}`}
+            className={`text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-[10px] md:mb-6 leading-tight tracking-[0.5px] md:tracking-tight text-white${reduceMotion ? '' : ' animate-bannerTextIn'}`}
             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)', ...(!reduceMotion ? { animationDelay: '0.15s' } : {}) }}
           >
             {getLocalizedContent(banners[currentSlide]).title}
           </h2>
           <p
-            className={`text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto font-light leading-relaxed${reduceMotion ? '' : ' animate-bannerTextIn'}`}
+            className={`text-[0.85rem] md:text-lg lg:text-xl max-w-2xl mx-auto font-light leading-[1.5] md:leading-relaxed line-clamp-3 md:line-clamp-none${reduceMotion ? '' : ' animate-bannerTextIn'}`}
             style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 6px rgba(0,0,0,0.5)', ...(!reduceMotion ? { animationDelay: '0.4s' } : {}) }}
           >
             {getLocalizedContent(banners[currentSlide]).desc}
@@ -300,12 +300,12 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
 
         {/* CTA buttons */}
         <div
-          className={`flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 mt-5 sm:mt-10 w-full sm:w-auto pointer-events-auto${reduceMotion ? '' : ' animate-bannerTextIn'}`}
+          className={`flex flex-col md:flex-row items-center justify-center gap-[10px] md:gap-5 mt-5 md:mt-10 w-full md:w-auto pointer-events-auto${reduceMotion ? '' : ' animate-bannerTextIn'}`}
           style={!reduceMotion ? { animationDelay: '0.6s' } : undefined}
         >
           <button
             onClick={() => scrollToSection('portfolio')}
-            className="group inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-6 py-3 sm:px-9 sm:py-4 bg-primary-600 text-white rounded-[10px] text-sm sm:text-base font-bold backdrop-blur-sm hover:bg-primary-500 hover:shadow-glow transition-all duration-300 active:scale-[0.97]"
+            className="group inline-flex items-center justify-center gap-2.5 w-full md:w-auto py-3 px-0 md:px-9 md:py-4 bg-primary-600 text-white rounded-[10px] text-[0.9rem] md:text-base font-bold backdrop-blur-sm hover:bg-primary-500 hover:shadow-glow transition-all duration-300 active:scale-[0.97]"
           >
             {heroPrimaryButton}
             <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -314,7 +314,7 @@ const HighlightsBanner: React.FC<HighlightsBannerProps> = ({ scrollToSection }) 
           </button>
           <button
             onClick={() => scrollToSection('services')}
-            className="group inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-6 py-3 sm:px-9 sm:py-4 border-2 border-white text-white rounded-[10px] text-sm sm:text-base font-semibold backdrop-blur-sm hover:bg-white hover:text-gray-900 transition-all duration-300 active:scale-[0.97]"
+            className="group inline-flex items-center justify-center gap-2.5 w-full md:w-auto py-3 px-0 md:px-9 md:py-4 border-2 border-white text-white rounded-[10px] text-[0.9rem] md:text-base font-semibold backdrop-blur-sm hover:bg-white hover:text-gray-900 transition-all duration-300 active:scale-[0.97]"
           >
             {heroSecondaryButton}
             <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
