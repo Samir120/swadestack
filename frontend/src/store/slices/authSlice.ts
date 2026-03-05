@@ -11,6 +11,9 @@ interface AuthState {
   error: string | null;
   registrationSuccess: boolean;
   registrationEmail: string | null;
+  passwordResetPending: {
+    tempToken: string | null;
+  };
 }
 
 // Migration: clean up old auth_token if present
@@ -28,6 +31,9 @@ const initialState: AuthState = {
   error: null,
   registrationSuccess: false,
   registrationEmail: null,
+  passwordResetPending: {
+    tempToken: null,
+  },
 };
 
 /**
@@ -108,7 +114,23 @@ export const forgotPassword = createAsyncThunk(
     if (!response.success) {
       throw new Error(response.message || 'Failed to send reset email');
     }
-    return response.message;
+    // Check if 2FA is required (response.data contains requiresTwoFactor + tempToken)
+    const data = response.data as any;
+    if (data?.requiresTwoFactor) {
+      return { requiresTwoFactor: true as const, tempToken: data.tempToken as string };
+    }
+    return { requiresTwoFactor: false as const, message: response.message };
+  }
+);
+
+export const validatePasswordReset2fa = createAsyncThunk(
+  'auth/validatePasswordReset2fa',
+  async ({ tempToken, token }: { tempToken: string; token: string }) => {
+    const response = await authApi.forgotPassword2faValidate(tempToken, token);
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'Invalid or expired code');
+    }
+    return response.data.resetToken;
   }
 );
 
@@ -152,6 +174,12 @@ const authSlice = createSlice({
     clearRegistrationState: (state) => {
       state.registrationSuccess = false;
       state.registrationEmail = null;
+    },
+    setPasswordResetPending: (state, action: { payload: string }) => {
+      state.passwordResetPending.tempToken = action.payload;
+    },
+    clearPasswordResetPending: (state) => {
+      state.passwordResetPending.tempToken = null;
     },
   },
   extraReducers: (builder) => {
@@ -240,5 +268,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearRegistrationState } = authSlice.actions;
+export const { logout, clearRegistrationState, setPasswordResetPending, clearPasswordResetPending } = authSlice.actions;
 export default authSlice.reducer;

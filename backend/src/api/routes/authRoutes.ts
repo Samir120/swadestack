@@ -18,6 +18,7 @@ router.get('/verify-email/:token', verificationRateLimitMiddleware, authControll
 router.post('/resend-verification', passwordResetRateLimitMiddleware, authController.resendVerification);
 router.post('/forgot-password', passwordResetRateLimitMiddleware, authController.requestPasswordReset);
 router.post('/reset-password/:token', passwordResetRateLimitMiddleware, authController.resetPassword);
+router.post('/forgot-password/2fa/validate', passwordResetRateLimitMiddleware, authController.validateForgotPassword2fa);
 router.get('/profile', authenticate, authController.getProfile);
 router.post('/change-password', authenticate, authController.changePassword);
 

@@ -10,6 +10,9 @@ import {
   clearRegistrationState,
   forgotPassword,
   resetPassword,
+  validatePasswordReset2fa,
+  setPasswordResetPending,
+  clearPasswordResetPending,
   isRequiresTwoFactor,
 } from '../store/slices/authSlice';
 import { setTwoFactorPending } from '../store/slices/twoFactorSlice';
@@ -112,9 +115,28 @@ export const useAuthViewModel = () => {
   const requestPasswordReset = async (email: string) => {
     const result = await dispatch(forgotPassword(email));
     if (forgotPassword.fulfilled.match(result)) {
+      if (result.payload.requiresTwoFactor) {
+        dispatch(setPasswordResetPending(result.payload.tempToken));
+        return { success: true, requiresTwoFactor: true };
+      }
       return { success: true };
     }
     return { success: false, error: result.error.message };
+  };
+
+  const validatePasswordReset2faCode = async (tempToken: string, token: string) => {
+    const result = await dispatch(validatePasswordReset2fa({ tempToken, token }));
+    if (validatePasswordReset2fa.fulfilled.match(result)) {
+      const resetToken = result.payload;
+      dispatch(clearPasswordResetPending());
+      navigate(`/reset-password/${resetToken}`);
+      return { success: true };
+    }
+    return { success: false, error: result.error.message };
+  };
+
+  const cancelPasswordReset2fa = () => {
+    dispatch(clearPasswordResetPending());
   };
 
   /**
@@ -262,6 +284,8 @@ export const useAuthViewModel = () => {
     clearRegistration,
     requestPasswordReset,
     resetUserPassword,
+    validatePasswordReset2faCode,
+    cancelPasswordReset2fa,
 
     // Business Logic
     isAdmin,

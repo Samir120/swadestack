@@ -304,12 +304,22 @@ export class AuthService {
    * Request password reset
    * Generates a reset token and returns user info for the controller to send the email
    */
-  async requestPasswordReset(email: string): Promise<{ user: UserDTO; resetToken: string } | null> {
+  async requestPasswordReset(email: string): Promise<{ user: UserDTO; resetToken: string } | { requiresTwoFactor: true; tempToken: string } | null> {
     const user = await this.usersRepository.findByEmail(email);
 
     if (!user) {
       // Return null to avoid user enumeration — controller returns the same generic 200
       return null;
+    }
+
+    // If 2FA is enabled, return a temp token instead of sending email
+    if (user.twoFactorEnabled) {
+      const tempToken = jwt.sign(
+        { userId: user.id, passwordResetPending: true },
+        config.jwt.secret,
+        { expiresIn: '10m' }
+      );
+      return { requiresTwoFactor: true, tempToken };
     }
 
     // Generate password reset token
@@ -321,6 +331,32 @@ export class AuthService {
       user: this.mapToDTO(user),
       resetToken,
     };
+  }
+
+  /**
+   * Validate a password reset temp token and return the userId if valid
+   */
+  validatePasswordResetTempToken(tempToken: string): { userId: string } {
+    let decoded: { userId: string; passwordResetPending: boolean };
+    try {
+      decoded = jwt.verify(tempToken, config.jwt.secret) as any;
+    } catch {
+      throw new Error('Invalid or expired temp token');
+    }
+    if (!decoded.passwordResetPending) {
+      throw new Error('Invalid temp token');
+    }
+    return { userId: decoded.userId };
+  }
+
+  /**
+   * Generate a password reset token for a user (used after 2FA verification)
+   */
+  async generatePasswordResetToken(userId: string): Promise<string> {
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
+    await this.usersRepository.setResetPasswordToken(userId, resetToken, expires);
+    return resetToken;
   }
 
   /**

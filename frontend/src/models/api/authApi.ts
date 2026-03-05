@@ -37,6 +37,10 @@ export const authApi = {
     return apiClient.post<{ message: string }>(`/auth/reset-password/${token}`, { newPassword });
   },
 
+  forgotPassword2faValidate: async (tempToken: string, token: string) => {
+    return apiClient.post<{ resetToken: string }>('/auth/forgot-password/2fa/validate', { tempToken, token });
+  },
+
   refreshToken: async (refreshToken: string) => {
     return apiClient.post<AuthResponse>('/auth/refresh', { refreshToken });
   },

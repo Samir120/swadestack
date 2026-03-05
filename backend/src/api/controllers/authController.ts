@@ -2,10 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import AuthService from '../../services/AuthService';
 import { AuthEmailService } from '../../services/AuthEmailService';
 import TwoFactorService from '../../services/TwoFactorService';
+import AuditLogService from '../../services/AuditLogService';
 
 // Rate limit maps for 2FA endpoints
 const validateAttempts = new Map<string, { count: number; resetAt: number }>();
 const recoverySendAttempts = new Map<string, { count: number; resetAt: number }>();
+const passwordReset2faAttempts = new Map<string, { count: number; resetAt: number }>();
 
 // Cleanup every 15 minutes
 setInterval(() => {
@@ -15,6 +17,9 @@ setInterval(() => {
   }
   for (const [key, val] of recoverySendAttempts.entries()) {
     if (val.resetAt < now) recoverySendAttempts.delete(key);
+  }
+  for (const [key, val] of passwordReset2faAttempts.entries()) {
+    if (val.resetAt < now) passwordReset2faAttempts.delete(key);
   }
 }, 15 * 60 * 1000);
 
@@ -34,11 +39,13 @@ export class AuthController {
   private authService: AuthService;
   private authEmailService: AuthEmailService;
   private twoFactorService: TwoFactorService;
+  private auditLogService: AuditLogService;
 
   constructor() {
     this.authService = new AuthService();
     this.authEmailService = new AuthEmailService();
     this.twoFactorService = new TwoFactorService();
+    this.auditLogService = new AuditLogService();
   }
 
   register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -208,8 +215,17 @@ export class AuthController {
 
       const result = await this.authService.requestPasswordReset(email);
 
-      // Send password reset email only if user was found
-      if (result) {
+      // User has 2FA enabled — return temp token instead of sending email
+      if (result && 'requiresTwoFactor' in result) {
+        res.status(200).json({
+          success: true,
+          data: { requiresTwoFactor: true, tempToken: result.tempToken },
+        });
+        return;
+      }
+
+      // Send password reset email only if user was found (and no 2FA)
+      if (result && 'resetToken' in result) {
         try {
           await this.authEmailService.sendPasswordReset({
             email: result.user.email,
@@ -301,6 +317,68 @@ export class AuthController {
       next(error);
     }
   };
+  validateForgotPassword2fa = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { tempToken, token } = req.body;
+
+      if (!tempToken || !token) {
+        res.status(400).json({ success: false, message: 'Temp token and verification code are required' });
+        return;
+      }
+
+      // Extract userId from tempToken for rate limiting
+      let userId: string;
+      try {
+        const decoded = this.authService.validatePasswordResetTempToken(tempToken);
+        userId = decoded.userId;
+      } catch {
+        res.status(401).json({ success: false, message: 'Invalid or expired temp token' });
+        return;
+      }
+
+      // Rate limit: 5 attempts per 10 minutes per userId
+      if (!checkRateLimit(passwordReset2faAttempts, userId, 5, 10 * 60 * 1000)) {
+        res.status(429).json({ success: false, message: 'Too many attempts. Please try again later.' });
+        return;
+      }
+
+      const result = await this.twoFactorService.verifyTokenForLogin(userId, token);
+      if (!result.success) {
+        res.status(401).json({ success: false, message: 'Invalid or expired code' });
+        return;
+      }
+
+      // Generate a password reset token that plugs into the existing reset flow
+      const resetToken = await this.authService.generatePasswordResetToken(userId);
+
+      // Audit log
+      const user = await this.authService.getUserById(userId);
+      try {
+        await this.auditLogService.log({
+          adminUserId: userId,
+          adminUserName: user ? `${user.firstName} ${user.lastName}` : 'Unknown',
+          action: 'user.password_reset.2fa_verified',
+          targetType: 'user',
+          targetId: userId,
+          ipAddress: req.ip || req.socket.remoteAddress,
+        });
+      } catch (auditError) {
+        console.error('Failed to log audit entry:', auditError);
+      }
+
+      res.status(200).json({
+        success: true,
+        data: { resetToken },
+      });
+    } catch (error: any) {
+      if (error.message === 'Invalid or expired code' || error.message === 'Invalid or expired temp token' || error.message === 'Invalid temp token') {
+        res.status(401).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  };
+
   validateTwoFactor = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { tempToken, token } = req.body;

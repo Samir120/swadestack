@@ -47,13 +47,21 @@ class ApiClient {
       async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-        // Only attempt refresh on 401, and skip for auth endpoints themselves
+        // Only attempt refresh on 401, and skip for auth endpoints that don't use bearer tokens
+        const skipRefreshUrls = [
+          '/auth/refresh',
+          '/auth/login',
+          '/auth/forgot-password',
+          '/auth/forgot-password/2fa/validate',
+          '/auth/2fa/validate',
+          '/auth/2fa/recovery/send',
+          '/auth/2fa/recovery/verify',
+        ];
         if (
           error.response?.status !== 401 ||
           !originalRequest ||
           originalRequest._retry ||
-          originalRequest.url === '/auth/refresh' ||
-          originalRequest.url === '/auth/login'
+          skipRefreshUrls.some(url => originalRequest.url === url)
         ) {
           return Promise.reject(error);
         }

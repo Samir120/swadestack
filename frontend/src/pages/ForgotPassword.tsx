@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from '../store/hooks';
 import { useAuthViewModel } from '../viewmodels/authViewModel';
+import OtpInput from '../components/ui/OtpInput';
 
 const ForgotPassword: React.FC = () => {
   const language = useAppSelector((state) => state.ui.language);
   const { settings } = useAppSelector((state) => state.siteSettings);
-  const { requestPasswordReset, isLoading } = useAuthViewModel();
+  const passwordResetPending = useAppSelector((state) => state.auth.passwordResetPending);
+  const { requestPasswordReset, validatePasswordReset2faCode, cancelPasswordReset2fa, isLoading } = useAuthViewModel();
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+
+  // 2FA verification state
+  const [otpValue, setOtpValue] = useState('');
+  const [otpError, setOtpError] = useState(false);
+  const [twoFaError, setTwoFaError] = useState('');
+  const [twoFaLoading, setTwoFaLoading] = useState(false);
 
   const siteName = settings
     ? (language === 'en' ? settings.siteName_en : settings.siteName_sv)
@@ -26,11 +34,112 @@ const ForgotPassword: React.FC = () => {
 
     const result = await requestPasswordReset(email);
     if (result.success) {
+      if ('requiresTwoFactor' in result && result.requiresTwoFactor) {
+        // 2FA view will be shown via passwordResetPending state
+        return;
+      }
       setSubmitted(true);
     } else {
       setError(result.error || (language === 'en' ? 'Failed to send reset email' : 'Kunde inte skicka återställningsmail'));
     }
   };
+
+  const handleVerify2fa = async () => {
+    if (otpValue.length !== 6 || !passwordResetPending.tempToken) return;
+    setOtpError(false);
+    setTwoFaError('');
+    setTwoFaLoading(true);
+
+    const result = await validatePasswordReset2faCode(passwordResetPending.tempToken, otpValue);
+    setTwoFaLoading(false);
+    if (!result.success) {
+      setOtpError(true);
+      setTwoFaError(result.error || (language === 'en' ? 'Invalid or expired code' : 'Ogiltig eller utgången kod'));
+      setOtpValue('');
+    }
+    // On success, viewModel navigates to /reset-password/:token
+  };
+
+  const handleBack2fa = () => {
+    cancelPasswordReset2fa();
+    setOtpValue('');
+    setOtpError(false);
+    setTwoFaError('');
+  };
+
+  // Auto-submit on 6 digits
+  const handleVerify2faRef = useRef(handleVerify2fa);
+  handleVerify2faRef.current = handleVerify2fa;
+  useEffect(() => {
+    if (otpValue.length === 6 && passwordResetPending.tempToken) {
+      handleVerify2faRef.current();
+    }
+  }, [otpValue, passwordResetPending.tempToken]);
+
+  // Render 2FA verification view
+  const render2faView = () => (
+    <div className="space-y-6">
+      {/* Icon */}
+      <div className="flex justify-center">
+        <div className="w-14 h-14 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+          <svg className="w-7 h-7 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+      </div>
+
+      <div className="text-center">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+          {language === 'en' ? 'Verify your identity' : 'Verifiera din identitet'}
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-neutral-400">
+          {language === 'en'
+            ? 'Enter the 6-digit code from your authenticator app to reset your password.'
+            : 'Ange den 6-siffriga koden från din autentiseringsapp för att återställa ditt lösenord.'}
+        </p>
+      </div>
+
+      <div>
+        <OtpInput
+          value={otpValue}
+          onChange={(val) => {
+            setOtpValue(val);
+            setOtpError(false);
+            setTwoFaError('');
+          }}
+          error={otpError}
+          disabled={twoFaLoading}
+          autoFocus
+        />
+        {twoFaError && (
+          <p className="text-red-500 text-xs text-center mt-2">{twoFaError}</p>
+        )}
+      </div>
+
+      <button
+        onClick={handleVerify2fa}
+        disabled={otpValue.length !== 6 || twoFaLoading}
+        className="w-full px-6 py-3.5 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        {twoFaLoading ? (
+          <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        ) : null}
+        {language === 'en' ? 'Verify & Continue' : 'Verifiera & Fortsätt'}
+      </button>
+
+      <div className="text-center">
+        <button
+          onClick={handleBack2fa}
+          className="text-sm text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors font-medium"
+        >
+          {language === 'en' ? 'Back' : 'Tillbaka'}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center relative bg-gray-50 dark:bg-surface-950 font-sans">
@@ -59,7 +168,9 @@ const ForgotPassword: React.FC = () => {
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary-600/10 rounded-full blur-3xl pointer-events-none opacity-50"></div>
 
           <div className="relative z-10">
-            {!submitted ? (
+            {passwordResetPending.tempToken ? (
+              render2faView()
+            ) : !submitted ? (
               <>
                 <h2 className="text-2xl font-thin text-gray-800 dark:text-white mb-2">
                   {language === 'en' ? 'Forgot password?' : 'Glömt lösenord?'}
