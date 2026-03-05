@@ -203,6 +203,30 @@ export class AuthEmailService {
   }
 
   /**
+   * Send 2FA recovery code email
+   */
+  async sendTwoFactorRecoveryCode(
+    email: string,
+    userName: string,
+    code: string
+  ): Promise<void> {
+    const emailData: SendEmailDTO = {
+      to: email,
+      subject: 'Your login recovery code',
+      templateType: EmailTemplateType.TWO_FACTOR_RECOVERY,
+      templateData: {
+        userName,
+        recoveryCode: code,
+        expiresIn: '10 minutes',
+      },
+      priority: EmailPriority.HIGH,
+      language: 'en',
+    };
+
+    await this.emailService.sendEmailWithRetry(emailData);
+  }
+
+  /**
    * Send login notification (security feature)
    */
   async sendLoginNotification(

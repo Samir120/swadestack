@@ -24,6 +24,7 @@ import customerRoutes from './customerRoutes';
 import cartRoutes from './cartRoutes';
 import newsletterAdminRoutes from './newsletterAdminRoutes';
 import storeSettingsRoutes from './storeSettingsRoutes';
+import twoFactorRoutes from './twoFactorRoutes';
 
 const router = Router();
 
@@ -53,6 +54,7 @@ router.use('/admin/customers', customerRoutes);
 router.use('/admin/newsletters', newsletterAdminRoutes);
 router.use('/cart', cartRoutes);
 router.use('/store-settings', storeSettingsRoutes);
+router.use('/auth/2fa', twoFactorRoutes);
 
 // Health check
 router.get('/health', (req, res) => {

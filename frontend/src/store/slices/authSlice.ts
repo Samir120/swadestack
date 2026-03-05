@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authApi } from '../../models/api/authApi';
 import apiClient from '../../models/api/apiClient';
 import { User, LoginData, RegisterData } from '../../models/types/user.types';
+import { validateTwoFactorLogin, verifyTwoFactorRecoveryCode } from './twoFactorSlice';
 
 interface AuthState {
   user: User | null;
@@ -61,6 +62,11 @@ export const login = createAsyncThunk(
     return response.data;
   }
 );
+
+// Type guard for 2FA response
+export function isRequiresTwoFactor(data: any): data is { requiresTwoFactor: true; tempToken: string } {
+  return data && data.requiresTwoFactor === true && typeof data.tempToken === 'string';
+}
 
 export const register = createAsyncThunk(
   'auth/register',
@@ -175,6 +181,10 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
+        // If 2FA is required, don't set auth state
+        if ('requiresTwoFactor' in action.payload) {
+          return;
+        }
         state.user = action.payload.user;
         state.isAuthenticated = true;
         apiClient.setAccessToken(action.payload.token);
@@ -217,6 +227,15 @@ const authSlice = createSlice({
           apiClient.setAccessToken(null);
           localStorage.removeItem('refresh_token');
         }
+      })
+      // 2FA login success — set auth state
+      .addCase(validateTwoFactorLogin.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+      })
+      .addCase(verifyTwoFactorRecoveryCode.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
       });
   },
 });

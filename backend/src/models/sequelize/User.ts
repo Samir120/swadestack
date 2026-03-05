@@ -32,6 +32,9 @@ export interface UserAttributes {
   company?: string;
   organizationNumber?: string;
   vatNumber?: string;
+  twoFactorSecret?: string | null;
+  twoFactorEnabled: boolean;
+  twoFactorVerifiedAt?: Date | null;
   lastLoginAt?: Date | null;
   lastLoginIp?: string | null;
   lastLoginUserAgent?: string | null;
@@ -40,7 +43,7 @@ export interface UserAttributes {
 }
 
 // Optional fields for creation
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'role' | 'accountStatus' | 'suspensionReason' | 'suspensionEndDate' | 'isEmailVerified' | 'emailVerificationToken' | 'emailVerificationExpires' | 'resetPasswordToken' | 'resetPasswordExpires' | 'lastLoginAt' | 'lastLoginIp' | 'lastLoginUserAgent'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'role' | 'accountStatus' | 'suspensionReason' | 'suspensionEndDate' | 'isEmailVerified' | 'emailVerificationToken' | 'emailVerificationExpires' | 'resetPasswordToken' | 'resetPasswordExpires' | 'twoFactorSecret' | 'twoFactorEnabled' | 'twoFactorVerifiedAt' | 'lastLoginAt' | 'lastLoginIp' | 'lastLoginUserAgent'> {}
 
 // User model class
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
@@ -69,6 +72,9 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public company?: string;
   public organizationNumber?: string;
   public vatNumber?: string;
+  public twoFactorSecret?: string | null;
+  public twoFactorEnabled!: boolean;
+  public twoFactorVerifiedAt?: Date | null;
   public lastLoginAt?: Date | null;
   public lastLoginIp?: string | null;
   public lastLoginUserAgent?: string | null;
@@ -81,8 +87,8 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     return bcrypt.compare(candidatePassword, this.password);
   }
 
-  public toJSON(): Omit<UserAttributes, 'password'> {
-    const { password, ...values } = this.get();
+  public toJSON(): Omit<UserAttributes, 'password' | 'twoFactorSecret'> {
+    const { password, twoFactorSecret, ...values } = this.get();
     return values;
   }
 }
@@ -200,6 +206,19 @@ User.init(
     },
     vatNumber: {
       type: DataTypes.STRING(50),
+      allowNull: true,
+    },
+    twoFactorSecret: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    twoFactorEnabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    twoFactorVerifiedAt: {
+      type: DataTypes.DATE,
       allowNull: true,
     },
     lastLoginAt: {

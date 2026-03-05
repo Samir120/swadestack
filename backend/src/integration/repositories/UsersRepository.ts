@@ -148,6 +148,19 @@ export class UsersRepository extends BaseDAO<User> {
       { where: { id: userId } as any }
     );
   }
+  /**
+   * Update only 2FA-related columns
+   */
+  async updateTwoFactorFields(
+    userId: string,
+    fields: {
+      twoFactorSecret?: string | null;
+      twoFactorEnabled?: boolean;
+      twoFactorVerifiedAt?: Date | null;
+    }
+  ): Promise<void> {
+    await this.model.update(fields as any, { where: { id: userId } as any });
+  }
 }
 
 export default UsersRepository;

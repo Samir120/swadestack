@@ -1,5 +1,5 @@
 import apiClient from './apiClient';
-import { AuthResponse, LoginData, RegisterData, User } from '../types/user.types';
+import { AuthResponse, LoginData, LoginResponse, RegisterData, User } from '../types/user.types';
 
 export const authApi = {
   register: async (data: RegisterData) => {
@@ -7,7 +7,7 @@ export const authApi = {
   },
 
   login: async (data: LoginData) => {
-    return apiClient.post<AuthResponse>('/auth/login', data);
+    return apiClient.post<LoginResponse>('/auth/login', data);
   },
 
   getProfile: async () => {

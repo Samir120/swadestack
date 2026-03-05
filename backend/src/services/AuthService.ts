@@ -11,6 +11,7 @@ import {
   LoginDTO,
   AuthResponseDTO,
 } from '../models/dto/UserDTO';
+import TwoFactorService from './TwoFactorService';
 
 /**
  * Auth Service - Business Logic Layer
@@ -19,10 +20,12 @@ import {
 export class AuthService {
   private usersRepository: UsersRepository;
   private refreshTokenRepository: RefreshTokenRepository;
+  private twoFactorService: TwoFactorService;
 
   constructor() {
     this.usersRepository = new UsersRepository();
     this.refreshTokenRepository = new RefreshTokenRepository();
+    this.twoFactorService = new TwoFactorService();
   }
 
   /**
@@ -81,7 +84,7 @@ export class AuthService {
   /**
    * Login user
    */
-  async login(data: LoginDTO, context?: { ipAddress?: string; userAgent?: string }): Promise<AuthResponseDTO> {
+  async login(data: LoginDTO, context?: { ipAddress?: string; userAgent?: string }): Promise<AuthResponseDTO | { requiresTwoFactor: true; tempToken: string }> {
     const ipAddress = context?.ipAddress;
     const userAgent = context?.userAgent;
 
@@ -120,6 +123,17 @@ export class AuthService {
     if (!user.isEmailVerified) {
       await this.logLoginAttempt(user.id, data.email, false, ipAddress, userAgent, 'Email not verified');
       throw new Error('Please verify your email address before logging in');
+    }
+
+    // Check if 2FA is enabled
+    if (user.twoFactorEnabled) {
+      await this.logLoginAttempt(user.id, data.email, true, ipAddress, userAgent, '2FA pending');
+      const tempToken = jwt.sign(
+        { userId: user.id, twoFactorPending: true },
+        config.jwt.secret,
+        { expiresIn: '10m' }
+      );
+      return { requiresTwoFactor: true, tempToken };
     }
 
     // Log successful attempt and update user's last login info
@@ -334,6 +348,72 @@ export class AuthService {
     // Update password and clear reset token
     await this.usersRepository.updatePassword(user.id, newPassword);
     await this.usersRepository.clearResetPasswordToken(user.id);
+  }
+
+  /**
+   * Complete 2FA login: verify temp token + TOTP, then issue real JWT
+   */
+  async completeTwoFactorLogin(tempToken: string, totpToken: string): Promise<AuthResponseDTO> {
+    let decoded: { userId: string; twoFactorPending: boolean };
+    try {
+      decoded = jwt.verify(tempToken, config.jwt.secret) as any;
+    } catch {
+      throw new Error('Invalid or expired temp token');
+    }
+
+    if (!decoded.twoFactorPending) {
+      throw new Error('Invalid temp token');
+    }
+
+    const result = await this.twoFactorService.verifyTokenForLogin(decoded.userId, totpToken);
+    if (!result.success) {
+      throw new Error('Invalid or expired code');
+    }
+
+    const user = await this.usersRepository.findById(decoded.userId);
+    if (!user) throw new Error('User not found');
+
+    await this.usersRepository.update(user.id, {
+      lastLoginAt: new Date(),
+    } as any);
+
+    const token = this.generateAccessToken(user.id, user.email, user.role);
+    const refreshToken = await this.generateRefreshToken(user.id);
+
+    return { user: this.mapToDTO(user), token, refreshToken };
+  }
+
+  /**
+   * Validate a temp token and return the userId if valid
+   */
+  validateTempToken(tempToken: string): { userId: string } {
+    let decoded: { userId: string; twoFactorPending: boolean };
+    try {
+      decoded = jwt.verify(tempToken, config.jwt.secret) as any;
+    } catch {
+      throw new Error('Invalid or expired temp token');
+    }
+    if (!decoded.twoFactorPending) {
+      throw new Error('Invalid temp token');
+    }
+    return { userId: decoded.userId };
+  }
+
+  /**
+   * Issue tokens for a user by ID (used after recovery code verification)
+   */
+  async issueTokensForUser(userId: string): Promise<AuthResponseDTO> {
+    const user = await this.usersRepository.findById(userId);
+    if (!user) throw new Error('User not found');
+
+    await this.usersRepository.update(user.id, {
+      lastLoginAt: new Date(),
+    } as any);
+
+    const token = this.generateAccessToken(user.id, user.email, user.role);
+    const refreshToken = await this.generateRefreshToken(user.id);
+
+    return { user: this.mapToDTO(user), token, refreshToken };
   }
 
   // Helper methods

@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { KeyRound, Shield, ShieldCheck } from 'lucide-react';
 import apiClient from '../../models/api/apiClient';
-import { useAppSelector } from '../../store/hooks';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { fetchTwoFactorStatus } from '../../store/slices/twoFactorSlice';
 
 import LoadingSpinner from '../common/LoadingSpinner';
 import { PasswordInput } from '../common/PasswordInput';
+import TwoFactorSetupModal from '../profile/TwoFactorSetupModal';
+import TwoFactorDisableModal from '../profile/TwoFactorDisableModal';
 
 const ProfileTab: React.FC = () => {
+  const dispatch = useAppDispatch();
   const language = useAppSelector((state) => state.ui.language);
+  const { isEnabled: twoFactorEnabled, verifiedAt: twoFactorVerifiedAt } = useAppSelector((state) => state.twoFactor);
   const [profile, setProfile] = useState<any>(null);
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -34,9 +40,12 @@ const ProfileTab: React.FC = () => {
   });
 
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showSetupModal, setShowSetupModal] = useState(false);
+  const [showDisableModal, setShowDisableModal] = useState(false);
 
   useEffect(() => {
     loadProfile();
+    dispatch(fetchTwoFactorStatus());
   }, []);
 
   const loadProfile = async () => {
@@ -422,47 +431,63 @@ const ProfileTab: React.FC = () => {
 
       <div className="h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent my-6 sm:my-8" />
 
-      {/* Security Section */}
+      {/* Sign-in & Security Section */}
       <div className="bg-gray-100 dark:bg-surface-800 p-4 sm:p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-surface-700">
-        <h3 className="text-base sm:text-lg md:text-xl font-thin text-gray-900 dark:text-white mb-3 sm:mb-4">
-          {language === 'en' ? 'Security' : 'Säkerhet'}
-        </h3>
+        <div className="mb-5">
+          <h3 className="text-base sm:text-lg md:text-xl font-thin text-gray-900 dark:text-white">
+            {language === 'en' ? 'Sign-in & Security' : 'Inloggning & säkerhet'}
+          </h3>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-neutral-400 mt-1">
+            {language === 'en' ? 'Manage your password and sign-in methods' : 'Hantera ditt lösenord och inloggningsmetoder'}
+          </p>
+        </div>
 
-        {!showPasswordForm ? (
-          <button
-            onClick={() => setShowPasswordForm(true)}
-            className="px-4 py-2 sm:py-2.5 bg-gray-300 dark:bg-surface-600 text-gray-900 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-surface-700 transition-colors font-bold text-sm active:scale-[0.98]"
-          >
-            {language === 'en' ? 'Change Password' : 'Ändra lösenord'}
-          </button>
-        ) : (
-          <div className="space-y-3 sm:space-y-4">
+        {/* Password Row */}
+        <div className="flex items-center justify-between py-4 border-b border-gray-200 dark:border-surface-700">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-gray-200 dark:bg-surface-700 flex items-center justify-center">
+              <KeyRound size={18} className="text-gray-500 dark:text-neutral-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {language === 'en' ? 'Password' : 'Lösenord'}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-neutral-500">••••••••</p>
+            </div>
+          </div>
+          {!showPasswordForm && (
+            <button
+              onClick={() => setShowPasswordForm(true)}
+              className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline"
+            >
+              {language === 'en' ? 'Change' : 'Ändra'}
+            </button>
+          )}
+        </div>
+
+        {/* Password form (expandable) */}
+        {showPasswordForm && (
+          <div className="py-4 space-y-3 border-b border-gray-200 dark:border-surface-700">
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider mb-1 sm:mb-1.5">
                 {language === 'en' ? 'Current Password' : 'Nuvarande lösenord'}
               </label>
               <PasswordInput
                 value={passwordForm.currentPassword}
-                onChange={(e) =>
-                  setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
-                }
+                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                 className="form-input"
               />
             </div>
-
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider mb-1 sm:mb-1.5">
                 {language === 'en' ? 'New Password' : 'Nytt lösenord'}
               </label>
               <PasswordInput
                 value={passwordForm.newPassword}
-                onChange={(e) =>
-                  setPasswordForm({ ...passwordForm, newPassword: e.target.value })
-                }
+                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                 className="form-input"
               />
             </div>
-
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider mb-1 sm:mb-1.5">
                 {language === 'en' ? 'Confirm New Password' : 'Bekräfta nytt lösenord'}
@@ -470,13 +495,10 @@ const ProfileTab: React.FC = () => {
               <input
                 type="password"
                 value={passwordForm.confirmPassword}
-                onChange={(e) =>
-                  setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
-                }
+                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
                 className="form-input"
               />
             </div>
-
             <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
               <button
                 onClick={() => {
@@ -496,7 +518,77 @@ const ProfileTab: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Two-Factor Authentication Row */}
+        <div className="flex items-center justify-between py-4">
+          <div className="flex items-center gap-3">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+              twoFactorEnabled
+                ? 'bg-green-100 dark:bg-green-900/30'
+                : 'bg-gray-200 dark:bg-surface-700'
+            }`}>
+              {twoFactorEnabled ? (
+                <ShieldCheck size={18} className="text-green-600 dark:text-green-400 transition-colors" />
+              ) : (
+                <Shield size={18} className="text-gray-400 dark:text-neutral-500 transition-colors" />
+              )}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {language === 'en' ? 'Two-Factor Authentication' : 'Tvåfaktorsautentisering'}
+                </p>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  twoFactorEnabled
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-gray-200 text-gray-500 dark:bg-surface-700 dark:text-neutral-400'
+                }`}>
+                  {twoFactorEnabled
+                    ? (language === 'en' ? 'Enabled' : 'Aktiverad')
+                    : (language === 'en' ? 'Not enabled' : 'Ej aktiverad')}
+                </span>
+              </div>
+              {twoFactorEnabled && twoFactorVerifiedAt && (
+                <p className="text-xs text-gray-400 dark:text-neutral-500 mt-0.5">
+                  {language === 'en' ? 'Active since' : 'Aktiv sedan'}{' '}
+                  {new Date(twoFactorVerifiedAt).toLocaleDateString(language === 'en' ? 'en-US' : 'sv-SE', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              )}
+            </div>
+          </div>
+          {twoFactorEnabled ? (
+            <button
+              onClick={() => setShowDisableModal(true)}
+              className="text-sm text-red-500 dark:text-red-400 font-medium hover:underline"
+            >
+              {language === 'en' ? 'Disable' : 'Inaktivera'}
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowSetupModal(true)}
+              className="px-4 py-2 rounded-lg border border-gray-300 dark:border-surface-600 text-sm font-bold text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-surface-700 transition-colors"
+            >
+              {language === 'en' ? 'Enable' : 'Aktivera'}
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* 2FA Modals */}
+      <TwoFactorSetupModal
+        isOpen={showSetupModal}
+        onClose={() => setShowSetupModal(false)}
+        language={language as 'en' | 'sv'}
+      />
+      <TwoFactorDisableModal
+        isOpen={showDisableModal}
+        onClose={() => setShowDisableModal(false)}
+        language={language as 'en' | 'sv'}
+      />
     </div>
   );
 };

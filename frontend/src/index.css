@@ -118,6 +118,18 @@
   }
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 @layer utilities {
   .animate-fadeIn {
     animation: fadeIn 0.5s ease-out forwards;
@@ -136,6 +148,12 @@
   }
   .animate-bannerTextIn {
     animation: bannerTextIn 0.8s ease-out both;
+  }
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
+  .animate-scale-in {
+    animation: scaleIn 0.5s ease-out forwards;
   }
   .scrollbar-hide {
     -ms-overflow-style: none;

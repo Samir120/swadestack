@@ -1,14 +1,44 @@
 import { Request, Response, NextFunction } from 'express';
 import AuthService from '../../services/AuthService';
 import { AuthEmailService } from '../../services/AuthEmailService';
+import TwoFactorService from '../../services/TwoFactorService';
+
+// Rate limit maps for 2FA endpoints
+const validateAttempts = new Map<string, { count: number; resetAt: number }>();
+const recoverySendAttempts = new Map<string, { count: number; resetAt: number }>();
+
+// Cleanup every 15 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of validateAttempts.entries()) {
+    if (val.resetAt < now) validateAttempts.delete(key);
+  }
+  for (const [key, val] of recoverySendAttempts.entries()) {
+    if (val.resetAt < now) recoverySendAttempts.delete(key);
+  }
+}, 15 * 60 * 1000);
+
+function checkRateLimit(map: Map<string, { count: number; resetAt: number }>, key: string, maxAttempts: number, windowMs: number): boolean {
+  const now = Date.now();
+  const entry = map.get(key);
+  if (!entry || entry.resetAt < now) {
+    map.set(key, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (entry.count >= maxAttempts) return false;
+  entry.count++;
+  return true;
+}
 
 export class AuthController {
   private authService: AuthService;
   private authEmailService: AuthEmailService;
+  private twoFactorService: TwoFactorService;
 
   constructor() {
     this.authService = new AuthService();
     this.authEmailService = new AuthEmailService();
+    this.twoFactorService = new TwoFactorService();
   }
 
   register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -37,6 +67,14 @@ export class AuthController {
       const ipAddress = req.ip || req.socket.remoteAddress;
       const userAgent = req.headers['user-agent'];
       const result = await this.authService.login(req.body, { ipAddress, userAgent });
+
+      if ('requiresTwoFactor' in result) {
+        res.status(200).json({
+          success: true,
+          data: { requiresTwoFactor: true, tempToken: result.tempToken },
+        });
+        return;
+      }
 
       res.status(200).json({
         success: true,
@@ -258,6 +296,124 @@ export class AuthController {
       res.status(200).json({
         success: true,
         message: 'Password has been reset successfully. You can now log in with your new password.',
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+  validateTwoFactor = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { tempToken, token } = req.body;
+
+      if (!tempToken || !token) {
+        res.status(400).json({ success: false, message: 'Temp token and verification code are required' });
+        return;
+      }
+
+      // Extract userId from tempToken for rate limiting
+      let userId: string;
+      try {
+        const decoded = this.authService.validateTempToken(tempToken);
+        userId = decoded.userId;
+      } catch {
+        res.status(401).json({ success: false, message: 'Invalid or expired temp token' });
+        return;
+      }
+
+      // Rate limit: 5 attempts per 10 minutes per userId
+      if (!checkRateLimit(validateAttempts, userId, 5, 10 * 60 * 1000)) {
+        res.status(429).json({ success: false, message: 'Too many attempts. Please try again later.' });
+        return;
+      }
+
+      const result = await this.authService.completeTwoFactorLogin(tempToken, token);
+
+      res.status(200).json({
+        success: true,
+        message: 'Login successful',
+        data: result,
+      });
+    } catch (error: any) {
+      if (error.message === 'Invalid or expired code' || error.message === 'Invalid or expired temp token' || error.message === 'Invalid temp token') {
+        res.status(401).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  };
+
+  sendTwoFactorRecovery = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { tempToken } = req.body;
+
+      if (!tempToken) {
+        res.status(400).json({ success: false, message: 'Temp token is required' });
+        return;
+      }
+
+      let userId: string;
+      try {
+        const decoded = this.authService.validateTempToken(tempToken);
+        userId = decoded.userId;
+      } catch {
+        res.status(401).json({ success: false, message: 'Invalid or expired temp token' });
+        return;
+      }
+
+      // Rate limit: 3 requests per 10 minutes per userId
+      if (!checkRateLimit(recoverySendAttempts, userId, 3, 10 * 60 * 1000)) {
+        res.status(429).json({ success: false, message: 'Too many requests. Please try again later.' });
+        return;
+      }
+
+      await this.twoFactorService.sendRecoveryCode(userId);
+
+      res.status(200).json({ success: true, message: 'Recovery code sent' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  verifyTwoFactorRecovery = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { tempToken, code } = req.body;
+
+      if (!tempToken || !code) {
+        res.status(400).json({ success: false, message: 'Temp token and recovery code are required' });
+        return;
+      }
+
+      let userId: string;
+      try {
+        const decoded = this.authService.validateTempToken(tempToken);
+        userId = decoded.userId;
+      } catch {
+        res.status(401).json({ success: false, message: 'Invalid or expired temp token' });
+        return;
+      }
+
+      const result = await this.twoFactorService.verifyRecoveryCode(userId, code);
+      if (!result.success) {
+        res.status(401).json({ success: false, message: result.error });
+        return;
+      }
+
+      // Recovery code valid — issue real JWT (same as completing 2FA login)
+      const user = await this.authService.getUserById(userId);
+      if (!user) {
+        res.status(404).json({ success: false, message: 'User not found' });
+        return;
+      }
+
+      // Use a dummy TOTP bypass — generate tokens directly
+      // We need to access internal methods, so call completeTwoFactorLogin with a workaround
+      // Actually, let's just generate tokens via a dedicated method
+      const authResult = await this.authService.issueTokensForUser(userId);
+
+      res.status(200).json({
+        success: true,
+        message: 'Login successful',
+        data: authResult,
       });
     } catch (error) {
       next(error);

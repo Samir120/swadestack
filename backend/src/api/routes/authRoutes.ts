@@ -21,4 +21,9 @@ router.post('/reset-password/:token', passwordResetRateLimitMiddleware, authCont
 router.get('/profile', authenticate, authController.getProfile);
 router.post('/change-password', authenticate, authController.changePassword);
 
+// 2FA login validation and recovery (no auth middleware — uses tempToken)
+router.post('/2fa/validate', authController.validateTwoFactor);
+router.post('/2fa/recovery/send', authController.sendTwoFactorRecovery);
+router.post('/2fa/recovery/verify', authController.verifyTwoFactorRecovery);
+
 export default router;

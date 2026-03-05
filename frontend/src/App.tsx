@@ -40,6 +40,7 @@ const NewsletterVerify = lazy(() => import('./pages/NewsletterVerify'));
 const NewsletterUnsubscribe = lazy(() => import('./pages/NewsletterUnsubscribe'));
 const ComponentsShop = lazy(() => import('./pages/ComponentsShop'));
 const ComponentDetail = lazy(() => import('./pages/ComponentDetail'));
+const TwoFactorLoginPage = lazy(() => import('./pages/TwoFactorLoginPage'));
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -135,6 +136,7 @@ const App: React.FC = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/verify-email/:token" element={<VerifyEmail />} />
+            <Route path="/2fa-verify" element={<TwoFactorLoginPage />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />

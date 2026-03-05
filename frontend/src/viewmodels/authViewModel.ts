@@ -10,7 +10,9 @@ import {
   clearRegistrationState,
   forgotPassword,
   resetPassword,
+  isRequiresTwoFactor,
 } from '../store/slices/authSlice';
+import { setTwoFactorPending } from '../store/slices/twoFactorSlice';
 import { fetchServerCart, mergeServerCart, syncCartToServer } from '../store/slices/cartSlice';
 import { authApi } from '../models/api/authApi';
 import { LoginData, RegisterData } from '../models/types/user.types';
@@ -33,6 +35,13 @@ export const useAuthViewModel = () => {
   const loginUser = async (data: LoginData) => {
     const result = await dispatch(login(data));
     if (login.fulfilled.match(result)) {
+      // Check if 2FA is required
+      if (isRequiresTwoFactor(result.payload)) {
+        dispatch(setTwoFactorPending(result.payload.tempToken));
+        navigate('/2fa-verify');
+        return { success: true, requiresTwoFactor: true };
+      }
+
       // Merge server cart with local cart after login
       try {
         const cartResult = await dispatch(fetchServerCart());

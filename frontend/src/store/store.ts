@@ -18,6 +18,7 @@ import featuresReducer from './slices/featuresSlice';
 import legalSettingsReducer from './slices/legalSettingsSlice';
 import vatSettingsReducer from './slices/vatSettingsSlice';
 import newsletterReducer from './slices/newsletterSlice';
+import twoFactorReducer from './slices/twoFactorSlice';
 
 // Cart sync middleware — automatically syncs to server after any cart mutation
 const cartActions = ['cart/addToCart', 'cart/removeFromCart', 'cart/updateQuantity', 'cart/addPCToCart', 'cart/removePCFromCart', 'cart/addComponentToCart', 'cart/removeComponentFromCart', 'cart/updateComponentQuantity', 'cart/clearCart', 'cart/mergeServerCart', 'cart/replaceWithServerCart'];
@@ -62,6 +63,7 @@ export const store = configureStore({
     legalSettings: legalSettingsReducer,
     vatSettings: vatSettingsReducer,
     newsletter: newsletterReducer,
+    twoFactor: twoFactorReducer,
   },
   devTools: !import.meta.env.PROD,
   middleware: (getDefaultMiddleware) =>

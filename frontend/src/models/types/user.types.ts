@@ -18,6 +18,13 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
+export interface TwoFactorRequiredResponse {
+  requiresTwoFactor: true;
+  tempToken: string;
+}
+
+export type LoginResponse = AuthResponse | TwoFactorRequiredResponse;
+
 export interface LoginData {
   email: string;
   password: string;

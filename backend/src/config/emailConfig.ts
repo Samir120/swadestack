@@ -43,6 +43,7 @@ export enum EmailTemplateType {
   CART_REMINDER = 'cart-reminder',
   ADMIN_CUSTOM = 'admin-custom',
   ORDER_BALANCE_DUE = 'order-balance-due',
+  TWO_FACTOR_RECOVERY = 'two-factor-recovery',
 }
 
 // Email priority levels
