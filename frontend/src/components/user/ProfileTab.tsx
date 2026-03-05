@@ -348,7 +348,7 @@ const ProfileTab: React.FC = () => {
               value={formData.dateOfBirth}
               onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
               disabled={!editing}
-              className="form-input"
+              className="form-input w-full min-w-0"
             />
           </div>
         </div>
