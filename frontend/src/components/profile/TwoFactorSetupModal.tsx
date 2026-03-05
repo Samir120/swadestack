@@ -89,13 +89,13 @@ const TwoFactorSetupModal: React.FC<Props> = ({ isOpen, onClose, language }) => 
 
       {/* Modal */}
       <div
-        className="relative w-full max-w-md bg-white dark:bg-surface-850 rounded-2xl shadow-2xl border border-gray-200 dark:border-surface-700 overflow-hidden"
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-surface-850 rounded-2xl shadow-2xl border border-gray-200 dark:border-surface-700"
         role="dialog"
         aria-modal="true"
         aria-label={language === 'en' ? 'Set up two-factor authentication' : 'Konfigurera tvåfaktorsautentisering'}
       >
         {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-2 pt-6 pb-2">
+        <div className="flex items-center justify-center gap-2 pt-4 sm:pt-6 pb-2">
           {[1, 2, 3].map((s) => (
             <div key={s} className="flex items-center gap-2">
               <div
@@ -125,7 +125,7 @@ const TwoFactorSetupModal: React.FC<Props> = ({ isOpen, onClose, language }) => 
           {language === 'en' ? `Step ${step} of 3` : `Steg ${step} av 3`}
         </p>
 
-        <div className="px-6 pb-6">
+        <div className="px-4 sm:px-6 pb-4 sm:pb-6">
           {/* Step 1: Intro */}
           {step === 1 && (
             <div className="space-y-5">
@@ -225,7 +225,7 @@ const TwoFactorSetupModal: React.FC<Props> = ({ isOpen, onClose, language }) => 
               {setup.qrCodeDataUrl && (
                 <div className="flex justify-center">
                   <div className="p-3 bg-white rounded-xl border border-gray-200 dark:border-surface-600 shadow-sm">
-                    <img src={setup.qrCodeDataUrl} alt="QR Code" className="w-48 h-48" />
+                    <img src={setup.qrCodeDataUrl} alt="QR Code" className="w-40 h-40 sm:w-48 sm:h-48" />
                   </div>
                 </div>
               )}
@@ -243,7 +243,7 @@ const TwoFactorSetupModal: React.FC<Props> = ({ isOpen, onClose, language }) => 
               {showManualKey && setup.manualEntryCode && (
                 <div className="bg-gray-50 dark:bg-surface-800 rounded-xl p-3 border border-gray-200 dark:border-surface-700">
                   <div className="flex items-center justify-between gap-2">
-                    <code className="text-sm font-mono font-bold text-gray-900 dark:text-white tracking-wider">
+                    <code className="text-xs sm:text-sm font-mono font-bold text-gray-900 dark:text-white tracking-wider break-all min-w-0">
                       {setup.manualEntryCode}
                     </code>
                     <button

@@ -77,7 +77,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
   };
 
   return (
-    <div className="flex gap-2 sm:gap-3 justify-center" role="group" aria-label="One-time password input">
+    <div className="flex gap-1.5 sm:gap-3 justify-center" role="group" aria-label="One-time password input">
       {Array.from({ length }, (_, i) => (
         <input
           key={i}
@@ -94,8 +94,8 @@ const OtpInput: React.FC<OtpInputProps> = ({
           disabled={disabled}
           aria-label={`Digit ${i + 1}`}
           className={`
-            w-11 h-13 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold
-            rounded-xl border-2 outline-none transition-all duration-200
+            w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold
+            rounded-lg sm:rounded-xl border-2 outline-none transition-all duration-200
             bg-white dark:bg-surface-800
             text-gray-900 dark:text-white
             ${error

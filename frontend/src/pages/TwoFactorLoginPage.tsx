@@ -142,7 +142,7 @@ const TwoFactorLoginPage: React.FC = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-light-xl border border-gray-200 dark:bg-surface-850 dark:shadow-dark-xl dark:border-surface-700 p-8">
+        <div className="bg-white rounded-2xl shadow-light-xl border border-gray-200 dark:bg-surface-850 dark:shadow-dark-xl dark:border-surface-700 p-5 sm:p-8">
           {mode === 'authenticator' ? (
             <div className="space-y-6">
               {/* Icon */}
@@ -199,7 +199,7 @@ const TwoFactorLoginPage: React.FC = () => {
               <div className="text-center">
                 <button
                   onClick={() => switchMode('recovery')}
-                  className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline"
+                  className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline py-2 px-4"
                 >
                   {language === 'en' ? 'Use a recovery code instead' : 'Använd en återställningskod istället'}
                 </button>
@@ -295,7 +295,7 @@ const TwoFactorLoginPage: React.FC = () => {
               <div className="text-center">
                 <button
                   onClick={() => switchMode('authenticator')}
-                  className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline"
+                  className="text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline py-2 px-4"
                 >
                   {language === 'en' ? 'Back to authenticator code' : 'Tillbaka till autentiseringskod'}
                 </button>
@@ -307,7 +307,7 @@ const TwoFactorLoginPage: React.FC = () => {
           <div className="text-center mt-6 pt-4 border-t border-gray-200 dark:border-surface-700">
             <button
               onClick={handleBackToLogin}
-              className="text-sm text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors font-medium"
+              className="text-sm text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors font-medium py-2 px-4"
             >
               {language === 'en' ? 'Back to login' : 'Tillbaka till inloggning'}
             </button>

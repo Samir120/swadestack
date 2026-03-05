@@ -520,9 +520,9 @@ const ProfileTab: React.FC = () => {
         )}
 
         {/* Two-Factor Authentication Row */}
-        <div className="flex items-center justify-between py-4">
-          <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors flex-shrink-0 ${
               twoFactorEnabled
                 ? 'bg-green-100 dark:bg-green-900/30'
                 : 'bg-gray-200 dark:bg-surface-700'
@@ -533,8 +533,8 @@ const ProfileTab: React.FC = () => {
                 <Shield size={18} className="text-gray-400 dark:text-neutral-500 transition-colors" />
               )}
             </div>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {language === 'en' ? 'Two-Factor Authentication' : 'Tvåfaktorsautentisering'}
                 </p>
@@ -560,21 +560,23 @@ const ProfileTab: React.FC = () => {
               )}
             </div>
           </div>
-          {twoFactorEnabled ? (
-            <button
-              onClick={() => setShowDisableModal(true)}
-              className="text-sm text-red-500 dark:text-red-400 font-medium hover:underline"
-            >
-              {language === 'en' ? 'Disable' : 'Inaktivera'}
-            </button>
-          ) : (
-            <button
-              onClick={() => setShowSetupModal(true)}
-              className="px-4 py-2 rounded-lg border border-gray-300 dark:border-surface-600 text-sm font-bold text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-surface-700 transition-colors"
-            >
-              {language === 'en' ? 'Enable' : 'Aktivera'}
-            </button>
-          )}
+          <div className="flex-shrink-0 ml-12 sm:ml-0">
+            {twoFactorEnabled ? (
+              <button
+                onClick={() => setShowDisableModal(true)}
+                className="text-sm text-red-500 dark:text-red-400 font-medium hover:underline py-1"
+              >
+                {language === 'en' ? 'Disable' : 'Inaktivera'}
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowSetupModal(true)}
+                className="px-4 py-2 rounded-lg border border-gray-300 dark:border-surface-600 text-sm font-bold text-gray-700 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-surface-700 transition-colors"
+              >
+                {language === 'en' ? 'Enable' : 'Aktivera'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

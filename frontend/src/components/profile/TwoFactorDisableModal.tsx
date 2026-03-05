@@ -46,13 +46,13 @@ const TwoFactorDisableModal: React.FC<Props> = ({ isOpen, onClose, language }) =
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       <div
-        className="relative w-full max-w-md bg-white dark:bg-surface-850 rounded-2xl shadow-2xl border border-gray-200 dark:border-surface-700 overflow-hidden"
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-surface-850 rounded-2xl shadow-2xl border border-gray-200 dark:border-surface-700"
         role="dialog"
         aria-modal="true"
         aria-label={language === 'en' ? 'Disable two-factor authentication' : 'Inaktivera tvåfaktorsautentisering'}
       >
         {/* Warning banner */}
-        <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-700/30 px-6 py-3">
+        <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-700/30 px-4 sm:px-6 py-3">
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -63,7 +63,7 @@ const TwoFactorDisableModal: React.FC<Props> = ({ isOpen, onClose, language }) =
           </div>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-4">
           <div>
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
               {language === 'en' ? 'Disable Two-Factor Authentication' : 'Inaktivera tvåfaktorsautentisering'}

@@ -133,7 +133,7 @@ const ForgotPassword: React.FC = () => {
       <div className="text-center">
         <button
           onClick={handleBack2fa}
-          className="text-sm text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors font-medium"
+          className="text-sm text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors font-medium py-2 px-4"
         >
           {language === 'en' ? 'Back' : 'Tillbaka'}
         </button>
@@ -163,7 +163,7 @@ const ForgotPassword: React.FC = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-light-xl border border-gray-200 dark:bg-surface-850 dark:shadow-dark-xl dark:border-surface-700 p-8 relative overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-light-xl border border-gray-200 dark:bg-surface-850 dark:shadow-dark-xl dark:border-surface-700 p-5 sm:p-8 relative overflow-hidden">
           {/* Decorative element */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary-600/10 rounded-full blur-3xl pointer-events-none opacity-50"></div>
 

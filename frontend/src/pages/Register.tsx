@@ -136,7 +136,7 @@ const Register: React.FC = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-light-xl border border-gray-200 dark:bg-surface-850 dark:shadow-dark-xl dark:border-surface-700 p-8 relative overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-light-xl border border-gray-200 dark:bg-surface-850 dark:shadow-dark-xl dark:border-surface-700 p-5 sm:p-8 relative overflow-hidden">
           {/* Decorative element */}
           <div className="absolute -top-8 -right-8 w-48 h-48 pointer-events-none opacity-60">
             <Lottie animationData={authDecorationAnimation} loop />
@@ -243,7 +243,7 @@ const Register: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-xs text-gray-500 dark:text-neutral-400 uppercase tracking-wider ml-1 font-medium">
                         {language === 'en' ? 'First Name' : 'Förnamn'}
@@ -294,7 +294,7 @@ const Register: React.FC = () => {
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-xs text-gray-500 dark:text-neutral-400 uppercase tracking-wider ml-1 font-medium">
                             {language === 'en' ? 'Org. Number' : 'Org.nummer'}
