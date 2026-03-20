@@ -26,10 +26,6 @@ const sanitiseHtml = (html: string): string => {
   return DOMPurify.sanitize(content.trim());
 };
 
-/**
- * FooterPage Component
- * Displays dynamic footer page content with HTML
- */
 const FooterPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();

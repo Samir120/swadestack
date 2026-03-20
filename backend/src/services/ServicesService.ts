@@ -6,10 +6,6 @@ import {
   ServiceListDTO,
 } from '../models/dto/ServiceDTO';
 
-/**
- * Services Service - Business Logic Layer
- * Handles service-related business operations
- */
 export class ServicesService {
   private servicesRepository: ServicesRepository;
 

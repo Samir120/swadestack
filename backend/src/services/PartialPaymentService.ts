@@ -7,10 +7,6 @@ import { OrderDTO } from '../models/dto/OrderDTO';
 import { OrderEmailService } from './OrderEmailService';
 import VatSettingsService from './VatSettingsService';
 
-/**
- * Partial Payment Service - Business Logic for Two-Phase Payments
- * Handles partial payment initialization, validation, and lifecycle management
- */
 export class PartialPaymentService {
   private paymentRepository: PaymentRepository;
   private ordersRepository: OrdersRepository;

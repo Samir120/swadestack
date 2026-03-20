@@ -13,10 +13,6 @@ import {
 } from '../models/dto/UserDTO';
 import TwoFactorService from './TwoFactorService';
 
-/**
- * Auth Service - Business Logic Layer
- * Handles authentication and user management
- */
 export class AuthService {
   private usersRepository: UsersRepository;
   private refreshTokenRepository: RefreshTokenRepository;

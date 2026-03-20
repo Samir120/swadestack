@@ -1,12 +1,6 @@
 import React from 'react';
 import { Zap, Lightbulb } from 'lucide-react';
 import { PowerSummary } from '../../models/types/validation.types';
-
-/**
- * Power Consumption Gauge Component
- * Visual gauge showing system power draw vs PSU capacity
- */
-
 interface PowerConsumptionGaugeProps {
   powerSummary: PowerSummary;
   language: string;

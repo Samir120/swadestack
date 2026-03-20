@@ -12,13 +12,6 @@ import { ValidationResult } from '../../models/types/validation.types';
 import BuildServiceSelector from './BuildServiceSelector';
 import { useVatRate } from '../../hooks/useVatRate';
 import { netToGross } from '../../utils/vat';
-
-/**
- * Configuration Summary Component
- * Displays the summary of selected components and total price
- * Supports multi-select components (RAM, GPU, SSD, HDD, Fan)
- */
-
 interface ConfigurationSummaryProps {
   selectedComponents: SelectedComponents;
   priceBreakdown: PriceBreakdown | null;

@@ -12,10 +12,6 @@ interface ComponentDisplayInfo {
   specs?: string;
 }
 
-/**
- * PC Configuration PDF Service
- * Handles PDF generation for PC configurations
- */
 export class PCConfigurationPDFService {
   /**
    * Get component display info from configuration

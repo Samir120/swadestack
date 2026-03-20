@@ -19,13 +19,6 @@ import { setTwoFactorPending } from '../store/slices/twoFactorSlice';
 import { fetchServerCart, mergeServerCart, syncCartToServer } from '../store/slices/cartSlice';
 import { authApi } from '../models/api/authApi';
 import { LoginData, RegisterData } from '../models/types/user.types';
-
-/**
- * Auth ViewModel - Business Logic Layer
- * Handles authentication business logic and state management
- * Connects View (Components) to Model (API)
- */
-
 export const useAuthViewModel = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();

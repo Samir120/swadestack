@@ -40,12 +40,6 @@ import {
   ChevronRight,
   type LucideIcon,
 } from 'lucide-react';
-
-/**
- * Pre-Configured PC Detail Page
- * Redesigned with premium polish matching the home page style
- */
-
 // Tier badge colors
 const TIER_COLORS: Record<PCTier, { bg: string; text: string; border: string; iconBg: string }> = {
   core: {

@@ -2,10 +2,6 @@ import React from 'react';
 import { useVatRate } from '../../../hooks/useVatRate';
 import { netToGross, vatPercent } from '../../../utils/vat';
 
-/**
- * Format a currency amount using the standard admin format (sv-SE locale).
- * Exported for use in places where only the formatted string is needed.
- */
 export function formatAdminCurrency(amount: number, currency = 'SEK'): string {
   return new Intl.NumberFormat('sv-SE', {
     style: 'currency',
@@ -22,13 +18,6 @@ interface AdminPriceDisplayProps {
   secondaryClassName?: string;
 }
 
-/**
- * Read-only display of a net (ex. moms) price with a VAT-inclusive helper line.
- *
- * Renders:
- *   {formatted net price} ex. moms
- *   {formatted gross price} inkl. moms (25%)
- */
 const AdminPriceDisplay: React.FC<AdminPriceDisplayProps> = ({
   price,
   currency = 'SEK',

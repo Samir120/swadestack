@@ -3,14 +3,6 @@ import { Wrench, Hammer } from 'lucide-react';
 import { PCBuildServiceOption } from '../../models/types/pcConfiguration.types';
 import { useVatRate } from '../../hooks/useVatRate';
 import { netToGross } from '../../utils/vat';
-
-/**
- * Build Service Selector Component
- * Allows users to choose between DIY and professional build services
- * Shows ALL available build service options
- * Supports 'compact' variant for sidebar and 'full' variant for main content area
- */
-
 interface BuildServiceSelectorProps {
   options: PCBuildServiceOption[];
   selectedOption?: PCBuildServiceOption;

@@ -2,14 +2,7 @@ import User, { UserAttributes } from '../models/sequelize/User';
 import Address from '../models/sequelize/Address';
 import { validatePassword } from '../utils/passwordValidator';
 
-/**
- * User Profile Service
- * Handles user profile management
- */
 export class UserProfileService {
-  /**
-   * Get user profile by ID
-   */
   async getUserProfile(userId: string) {
     const user = await User.findByPk(userId, {
       attributes: { exclude: ['password'] },
@@ -22,9 +15,6 @@ export class UserProfileService {
     return user;
   }
 
-  /**
-   * Update user profile
-   */
   async updateProfile(userId: string, data: Partial<UserAttributes>) {
     const user = await User.findByPk(userId);
 

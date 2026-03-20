@@ -6,10 +6,6 @@ import {
   PortfolioListDTO,
 } from '../models/dto/PortfolioDTO';
 
-/**
- * Portfolio Service - Business Logic Layer
- * Handles portfolio-related business operations
- */
 export class PortfolioService {
   private portfolioRepository: PortfolioRepository;
 

@@ -13,12 +13,6 @@ import DynamicFooter from '../components/common/DynamicFooter';
 import PreConfiguredPCCard from '../components/pcbuilder/PreConfiguredPCCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { motion } from 'framer-motion';
-
-/**
- * Pre-Configured PC List Page
- * Redesigned to match the polished home page visual style
- */
-
 // Tier configuration with styled colors instead of emojis
 const TIERS: { value: PCTier | 'all'; label: { en: string; sv: string }; color: string; activeColor: string }[] = [
   {

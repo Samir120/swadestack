@@ -24,10 +24,6 @@ import {
   AdminUpdateCustomerDTO,
 } from '../models/dto/AdminCustomerDTO';
 
-/**
- * Customer Service - Business Logic Layer
- * Handles admin customer management operations
- */
 export class CustomerService {
   private customersRepository: CustomersRepository;
   private ordersRepository: OrdersRepository;

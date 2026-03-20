@@ -12,10 +12,6 @@ import {
 import FooterCategoryTitle from '../models/sequelize/FooterCategoryTitle';
 import FooterMainPage from '../models/sequelize/FooterMainPage';
 
-/**
- * Footer Service - Business Logic Layer
- * Handles footer category titles and main pages business operations
- */
 export class FooterService {
   private categoryRepository: FooterCategoryTitleRepository;
   private pageRepository: FooterMainPageRepository;

@@ -36,10 +36,6 @@ export interface PriceBreakdown {
   };
 }
 
-/**
- * PC Configuration Service - Business Logic Layer
- * Handles configuration management, pricing, validation, and order conversion
- */
 export class PCConfigurationService {
   private configRepo: PCConfigurationRepository;
   private componentRepo: PCComponentRepository;

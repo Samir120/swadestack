@@ -1,10 +1,6 @@
 import SiteSettingsRepository from '../integration/repositories/SiteSettingsRepository';
 import { SiteSettingsAttributes } from '../models/sequelize/SiteSettings';
 
-/**
- * SiteSettings Service - Business Logic Layer
- * Handles site configuration and settings
- */
 export class SiteSettingsService {
   private repository: SiteSettingsRepository;
 
@@ -12,17 +8,11 @@ export class SiteSettingsService {
     this.repository = new SiteSettingsRepository();
   }
 
-  /**
-   * Get site settings
-   */
   async getSettings() {
     const settings = await this.repository.getOrCreateSettings();
     return settings;
   }
 
-  /**
-   * Update site settings
-   */
   async updateSettings(data: Partial<SiteSettingsAttributes>) {
     // Validate URLs if provided (but allow base64 data URIs)
     if (data.logoUrl && !this.isValidUrlOrDataUri(data.logoUrl)) {

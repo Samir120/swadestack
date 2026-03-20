@@ -14,14 +14,6 @@ import { Service, PCCartItem, ComponentCartItem } from '../models/types/service.
 import { PCConfiguration } from '../models/types/pcConfiguration.types';
 import { useVatRate } from '../hooks/useVatRate';
 import { netToGross } from '../utils/vat';
-
-/**
- * Cart ViewModel - Business Logic Layer
- * Handles shopping cart business logic and state management
- * Connects View (Components) to Model (API)
- * Note: Server sync is handled automatically by cartSyncMiddleware in store.ts
- */
-
 export const useCartViewModel = () => {
   const dispatch = useAppDispatch();
   const { items, pcItems, componentItems, totalAmount, totalItems } = useAppSelector(

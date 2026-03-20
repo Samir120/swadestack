@@ -27,10 +27,6 @@ import VatSettingsService from './VatSettingsService';
 import { EmailTemplateType, EmailPriority } from '../config/emailConfig';
 import { CartItemContext } from '../models/dto/CouponDTO';
 
-/**
- * Orders Service - Business Logic Layer
- * Handles order processing, payment, and fulfillment
- */
 export class OrdersService {
   private ordersRepository: OrdersRepository;
   private servicesRepository: ServicesRepository;

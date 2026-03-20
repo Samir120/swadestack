@@ -49,10 +49,6 @@ export interface ComponentFilters {
   maxPrice?: number;
 }
 
-/**
- * PC Component Service - Business Logic Layer
- * Handles PC component-related business operations
- */
 export class PCComponentService {
   private componentRepo: PCComponentRepository;
   private profitMarginService: ProfitMarginService;

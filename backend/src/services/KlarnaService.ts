@@ -71,10 +71,6 @@ interface KlarnaCheckoutResult {
   paymentId?: string;
 }
 
-/**
- * Klarna Service - Klarna Checkout Integration
- * Handles payment processing through Klarna Checkout API
- */
 export class KlarnaService {
   private client: AxiosInstance;
   private ordersService: OrdersService;

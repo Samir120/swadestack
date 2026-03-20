@@ -4,10 +4,6 @@ import Payment from '../models/sequelize/Payment';
 import { Op } from 'sequelize';
 import OrdersService from './OrdersService';
 
-/**
- * User Orders Service
- * Handles user order tracking and history
- */
 export class UserOrdersService {
   private ordersService: OrdersService;
 

@@ -33,10 +33,6 @@ export interface UpdateBuildServiceOptionData {
   isDefault?: boolean;
 }
 
-/**
- * PC Build Service Option Service - Business Logic Layer
- * Handles build service option management and charge calculations
- */
 export class PCBuildServiceOptionService {
   private buildServiceRepo: PCBuildServiceOptionRepository;
 

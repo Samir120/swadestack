@@ -32,12 +32,6 @@ import CompatibilityStatus from '../components/pcbuilder/CompatibilityStatus';
 import PowerConsumptionGauge from '../components/pcbuilder/PowerConsumptionGauge';
 import CurrentSelectionDisplay from '../components/pcbuilder/CurrentSelectionDisplay';
 import BuildServiceSelector from '../components/pcbuilder/BuildServiceSelector';
-
-/**
- * PC Builder Page
- * Main page for building custom PC configurations
- */
-
 // Component steps configuration - supports multiple selection for slot-based components
 // conditionallyRequired: true means at least one SSD or HDD is required for professional build service
 const COMPONENT_STEPS: { type: ComponentType; labelKey: string; required: boolean; multiSelect?: boolean; conditionallyRequired?: boolean }[] = [

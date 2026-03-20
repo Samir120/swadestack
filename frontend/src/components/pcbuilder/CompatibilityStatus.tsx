@@ -5,12 +5,6 @@ import Lottie from 'lottie-react';
 import successCheckmarkAnimation from '../../assets/animations/success-checkmark.json';
 import errorCrossAnimation from '../../assets/animations/error-cross.json';
 import warningTriangleAnimation from '../../assets/animations/warning-triangle.json';
-
-/**
- * Compatibility Status Component
- * Displays validation errors and warnings for PC configuration
- */
-
 interface CompatibilityStatusProps {
   validationResult: ValidationResult;
   language: string;

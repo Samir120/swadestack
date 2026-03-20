@@ -6,10 +6,6 @@ import {
   ListBannerDTO,
 } from '../models/dto/BannerDTO';
 
-/**
- * Banners Service - Business Logic Layer
- * Handles banner-related business operations
- */
 export class BannersService {
   private bannersRepository: BannersRepository;
 

@@ -1,33 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 
-/**
- * Rate limiter for contact form submissions
- * Limits to 5 requests per 15 minutes per IP
- */
+// Contact form: 5 req / 15 min
 export const rateLimitMiddleware = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 5,
   message: {
     success: false,
     error: 'Too many requests from this IP, please try again later.',
   },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  // Skip rate limiting for authenticated admin users
+  standardHeaders: true,
+  legacyHeaders: false,
   skip: (req: Request) => {
     // @ts-ignore
     return req.user?.role === 'admin';
   },
 });
 
-/**
- * Strict rate limiter for newsletter subscriptions
- * Limits to 3 requests per hour per IP
- */
+// Newsletter subscribe: 3 req / hour
 export const newsletterRateLimitMiddleware = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // Limit each IP to 3 requests per windowMs
+  windowMs: 60 * 60 * 1000,
+  max: 3,
   message: {
     success: false,
     error: 'Too many subscription attempts, please try again later.',
@@ -36,12 +29,9 @@ export const newsletterRateLimitMiddleware = rateLimit({
   legacyHeaders: false,
 });
 
-/**
- * Rate limiter for email verification
- * Limits to 10 requests per hour per IP
- */
+// Email verification: 10 req / hour
 export const verificationRateLimitMiddleware = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 10,
   message: {
     success: false,
@@ -51,12 +41,9 @@ export const verificationRateLimitMiddleware = rateLimit({
   legacyHeaders: false,
 });
 
-/**
- * Rate limiter for login attempts
- * Limits to 10 requests per 15 minutes per IP
- */
+// Login: 10 req / 15 min
 export const loginRateLimitMiddleware = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 10,
   message: {
     success: false,
@@ -66,12 +53,9 @@ export const loginRateLimitMiddleware = rateLimit({
   legacyHeaders: false,
 });
 
-/**
- * Rate limiter for registration
- * Limits to 5 requests per hour per IP
- */
+// Registration: 5 req / hour
 export const registerRateLimitMiddleware = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 5,
   message: {
     success: false,
@@ -81,12 +65,9 @@ export const registerRateLimitMiddleware = rateLimit({
   legacyHeaders: false,
 });
 
-/**
- * Rate limiter for password reset requests
- * Limits to 5 requests per 15 minutes per IP
- */
+// Password reset: 5 req / 15 min
 export const passwordResetRateLimitMiddleware = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 5,
   message: {
     success: false,
@@ -96,12 +77,9 @@ export const passwordResetRateLimitMiddleware = rateLimit({
   legacyHeaders: false,
 });
 
-/**
- * Rate limiter for order creation
- * Limits to 10 requests per 15 minutes per IP
- */
+// Order creation: 10 req / 15 min
 export const orderCreationRateLimitMiddleware = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 10,
   message: {
     success: false,
@@ -111,12 +89,9 @@ export const orderCreationRateLimitMiddleware = rateLimit({
   legacyHeaders: false,
 });
 
-/**
- * Rate limiter for newsletter status checks
- * Limits to 30 requests per 15 minutes per IP
- */
+// Newsletter status check: 30 req / 15 min
 export const newsletterStatusCheckRateLimitMiddleware = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 30,
   message: {
     success: false,
@@ -126,12 +101,9 @@ export const newsletterStatusCheckRateLimitMiddleware = rateLimit({
   legacyHeaders: false,
 });
 
-/**
- * Rate limiter for newsletter unsubscribe by email
- * Limits to 5 requests per hour per IP
- */
+// Newsletter unsubscribe: 5 req / hour
 export const newsletterUnsubscribeRateLimitMiddleware = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 5,
   message: {
     success: false,
