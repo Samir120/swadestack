@@ -12,6 +12,7 @@ import InvoicesTab from '../components/user/InvoicesTab';
 import StatisticsTab from '../components/user/StatisticsTab';
 import PCConfigurationsTab from '../components/user/PCConfigurationsTab';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import AmbientBackground from '../components/common/AmbientBackground';
 
 const UserDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -108,11 +109,7 @@ const UserDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-surface-950 font-sans relative flex flex-col">
       {/* Ambient background */}
-      <div className="fixed inset-0 z-0 pointer-events-none hidden dark:block">
-        <div className="absolute top-0 left-0 w-full h-[800px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface-900 via-surface-950 to-surface-950"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-primary-600/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[10%] left-[-10%] w-[600px] h-[600px] bg-blue-900/20 rounded-full blur-[120px]" />
-      </div>
+      <AmbientBackground wash="surface-950" />
 
       {/* Header */}
       <Header mode="page" />

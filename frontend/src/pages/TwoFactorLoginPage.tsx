@@ -9,6 +9,7 @@ import {
 } from '../store/slices/twoFactorSlice';
 import { fetchServerCart, mergeServerCart, syncCartToServer } from '../store/slices/cartSlice';
 import OtpInput from '../components/ui/OtpInput';
+import AmbientBackground from '../components/common/AmbientBackground';
 
 const TwoFactorLoginPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -125,11 +126,7 @@ const TwoFactorLoginPage: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center relative bg-gray-50 dark:bg-surface-950 font-sans">
       {/* Ambient background */}
-      <div className="fixed inset-0 z-0 pointer-events-none hidden dark:block">
-        <div className="absolute top-0 left-0 w-full h-[800px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface-900 via-surface-850 to-surface-950" />
-        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-primary-600/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[10%] left-[-10%] w-[600px] h-[600px] bg-blue-900/20 rounded-full blur-[120px]" />
-      </div>
+      <AmbientBackground />
 
       <div className="relative z-10 w-full max-w-md px-4 py-12">
         {/* Logo */}

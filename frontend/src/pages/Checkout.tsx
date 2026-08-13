@@ -19,6 +19,7 @@ import paymentFullAnimation from '../assets/animations/payment-full.json';
 import paymentSplitAnimation from '../assets/animations/payment-split.json';
 import { useVatRate } from '../hooks/useVatRate';
 import { netToGross, vatPercent } from '../utils/vat';
+import AmbientBackground from '../components/common/AmbientBackground';
 
 const Checkout: React.FC = () => {
   const toast = useToast();
@@ -327,12 +328,7 @@ const Checkout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-surface-950 text-gray-900 dark:text-white font-sans selection:bg-primary-600 selection:text-white relative">
-          <div className="fixed inset-0 z-0 pointer-events-none hidden dark:block">
-        <div className="absolute top-0 left-0 w-full h-[800px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface-900 via-surface-850 to-surface-950"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-primary-600/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[10%] left-[-10%] w-[600px] h-[600px] bg-blue-900/20 rounded-full blur-[120px]" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 brightness-100 mix-blend-multiply"></div>
-      </div>
+          <AmbientBackground />
 
       <Header mode="page" />
       <main className="max-w-7xl mx-auto px-4 py-12 pt-28 relative z-10">

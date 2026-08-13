@@ -40,6 +40,7 @@ const Lottie = lazy(() => import('lottie-react'));
 // Animation data — imported eagerly but they're tiny JSON files (6-11KB)
 import emptyContentAnimation from '../assets/animations/empty-content.json';
 import paperPlaneSendAnimation from '../assets/animations/paper-plane-send.json';
+import AmbientBackground from '../components/common/AmbientBackground';
 
 
 const Home: React.FC = () => {
@@ -247,11 +248,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 dark:bg-surface-950 dark:text-neutral-200 font-sans relative">
-      <div className="fixed inset-0 z-0 pointer-events-none hidden dark:block">
-        <div className="absolute top-0 left-0 w-full h-[800px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface-900 via-surface-950 to-surface-950"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-primary-600/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[10%] left-[-10%] w-[600px] h-[600px] bg-accent-500/3 rounded-full blur-[120px]" />
-      </div>
+      <AmbientBackground variant="soft" wash="surface-950" />
 
       <Header
         mode="home"
