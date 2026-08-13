@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Trash2, Upload, Loader2 } from 'lucide-react';
+import { Trash2, Upload, Loader2 } from '../../common/icons';
 import {
   GlobalStylesConfig,
   SocialMediaConfig,

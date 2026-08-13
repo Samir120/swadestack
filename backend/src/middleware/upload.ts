@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { randomUUID } from 'crypto';
 
 const uploadDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadDir)) {
@@ -12,9 +13,12 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    // Uploads are served with a 30-day cache (see app.ts), which is only safe
+    // if a filename can never be reused for different content. randomUUID gives
+    // that guarantee; the previous Date.now()+Math.random() suffix could collide
+    // for two uploads in the same millisecond and overwrite an already-cached file.
     const ext = path.extname(file.originalname);
-    cb(null, uniqueSuffix + ext);
+    cb(null, `${Date.now()}-${randomUUID()}${ext}`);
   },
 });
 

@@ -12,7 +12,7 @@ import {
   Disc,
   AppWindow,
   type LucideIcon,
-} from 'lucide-react';
+} from '../common/icons';
 import { ComponentType } from '../../models/types/pcComponent.types';
 
 /**

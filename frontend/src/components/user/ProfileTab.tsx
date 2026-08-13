@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { KeyRound, Shield, ShieldCheck } from 'lucide-react';
+import { KeyRound, Shield, ShieldCheck } from '../common/icons';
 import apiClient from '../../models/api/apiClient';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { fetchTwoFactorStatus } from '../../store/slices/twoFactorSlice';

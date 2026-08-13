@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, lazy, Suspense } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../components/common/Toast';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
@@ -11,7 +11,6 @@ import apiClient from '../models/api/apiClient';
 import Header from '../components/common/Header';
 import ShoppingCart from '../components/cart/ShoppingCart';
 import HighlightsBanner from '../components/common/HighlightsBanner';
-import LazySection from '../components/common/LazySection';
 import { Service } from '../models/types/service.types';
 import DynamicFooter from '../components/common/DynamicFooter';
 import { useVatRate } from '../hooks/useVatRate';
@@ -28,14 +27,13 @@ const XCircle: React.FC<{ className?: string }> = ({ className }) => (
 );
 import AutoCarousel from '../components/common/AutoCarousel';
 
-// Lazy-load below-fold heavy components
-const FeatureFocus = lazy(() => import('../components/sections/FeatureFocus'));
-const OurTeam = lazy(() => import('../components/sections/OurTeam'));
-const PreConfiguredPCSection = lazy(() => import('../components/pcbuilder/PreConfiguredPCSection'));
-const ComponentsShopSection = lazy(() => import('../components/sections/ComponentsShopSection'));
+// Below-fold sections — statically imported so they never pop in mid-scroll
+import FeatureFocus from '../components/sections/FeatureFocus';
+import OurTeam from '../components/sections/OurTeam';
+import PreConfiguredPCSection from '../components/pcbuilder/PreConfiguredPCSection';
+import ComponentsShopSection from '../components/sections/ComponentsShopSection';
 
-// Lazy-load Lottie (heavy library) — only needed for empty states and send animation
-const Lottie = lazy(() => import('lottie-react'));
+import Lottie from 'lottie-react';
 
 // Animation data — imported eagerly but they're tiny JSON files (6-11KB)
 import emptyContentAnimation from '../assets/animations/empty-content.json';
@@ -263,15 +261,11 @@ const Home: React.FC = () => {
       {/* Shopping Cart */}
       <ShoppingCart />
 
-      {/* Feature Focus Section — lazy-loaded when scrolled near */}
+      {/* Feature Focus Section */}
       <div id="features">
-        <LazySection minHeight="400px" rootMargin="400px">
-          <div className="relative">
-            <Suspense fallback={<div className="flex justify-center items-center py-24"><LoadingSpinner /></div>}>
-              <FeatureFocus />
-            </Suspense>
-          </div>
-        </LazySection>
+        <div className="relative">
+          <FeatureFocus />
+        </div>
       </div>
 
       {/* Section divider */}
@@ -481,7 +475,7 @@ const Home: React.FC = () => {
           ) : (
             <div className="text-center py-12 sm:py-16 text-gray-400 border border-dashed border-gray-200 rounded-2xl bg-gray-50 dark:text-neutral-500 dark:border-surface-700 dark:bg-surface-850 mx-2">
               <div className="w-20 h-20 mx-auto mb-3 opacity-50 dark:opacity-40">
-                <Suspense fallback={null}><Lottie animationData={emptyContentAnimation} loop /></Suspense>
+                <Lottie animationData={emptyContentAnimation} loop />
               </div>
               {language === 'en' ? (settings?.portfolioEmptyMessage_en || 'Projects coming soon') : (settings?.portfolioEmptyMessage_sv || 'Projekt kommer snart')}
             </div>
@@ -647,7 +641,7 @@ const Home: React.FC = () => {
           ) : (
             <div className="text-center py-12 text-gray-400 dark:text-neutral-500 mx-2">
               <div className="w-20 h-20 mx-auto mb-3 opacity-50 dark:opacity-40">
-                <Suspense fallback={null}><Lottie animationData={emptyContentAnimation} loop /></Suspense>
+                <Lottie animationData={emptyContentAnimation} loop />
               </div>
               {language === 'en' ? (settings?.servicesEmptyMessage_en || 'No services available') : (settings?.servicesEmptyMessage_sv || 'Inga tjänster tillgängliga')}
             </div>
@@ -658,37 +652,25 @@ const Home: React.FC = () => {
       {/* Section divider */}
       <div className="relative h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent"></div>
 
-      {/* Pre-Configured PC Section — lazy-loaded */}
+      {/* Pre-Configured PC Section */}
       {showGamingPcSection && (
         <div id="pc-configurations">
-          <LazySection minHeight="300px" rootMargin="400px">
-            <section className="relative">
-              <Suspense fallback={<div className="flex justify-center items-center py-16"><LoadingSpinner /></div>}>
-                <PreConfiguredPCSection />
-              </Suspense>
-            </section>
-          </LazySection>
+          <section className="relative">
+            <PreConfiguredPCSection />
+          </section>
         </div>
       )}
 
       {showGamingPcSection && (
         <div id="components-shop">
           <div className="relative h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" />
-          <LazySection minHeight="300px" rootMargin="400px">
-            <Suspense fallback={<div className="flex justify-center items-center py-16"><LoadingSpinner /></div>}>
-              <ComponentsShopSection />
-            </Suspense>
-          </LazySection>
+          <ComponentsShopSection />
         </div>
       )}
 
-      <LazySection minHeight="200px" rootMargin="400px">
-        <div className="relative">
-          <Suspense fallback={<div className="flex justify-center items-center py-16"><LoadingSpinner /></div>}>
-            <OurTeam />
-          </Suspense>
-        </div>
-      </LazySection>
+      <div className="relative">
+        <OurTeam />
+      </div>
 
       {/* Section divider */}
       <div className="relative h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent"></div>
@@ -721,7 +703,7 @@ const Home: React.FC = () => {
             {showSentAnimation && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/95 dark:bg-surface-850/95 rounded-2xl z-20 animate-fadeIn">
                 <div className="w-28 h-28 sm:w-32 sm:h-32">
-                  <Suspense fallback={null}><Lottie animationData={paperPlaneSendAnimation} loop={false} /></Suspense>
+                  <Lottie animationData={paperPlaneSendAnimation} loop={false} />
                 </div>
                 <p className="text-lg sm:text-xl font-bold text-primary-600 dark:text-primary-400 mt-3">
                   {language === 'en' ? 'Message Sent!' : 'Meddelande Skickat!'}

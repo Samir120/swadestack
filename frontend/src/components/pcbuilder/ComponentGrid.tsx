@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, Search } from 'lucide-react';
+import { Package, Search } from '../common/icons';
 import { PCComponent, ComponentType } from '../../models/types/pcComponent.types';
 import { ValidationResult, ValidationError } from '../../models/types/validation.types';
 import ComponentCard from './ComponentCard';

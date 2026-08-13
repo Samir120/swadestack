@@ -4,6 +4,7 @@ import { connectDatabase } from './config/database';
 // Import models to initialize associations
 import './models/sequelize';
 import { migrateServiceCategories } from './utils/migrateServiceCategories';
+import { startTokenCleanupSchedule } from './services/TokenCleanupService';
 
 /**
  * Start the server
@@ -15,6 +16,9 @@ const startServer = async (): Promise<void> => {
 
     // Migrate existing category strings to ServiceCategory entities
     await migrateServiceCategories();
+
+    // Periodically drop expired refresh tokens so the table stays bounded
+    startTokenCleanupSchedule();
 
     // Create Express app
     const app = createApp();

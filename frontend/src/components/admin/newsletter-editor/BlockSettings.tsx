@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Copy, Trash2, ChevronUp, ChevronDown, Pencil, X, Package } from 'lucide-react';
+import { ArrowLeft, Copy, Trash2, ChevronUp, ChevronDown, Pencil, X, Package } from '../../common/icons';
 import { ContentBlock, ProductSearchItem } from '../../../models/types/newsletterAdmin.types';
 import ProductPicker from './ProductPicker';
 

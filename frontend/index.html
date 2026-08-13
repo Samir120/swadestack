@@ -4,6 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!--
+      Theme must be applied before the stylesheet paints, otherwise dark-mode
+      users get a white flash. This runs synchronously during head parsing —
+      doing it from main.tsx is too late (module scripts execute after the
+      first paint is already possible).
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var theme = stored === 'light' || stored === 'dark'
+            ? stored
+            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+          document.documentElement.style.backgroundColor = theme === 'dark' ? '#09090b' : '#ffffff';
+          document.addEventListener('DOMContentLoaded', function () {
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', theme === 'dark' ? '#09090b' : '#ffffff');
+          });
+        } catch (e) {}
+      })();
+    </script>
+
     <!-- Primary SEO — static fallbacks for crawlers before JS loads -->
     <!-- SEO.tsx overrides title + description dynamically at runtime -->
     <title>Swade Stack | Professional Web Solutions</title>

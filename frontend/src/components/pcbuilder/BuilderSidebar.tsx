@@ -23,7 +23,7 @@ import {
   AppWindow,
   Wrench,
   type LucideIcon,
-} from 'lucide-react';
+} from '../common/icons';
 import { useVatRate } from '../../hooks/useVatRate';
 import { netToGross } from '../../utils/vat';
 

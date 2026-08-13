@@ -7,6 +7,7 @@ import { Feature } from '../../models/types/feature.types';
 import FileUpload from '../common/FileUpload';
 import LoadingSpinner from '../common/LoadingSpinner';
 import DynamicLucideIcon from '../common/DynamicLucideIcon';
+import { availableIconNames } from '../common/icons';
 import {
   FaPlus,
   FaEdit,
@@ -487,18 +488,32 @@ const FeaturesManager: React.FC = () => {
                   <input
                     type="text"
                     required
+                    list="available-icon-names"
                     value={formData.iconName}
                     onChange={(e) => setFormData({ ...formData, iconName: e.target.value })}
                     className="flex-1 px-3 py-2 text-sm border border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500/50 focus:border-transparent"
-                    placeholder="e.g., Monitor, Palette, Code"
+                    placeholder="Start typing to see available icons"
                   />
+                  <datalist id="available-icon-names">
+                    {availableIconNames.map((n) => (
+                      <option key={n} value={n} />
+                    ))}
+                  </datalist>
                   <div className="w-10 h-10 rounded-lg bg-primary-600/20 flex items-center justify-center flex-shrink-0">
                     <DynamicLucideIcon name={formData.iconName} size={20} className="text-primary-400" />
                   </div>
                 </div>
-                <p className="text-[10px] sm:text-xs text-neutral-400 mt-1">
-                  Browse icons at lucide.dev/icons. Use PascalCase names (e.g., Monitor, ShieldCheck, Palette).
-                </p>
+                {formData.iconName && !availableIconNames.includes(formData.iconName) ? (
+                  <p className="text-[10px] sm:text-xs text-red-400 mt-1">
+                    &quot;{formData.iconName}&quot; is not an available icon — it will render as blank.
+                    Pick one of the {availableIconNames.length} suggestions above.
+                  </p>
+                ) : (
+                  <p className="text-[10px] sm:text-xs text-neutral-400 mt-1">
+                    Choose from the {availableIconNames.length} bundled icons (PascalCase, e.g. Monitor, ShieldCheck).
+                    To add more, extend frontend/scripts/gen-icons.py and rebuild.
+                  </p>
+                )}
               </div>
 
               {/* Preview Image Upload */}

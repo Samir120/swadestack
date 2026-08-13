@@ -39,7 +39,7 @@ import {
   ChevronLeft,
   ChevronRight,
   type LucideIcon,
-} from 'lucide-react';
+} from '../components/common/icons';
 import AmbientBackground from '../components/common/AmbientBackground';
 // Tier badge colors
 const TIER_COLORS: Record<PCTier, { bg: string; text: string; border: string; iconBg: string }> = {

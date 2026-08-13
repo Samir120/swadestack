@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, Lightbulb } from 'lucide-react';
+import { Zap, Lightbulb } from '../common/icons';
 import { PowerSummary } from '../../models/types/validation.types';
 interface PowerConsumptionGaugeProps {
   powerSummary: PowerSummary;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Undo2, Redo2, Monitor, Smartphone, Save, Eye, PencilLine } from 'lucide-react';
+import { ArrowLeft, Undo2, Redo2, Monitor, Smartphone, Save, Eye, PencilLine } from '../common/icons';
 import { newsletterAdminApi } from '../../models/api/newsletterAdminApi';
 import {
   TemplateListItem,

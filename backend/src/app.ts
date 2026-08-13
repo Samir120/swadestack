@@ -48,12 +48,15 @@ export const createApp = (): Application => {
     app.use(morgan('dev'));
   }
 
-  // Serve uploaded files
+  // Serve uploaded files. Filenames are unique per upload (timestamp + random),
+  // so contents never change under a given name — caching them avoids
+  // re-fetching every image on each navigation, which made images visibly
+  // re-paint. Kept at 30d rather than immutable so a manual file swap recovers.
   app.use('/uploads', (req, res, next) => {
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     next();
-  }, express.static(path.join(__dirname, '../uploads')));
+  }, express.static(path.join(__dirname, '../uploads'), { maxAge: '30d' }));
 
   // Maintenance mode check (applies to all /api routes)
   app.use('/api', publicRouteMaintenanceCheck);
@@ -66,13 +69,41 @@ export const createApp = (): Application => {
   if (config.env === 'production') {
     // Serve frontend static files in production
     const frontendPath = path.join(__dirname, '../../frontend/dist');
-    app.use(express.static(frontendPath));
+
+    // Vite emits content-hashed filenames into /assets, so those are safe to
+    // cache permanently. Without this every chunk revalidated on each load
+    // (max-age=0 => a 304 round-trip per chunk), delaying paint on navigation.
+    app.use(
+      '/assets',
+      express.static(path.join(frontendPath, 'assets'), {
+        immutable: true,
+        maxAge: '1y',
+      })
+    );
+
+    // Everything else (index.html, robots.txt, sitemap.xml, /images) is not
+    // hashed, so it must stay revalidated to avoid serving a stale shell.
+    // This also serves index.html for "/" before the SPA fallback below runs.
+    app.use(
+      express.static(frontendPath, {
+        etag: true,
+        maxAge: 0,
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache');
+          }
+        },
+      })
+    );
 
     // SPA fallback - serve index.html for all non-API/non-upload routes
     app.get('*', (req, res, next) => {
       if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
         return next();
       }
+      // index.html points at the hashed bundles; it must never be cached or
+      // clients keep booting a stale build after a deploy.
+      res.setHeader('Cache-Control', 'no-cache');
       res.sendFile(path.join(frontendPath, 'index.html'));
     });
   } else {

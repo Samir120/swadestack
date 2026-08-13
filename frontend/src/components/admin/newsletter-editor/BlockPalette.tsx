@@ -13,7 +13,7 @@ import {
   Share2,
   Columns2,
   LayoutGrid,
-} from 'lucide-react';
+} from '../../common/icons';
 import { BlockType } from '../../../models/types/newsletterAdmin.types';
 
 interface BlockPaletteItem {

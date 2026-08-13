@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Package, Loader2 } from 'lucide-react';
+import { Search, Package, Loader2 } from '../../common/icons';
 import { newsletterAdminApi } from '../../../models/api/newsletterAdminApi';
 import { ProductSearchItem } from '../../../models/types/newsletterAdmin.types';
 

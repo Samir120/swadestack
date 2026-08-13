@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Star, Plus, MoreVertical, Edit2, Copy, Trash2, Mail } from 'lucide-react';
+import { Star, Plus, MoreVertical, Edit2, Copy, Trash2, Mail } from '../common/icons';
 import { newsletterAdminApi } from '../../models/api/newsletterAdminApi';
 import { TemplateListItem } from '../../models/types/newsletterAdmin.types';
 

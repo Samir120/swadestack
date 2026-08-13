@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from '../common/icons';
 import { PCComponent, getComponentImageSrc } from '../../models/types/pcComponent.types';
 import { ValidationError } from '../../models/types/validation.types';
 import { useVatRate } from '../../hooks/useVatRate';

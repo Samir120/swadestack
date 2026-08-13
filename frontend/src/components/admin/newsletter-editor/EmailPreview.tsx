@@ -5,7 +5,7 @@ import {
   SocialMediaConfig,
   FooterConfig,
 } from '../../../models/types/newsletterAdmin.types';
-import { Trash2 } from 'lucide-react';
+import { Trash2 } from '../../common/icons';
 import {
   FaFacebookF,
   FaInstagram,

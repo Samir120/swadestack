@@ -27,9 +27,24 @@ export const connectDatabase = async (): Promise<void> => {
     await sequelize.authenticate();
     console.log('Database connection established successfully');
 
-    // Auto-sync schema — Sequelize alter adds missing columns/tables
-    await sequelize.sync({ alter: true });
-    console.log('Database schema synchronized');
+    // `sync({ alter: true })` is DEVELOPMENT ONLY.
+    //
+    // On every boot it re-issues ADD CONSTRAINT for each column declared
+    // `unique: true`, because it never checks whether an equivalent unique
+    // constraint already exists. Postgres accepts each one under a new
+    // auto-generated name (Users_email_key1, _key2, ...), so the count grew by
+    // one per table per restart — 1,500+ duplicate constraints across 7 tables
+    // before this was caught. Every duplicate is a real index that must be
+    // maintained on each INSERT/UPDATE.
+    //
+    // Production uses migrations instead: `npm run db:migrate:production`.
+    // Schema changes will NOT auto-apply on deploy any more — add a migration.
+    if (config.env === 'production') {
+      console.log('Schema sync skipped (production) — apply changes via npm run db:migrate:production');
+    } else {
+      await sequelize.sync({ alter: true });
+      console.log('Database schema synchronized (development)');
+    }
   } catch (error) {
     console.error('Unable to connect to database:', error);
     process.exit(1);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wrench, Hammer } from 'lucide-react';
+import { Wrench, Hammer } from '../common/icons';
 import { PCBuildServiceOption } from '../../models/types/pcConfiguration.types';
 import { useVatRate } from '../../hooks/useVatRate';
 import { netToGross } from '../../utils/vat';
