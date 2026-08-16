@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
@@ -11,9 +11,10 @@ import { PCTier } from '../models/types/pcConfiguration.types';
 import Header from '../components/common/Header';
 import DynamicFooter from '../components/common/DynamicFooter';
 import PreConfiguredPCCard from '../components/pcbuilder/PreConfiguredPCCard';
-import LoadingSpinner from '../components/common/LoadingSpinner';
 import { motion } from 'framer-motion';
+import Reveal from '../components/common/Reveal';
 import AmbientBackground from '../components/common/AmbientBackground';
+import { CardGridSkeleton } from '../components/common/Skeleton';
 // Tier configuration with styled colors instead of emojis
 const TIERS: { value: PCTier | 'all'; label: { en: string; sv: string }; color: string; activeColor: string }[] = [
   {
@@ -61,6 +62,13 @@ const PreConfiguredPCList: React.FC = () => {
     currentPage,
     pageSize,
   } = useAppSelector((state) => state.preConfiguredPC);
+
+  // True only for the render before the mount effect below dispatches the first
+  // request, so the "no PCs found" state cannot paint for a frame on arrival.
+  const beforeFirstRequest = useRef(true);
+  useEffect(() => {
+    beforeFirstRequest.current = false;
+  }, []);
 
   // Load PCs on mount and when filters/page change
   useEffect(() => {
@@ -203,12 +211,15 @@ const PreConfiguredPCList: React.FC = () => {
             </motion.div>
 
             {/* PC Grid */}
-            {isAllLoading ? (
-              <div className="flex flex-col justify-center items-center py-20 gap-3">
-                <LoadingSpinner />
-                <span className="text-gray-500 dark:text-neutral-400 text-sm">
+            {isAllLoading || beforeFirstRequest.current ? (
+              <div aria-busy="true">
+                <span className="sr-only">
                   {language === 'en' ? 'Loading PCs...' : 'Laddar datorer...'}
                 </span>
+                <CardGridSkeleton
+                  count={8}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+                />
               </div>
             ) : allError ? (
               <motion.div
@@ -261,7 +272,7 @@ const PreConfiguredPCList: React.FC = () => {
                         className="w-[85vw] flex-shrink-0 snap-center"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: index * 0.05 }}
+                        transition={{ duration: 0.4, delay: Math.min(index, 7) * 0.05 }}
                       >
                         <PreConfiguredPCCard pc={pc} language={language} />
                       </motion.div>
@@ -276,7 +287,7 @@ const PreConfiguredPCList: React.FC = () => {
                       key={pc.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.05 }}
+                      transition={{ duration: 0.4, delay: Math.min(index, 7) * 0.05 }}
                     >
                       <PreConfiguredPCCard pc={pc} language={language} />
                     </motion.div>
@@ -345,13 +356,7 @@ const PreConfiguredPCList: React.FC = () => {
         {/* Build Your Own CTA Section */}
         <section className="py-16 sm:py-20 lg:py-24 relative bg-white dark:bg-surface-900">
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-surface-800 dark:via-surface-850 dark:to-surface-800"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true, margin: "-100px" }}
-            >
+            <Reveal className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-surface-800 dark:via-surface-850 dark:to-surface-800" y={30} duration={0.6} margin="0px 0px -100px 0px">
               {/* Background Pattern */}
               <div className="absolute inset-0 opacity-20">
                 <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-primary-600/20 to-transparent" />
@@ -382,7 +387,7 @@ const PreConfiguredPCList: React.FC = () => {
                   </Link>
                 </div>
               </div>
-            </motion.div>
+            </Reveal>
           </div>
         </section>
       </main>

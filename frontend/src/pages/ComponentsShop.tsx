@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import Header from '../components/common/Header';
 import ShoppingCart from '../components/cart/ShoppingCart';
 import DynamicFooter from '../components/common/DynamicFooter';
-import LoadingSpinner from '../components/common/LoadingSpinner';
 import ComponentCard from '../components/shop/ComponentCard';
 import CategoryNav from '../components/shop/CategoryNav';
 import FiltersBar from '../components/shop/FiltersBar';
@@ -13,6 +12,7 @@ import { pcComponentApi } from '../models/api/pcComponentApi';
 import { ComponentType, PCComponent } from '../models/types/pcComponent.types';
 import { motion } from 'framer-motion';
 import AmbientBackground from '../components/common/AmbientBackground';
+import { CardGridSkeleton } from '../components/common/Skeleton';
 
 const ComponentsShop: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,6 +42,14 @@ const ComponentsShop: React.FC = () => {
   useEffect(() => {
     actions.loadManufacturers(urlType ?? undefined);
   }, [urlType, actions]);
+
+  // True only for the render that happens before the mount effect below dispatches
+  // the first request. Without it the "no components found" state paints for one
+  // frame on every visit, which briefly pulls the footer up into the viewport.
+  const beforeFirstRequest = useRef(true);
+  useEffect(() => {
+    beforeFirstRequest.current = false;
+  }, []);
 
   // Load data on mount and when filters/page/type change
   useEffect(() => {
@@ -306,12 +314,12 @@ const ComponentsShop: React.FC = () => {
         </motion.div>
 
         {/* Product Grid */}
-        {state.isLoading ? (
-          <div className="flex flex-col justify-center items-center py-20 gap-3">
-            <LoadingSpinner />
-            <span className="text-gray-500 dark:text-neutral-400 text-sm">
+        {state.isLoading || beforeFirstRequest.current ? (
+          <div aria-busy="true">
+            <span className="sr-only">
               {language === 'en' ? 'Loading components...' : 'Laddar komponenter...'}
             </span>
+            <CardGridSkeleton count={8} />
           </div>
         ) : state.error ? (
           <motion.div
@@ -364,7 +372,7 @@ const ComponentsShop: React.FC = () => {
                   key={comp.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  transition={{ duration: 0.4, delay: Math.min(index, 7) * 0.05 }}
                 >
                   <ComponentCard
                     component={comp}

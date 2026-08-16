@@ -3,13 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import Header from '../components/common/Header';
 import ShoppingCart from '../components/cart/ShoppingCart';
 import DynamicFooter from '../components/common/DynamicFooter';
-import LoadingSpinner from '../components/common/LoadingSpinner';
 import SpecificationsTable from '../components/shop/SpecificationsTable';
 import { useComponentsShopViewModel } from '../viewmodels/componentsShopViewModel';
 import { useCartViewModel } from '../viewmodels/cartViewModel';
 import { useAppSelector } from '../store/hooks';
 import { getComponentImageSrc } from '../models/types/pcComponent.types';
 import AmbientBackground from '../components/common/AmbientBackground';
+import { Bar, Block } from '../components/common/Skeleton';
 
 const ComponentDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -59,18 +59,48 @@ const ComponentDetail: React.FC = () => {
     cartVM.removeComponentFromCart(component.id);
   };
 
+  // The fetch is kicked off from an effect, so the first render still has
+  // isLoading=false and currentComponent=null. Treating that pre-fetch gap as
+  // loading stops the "not found" branch painting for a frame before the request
+  // has even started. A component that genuinely cannot be fetched always sets
+  // state.error (the thunk throws), so this cannot mask a real not-found result.
+  const isResolving = state.isLoading || (!component && !state.error);
+
   // Loading state
-  if (state.isLoading) {
+  if (isResolving) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-surface-950 text-gray-900 dark:text-white font-sans selection:bg-primary-600 selection:text-white relative">
         <AmbientBackground />
         <Header mode="page" />
-        <main className="max-w-7xl mx-auto px-4 py-12 pt-28 relative z-10">
-          <div className="flex flex-col justify-center items-center py-20 gap-3">
-            <LoadingSpinner />
-            <span className="text-gray-500 dark:text-neutral-400 text-sm">
-              {language === 'en' ? 'Loading component...' : 'Laddar komponent...'}
-            </span>
+        <main
+          className="max-w-7xl mx-auto px-4 py-12 pt-28 relative z-10"
+          aria-busy="true"
+          aria-label={language === 'en' ? 'Loading component...' : 'Laddar komponent...'}
+        >
+          {/* 1:1 with the loaded tree below: breadcrumb, image/detail grid, specifications. */}
+          <div className="flex items-center text-sm mb-8 flex-wrap animate-pulse" aria-hidden="true">
+            <Bar className="h-5 w-72 max-w-full" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 animate-pulse" aria-hidden="true">
+            <Block className="w-full aspect-square lg:aspect-auto lg:h-[600px] rounded-2xl" />
+            <div className="space-y-5 lg:min-h-[600px]">
+              <Bar className="h-6 w-28" />
+              <Bar className="h-10 w-4/5" />
+              <Bar className="h-5 w-full" />
+              <Bar className="h-5 w-2/3" />
+              <Bar className="h-9 w-40" />
+              <Block className="h-20 w-full" />
+              <Block className="h-14 w-full" />
+              <Block className="h-14 w-full" />
+            </div>
+          </div>
+          <div className="mt-12 animate-pulse" aria-hidden="true">
+            <Bar className="h-8 w-56 mb-6" />
+            <div className="space-y-2">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <Block key={i} className="h-[42px] w-full" />
+              ))}
+            </div>
           </div>
         </main>
         <DynamicFooter />

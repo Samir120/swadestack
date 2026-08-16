@@ -1,22 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Reveal from '../common/Reveal';
 import { useAppSelector } from '../../store/hooks';
 import { useTeamViewModel } from '../../viewmodels/teamViewModel';
-import useReducedMotion from '../../hooks/useReducedMotion';
 import LoadingSpinner from '../common/LoadingSpinner';
 import AutoCarousel from '../common/AutoCarousel';
 
 // Constants for card sizing constraints
 const BIO_CLAMP_LENGTH = 120;
-
-const headerVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' },
-  },
-};
 
 const MemberInfo: React.FC<{
   name: string;
@@ -79,7 +70,6 @@ const OurTeam: React.FC = () => {
   const language = useAppSelector((state) => state.ui.language);
   const { members, isLoading, getMemberName, getMemberRole, getMemberBio } =
     useTeamViewModel();
-  const reduceMotion = useReducedMotion();
 
   if (isLoading) {
     return (
@@ -97,13 +87,7 @@ const OurTeam: React.FC = () => {
     <section id="team" className="py-12 sm:py-16 lg:py-20 relative z-10 bg-white dark:bg-surface-900 overflow-hidden border-t border-gray-200 dark:border-surface-700">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <motion.div
-          className="text-center mb-8 sm:mb-10 lg:mb-14"
-          initial={reduceMotion ? false : "hidden"}
-          whileInView={reduceMotion ? undefined : "visible"}
-          viewport={reduceMotion ? undefined : { once: true, margin: '-100px' }}
-          variants={reduceMotion ? undefined : headerVariants}
-        >
+        <Reveal className="text-center mb-8 sm:mb-10 lg:mb-14" y={30} duration={0.6}>
           <h2 className="text-4xl sm:text-5xl font-thin text-gray-800 dark:text-white mb-3 sm:mb-4">
             {language === 'en' ? 'Our Team' : 'Vårt Team'}
           </h2>
@@ -112,7 +96,7 @@ const OurTeam: React.FC = () => {
               ? 'The talented people behind our success.'
               : 'De talangfulla personerna bakom vår framgång.'}
           </p>
-        </motion.div>
+        </Reveal>
 
         {/* Team Carousel */}
         <AutoCarousel

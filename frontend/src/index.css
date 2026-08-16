@@ -125,6 +125,42 @@
   }
 }
 
+@keyframes revealIn {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--rv-x, 0px), var(--rv-y, 0px), 0) scale(var(--rv-s, 1));
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+/*
+ * Scroll-entrance reveal. Paired with components/common/Reveal.tsx, which sets
+ * data-rv in a layout effect. An element with no data-rv attribute is fully
+ * visible, so content is never left hidden if the script does not run.
+ */
+.rv[data-rv='pending'] {
+  opacity: 0;
+  transform: translate3d(var(--rv-x, 0px), var(--rv-y, 0px), 0) scale(var(--rv-s, 1));
+  will-change: opacity, transform;
+}
+
+.rv[data-rv='in'] {
+  animation: revealIn var(--rv-dur, 0.5s) cubic-bezier(0.16, 1, 0.3, 1) var(--rv-delay, 0s) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv[data-rv='pending'],
+  .rv[data-rv='in'] {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    will-change: auto;
+  }
+}
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }

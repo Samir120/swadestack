@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAppSelector } from '../../store/hooks';
 import { pcComponentApi } from '../../models/api/pcComponentApi';
 import { ComponentType } from '../../models/types/pcComponent.types';
-import { motion } from 'framer-motion';
+import Reveal from '../common/Reveal';
 
 const CATEGORIES: { type: ComponentType; label_en: string; label_sv: string }[] = [
   { type: 'cpu', label_en: 'Processors', label_sv: 'Processorer' },
@@ -52,38 +52,20 @@ const ComponentsShopSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Title area */}
         <div className="text-center mb-12">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-4xl sm:text-5xl font-thin text-gray-800 dark:text-white"
-          >
+          <Reveal as="h2" className="text-4xl sm:text-5xl font-thin text-gray-800 dark:text-white" y={20} duration={0.6}>
             {language === 'sv' ? 'Datorkomponenter' : 'PC Components'}
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-gray-400 dark:text-neutral-500 mt-4 font-medium text-xs sm:text-sm uppercase tracking-[0.2em]"
-          >
+          </Reveal>
+          <Reveal as="p" className="text-gray-400 dark:text-neutral-500 mt-4 font-medium text-xs sm:text-sm uppercase tracking-[0.2em]" y={10} duration={0.6} delay={0.1}>
             {language === 'sv'
               ? 'Bygg din drömuppställning med premiumkomponenter'
               : 'Build your dream setup with premium components'}
-          </motion.p>
+          </Reveal>
         </div>
 
         {/* Category grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
           {availableCategories.map((cat, i) => (
-            <motion.div
-              key={cat.type}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.06 }}
-            >
+            <Reveal key={cat.type} y={20} duration={0.4} delay={i * 0.06}>
               <Link
                 to={`/components?type=${cat.type}`}
                 className="block bg-white dark:bg-surface-850 rounded-xl border border-gray-200 dark:border-surface-700 p-4 text-center hover:border-primary-500/50 hover:shadow-lg transition-all duration-300 group"
@@ -95,7 +77,7 @@ const ComponentsShopSection: React.FC = () => {
                   {counts[cat.type]} {language === 'sv' ? 'produkter' : 'products'}
                 </div>
               </Link>
-            </motion.div>
+            </Reveal>
           ))}
         </div>
 

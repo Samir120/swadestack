@@ -13,7 +13,6 @@ import Header from '../components/common/Header';
 import ShoppingCart from '../components/cart/ShoppingCart';
 import DynamicFooter from '../components/common/DynamicFooter';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import LoadingSpinner from '../components/common/LoadingSpinner';
 import { useVatRate } from '../hooks/useVatRate';
 import { netToGross } from '../utils/vat';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -41,6 +40,7 @@ import {
   type LucideIcon,
 } from '../components/common/icons';
 import AmbientBackground from '../components/common/AmbientBackground';
+import Reveal from '../components/common/Reveal';
 // Tier badge colors
 const TIER_COLORS: Record<PCTier, { bg: string; text: string; border: string; iconBg: string }> = {
   core: {
@@ -92,6 +92,77 @@ const SPEC_GROUPS = [
   { key: 'infra', en: 'Infrastructure', sv: 'Infrastruktur', types: ['psu', 'case', 'cooling', 'fans'] },
   { key: 'software', en: 'Software', sv: 'Programvara', types: ['optical', 'os'] },
 ];
+
+// Placeholder shown while the configuration loads. It mirrors the loaded layout's
+// structure and reserved height (measured: ~865px image/info grid, ~1655px of
+// specifications) so the footer starts below the fold and nothing that is already
+// on screen moves when the real content replaces it.
+const bar = 'rounded bg-gray-200/70 dark:bg-surface-700/50';
+const block = 'rounded-xl bg-gray-200/60 dark:bg-surface-800/70';
+
+const DetailSkeleton: React.FC = () => (
+  <>
+    {/* Breadcrumb bar */}
+    <div className="bg-white/80 dark:bg-surface-900/80 backdrop-blur-sm border-b border-gray-200/60 dark:border-surface-700/60 animate-pulse" aria-hidden="true">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+        <div className={`h-[21px] w-72 max-w-full ${bar}`} />
+      </div>
+    </div>
+
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 animate-pulse" aria-hidden="true">
+      {/* Image gallery + purchase panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="bg-white dark:bg-surface-850 rounded-2xl border border-gray-200 dark:border-surface-700/50 overflow-hidden lg:min-h-[865px]">
+          <div className="bg-gray-50 dark:bg-surface-800 p-6 sm:p-10">
+            <div className={`w-full aspect-square ${block}`} />
+          </div>
+          <div className="flex gap-3 px-6 pb-6">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className={`w-16 h-16 sm:w-20 sm:h-20 ${block}`} />
+            ))}
+          </div>
+        </div>
+
+        <div className="lg:min-h-[865px] space-y-5">
+          <div className={`h-7 w-32 ${bar}`} />
+          <div className={`h-11 w-4/5 ${bar}`} />
+          <div className={`h-5 w-full ${bar}`} />
+          <div className={`h-5 w-2/3 ${bar}`} />
+          <div className={`h-24 w-full ${block}`} />
+          <div className={`h-14 w-56 ${bar}`} />
+          <div className={`h-32 w-full ${block}`} />
+          <div className={`h-14 w-full ${block}`} />
+          <div className={`h-14 w-full ${block}`} />
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="relative h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent my-12 sm:my-16" />
+
+      {/* Specifications */}
+      <div className="text-center mb-8 sm:mb-10">
+        <div className={`h-10 w-72 max-w-full mx-auto mb-3 ${bar}`} />
+        <div className={`h-4 w-56 max-w-full mx-auto ${bar}`} />
+      </div>
+      <div className="space-y-8 sm:space-y-10">
+        {[0, 1, 2, 3].map((g) => (
+          <div key={g}>
+            <div className={`h-5 w-44 mb-4 ml-4 sm:ml-5 ${bar}`} />
+            <div className="space-y-2">
+              {[0, 1, 2].map((r) => (
+                <div key={r} className={`h-[92px] ${block}`} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Build-your-own CTA */}
+      <div className="relative h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent my-12 sm:my-16" />
+      <div className={`h-[212px] rounded-2xl sm:rounded-3xl mb-4 ${block}`} />
+    </div>
+  </>
+);
 
 const PreConfiguredPCDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -258,28 +329,36 @@ const PreConfiguredPCDetail: React.FC = () => {
     return types.some((key) => getComponentItems(key) !== null);
   };
 
-  if (isCurrentLoading) {
+  // Same pre-fetch gap as ComponentDetail: the first render happens before the
+  // effect dispatches, with isCurrentLoading=false and currentPC=null. Without
+  // this the "PC not found" branch paints for a frame on every visit. A failed
+  // fetch always sets currentError, so real failures still reach the error branch.
+  const isResolving = isCurrentLoading || (!currentPC && !currentError);
+
+  if (isResolving) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-surface-950 flex flex-col">
+      <div className="min-h-screen bg-gray-50 text-gray-800 dark:bg-surface-950 dark:text-neutral-200 font-sans relative flex flex-col">
+        <AmbientBackground variant="soft" wash="surface-950" />
         <Header />
-        <main className="flex-1 pt-20 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <LoadingSpinner />
-            <span className="text-gray-500 dark:text-neutral-400 text-sm">
-              {language === 'en' ? 'Loading configuration...' : 'Laddar konfiguration...'}
-            </span>
-          </div>
+        <main
+          className="flex-1 pt-20 relative z-[1]"
+          aria-busy="true"
+          aria-label={language === 'en' ? 'Loading configuration...' : 'Laddar konfiguration...'}
+        >
+          <DetailSkeleton />
         </main>
         <DynamicFooter />
+        <ShoppingCart />
       </div>
     );
   }
 
   if (currentError || !currentPC) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-surface-950 flex flex-col">
+      <div className="min-h-screen bg-gray-50 text-gray-800 dark:bg-surface-950 dark:text-neutral-200 font-sans relative flex flex-col">
+        <AmbientBackground variant="soft" wash="surface-950" />
         <Header />
-        <main className="flex-1 pt-20 flex items-center justify-center">
+        <main className="flex-1 pt-20 relative z-[1] flex items-center justify-center">
           <motion.div
             className="text-center bg-white dark:bg-surface-850 rounded-2xl border border-gray-200 dark:border-surface-700 p-10 mx-4 max-w-md"
             initial={{ opacity: 0, y: 20 }}
@@ -301,6 +380,7 @@ const PreConfiguredPCDetail: React.FC = () => {
           </motion.div>
         </main>
         <DynamicFooter />
+        <ShoppingCart />
       </div>
     );
   }
@@ -647,12 +727,7 @@ const PreConfiguredPCDetail: React.FC = () => {
           <div className="relative h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent my-12 sm:my-16"></div>
 
           {/* Specifications Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true, margin: "-100px" }}
-          >
+          <Reveal y={30} duration={0.6} margin="0px 0px -100px 0px">
             {/* Section Header */}
             <div className="text-center mb-8 sm:mb-10">
               <div className="flex items-center justify-center gap-3 mb-3">
@@ -680,7 +755,7 @@ const PreConfiguredPCDetail: React.FC = () => {
 
                     {/* Component Cards */}
                     <div className="space-y-2">
-                      {group.types.map((typeKey, typeIndex) => {
+                      {group.types.map((typeKey) => {
                         const items = getComponentItems(typeKey);
                         if (!items) return null;
                         const config = COMPONENT_CONFIG[typeKey];
@@ -688,13 +763,9 @@ const PreConfiguredPCDetail: React.FC = () => {
                         const IconComponent = config.icon;
 
                         return (
-                          <motion.div
+                          <div
                             key={typeKey}
                             className="bg-white dark:bg-surface-850 rounded-xl border border-gray-200/80 dark:border-surface-700/50 px-5 sm:px-6 py-4 hover:border-primary-500/30 dark:hover:border-primary-500/20 hover:bg-gray-50/50 dark:hover:bg-surface-800/50 transition-all duration-200 group/row"
-                            initial={{ opacity: 0, y: 15 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.35, delay: typeIndex * 0.07 }}
-                            viewport={{ once: true, margin: "-50px" }}
                           >
                             {items.map((item: any, idx: number) => (
                               <div
@@ -732,7 +803,7 @@ const PreConfiguredPCDetail: React.FC = () => {
                                 </span>
                               </div>
                             ))}
-                          </motion.div>
+                          </div>
                         );
                       })}
                     </div>
@@ -740,18 +811,18 @@ const PreConfiguredPCDetail: React.FC = () => {
                 );
               })}
             </div>
-          </motion.div>
+          </Reveal>
 
           {/* Gradient divider */}
           <div className="relative h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent my-12 sm:my-16"></div>
 
           {/* Build Your Own CTA */}
-          <motion.div
+          <Reveal
             className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-surface-800 dark:via-surface-850 dark:to-surface-800 mb-4"
-            initial={{ opacity: 0, scale: 0.97 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true, margin: "-100px" }}
+            y={0}
+            scale={0.97}
+            duration={0.5}
+            margin="0px 0px -100px 0px"
           >
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-20">
@@ -785,7 +856,7 @@ const PreConfiguredPCDetail: React.FC = () => {
                 {language === 'en' ? 'Build Your Own' : 'Bygg din egen'}
               </Link>
             </div>
-          </motion.div>
+          </Reveal>
         </div>
       </main>
 

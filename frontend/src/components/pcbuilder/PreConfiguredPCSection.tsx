@@ -2,11 +2,10 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchFeaturedPCs } from '../../store/slices/preConfiguredPCSlice';
-import useReducedMotion from '../../hooks/useReducedMotion';
 import PreConfiguredPCCard from './PreConfiguredPCCard';
 import LoadingSpinner from '../common/LoadingSpinner';
 import AutoCarousel from '../common/AutoCarousel';
-import { motion } from 'framer-motion';
+import Reveal from '../common/Reveal';
 
 /**
  * Pre-Configured PC Section for Home Page
@@ -20,7 +19,6 @@ const PreConfiguredPCSection: React.FC = () => {
   const { featuredPCs, isFeaturedLoading, featuredError } = useAppSelector(
     (state) => state.preConfiguredPC
   );
-  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     dispatch(fetchFeaturedPCs(8));
@@ -40,13 +38,7 @@ const PreConfiguredPCSection: React.FC = () => {
     <section className="py-16 sm:py-20 lg:py-24 relative z-10 bg-gray-50/80 dark:bg-surface-950/50 overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Banner */}
-        <motion.div
-          className="relative mb-8 sm:mb-10 rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-surface-900 dark:via-surface-800 dark:to-surface-900"
-          initial={reduceMotion ? false : { opacity: 0, y: 30 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          transition={reduceMotion ? undefined : { duration: 0.6 }}
-          viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-        >
+        <Reveal className="relative mb-8 sm:mb-10 rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-surface-900 dark:via-surface-800 dark:to-surface-900" y={30} duration={0.6} margin="0px 0px -100px 0px">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary-600/30 to-transparent" />
@@ -152,20 +144,14 @@ const PreConfiguredPCSection: React.FC = () => {
               )}
             </div>
           </div>
-        </motion.div>
+        </Reveal>
 
         {/* Section Header */}
-        <motion.h3
-          className="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-white mb-8 pl-5 border-l-[4px] border-primary-500"
-          initial={reduceMotion ? false : { opacity: 0, x: -20 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
-          transition={reduceMotion ? undefined : { duration: 0.5 }}
-          viewport={reduceMotion ? undefined : { once: true, margin: "-50px" }}
-        >
+        <Reveal as="h3" className="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-white mb-8 pl-5 border-l-[4px] border-primary-500" y={0} x={-20} duration={0.5} margin="0px 0px -50px 0px">
           {language === 'en'
             ? (settings?.gamingPcSectionTitle_en || 'Popular Pre-Built Models')
             : (settings?.gamingPcSectionTitle_sv || 'Populära förkonfigurerade modeller')}
-        </motion.h3>
+        </Reveal>
 
         {/* PC Cards */}
         {isFeaturedLoading ? (

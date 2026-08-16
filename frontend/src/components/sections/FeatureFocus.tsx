@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import Reveal from '../common/Reveal';
 import { useFeaturesViewModel } from '../../viewmodels/featuresViewModel';
 import { useAppSelector } from '../../store/hooks';
-import useReducedMotion from '../../hooks/useReducedMotion';
 import DynamicLucideIcon from '../common/DynamicLucideIcon';
 import { Feature } from '../../models/types/feature.types';
 
@@ -116,13 +116,7 @@ const DeviceShowcase: React.FC<{
 
     <div className="relative w-[300px] sm:w-[420px] lg:w-[300px] xl:w-[350px] 2xl:w-[390px]">
       {/* Laptop */}
-      <motion.div
-        initial={{ opacity: 0, x: -60 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.7, type: 'spring', stiffness: 80, damping: 18 }}
-        className="relative"
-      >
+      <Reveal className="relative" y={0} x={-60} duration={0.7}>
         <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
           {/* Title bar — slim, matching Selected Work */}
           <div className="h-4 lg:h-5 bg-slate-100 dark:bg-slate-700 flex items-center relative">
@@ -147,17 +141,10 @@ const DeviceShowcase: React.FC<{
             )}
           </div>
         </div>
-      </motion.div>
+      </Reveal>
 
       {/* Phone — overlapping laptop's bottom-right */}
-      <motion.div
-        initial={{ opacity: 0, x: 40 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.7, delay: 0.2, type: 'spring', stiffness: 80, damping: 18 }}
-        className="absolute z-10 -right-[4%] lg:-right-[8%]"
-        style={{ width: '28%', bottom: '-18%', transform: 'rotate(3deg)' }}
-      >
+      <Reveal className="absolute z-10 -right-[4%] lg:-right-[8%]" style={{ width: '28%', bottom: '-18%', transform: 'rotate(3deg)' }} y={0} x={40} duration={0.7} delay={0.2}>
         <div className="rounded-[16px] sm:rounded-[20px] lg:rounded-[24px] border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700 p-[1px] shadow-[0_16px_40px_-8px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.45)]">
           {/* Phone screen with overlaid indicators */}
           <div className="relative rounded-[14px] sm:rounded-[18px] lg:rounded-[22px] overflow-hidden" style={{ aspectRatio: '9 / 19.5' }}>
@@ -190,7 +177,7 @@ const DeviceShowcase: React.FC<{
             <div className="absolute bottom-[5px] left-1/2 -translate-x-1/2 w-[40%] h-[4px] rounded-sm bg-gray-400/60 z-10" />
           </div>
         </div>
-      </motion.div>
+      </Reveal>
     </div>
   </div>
 );
@@ -209,14 +196,7 @@ const DesktopFeatureItem: React.FC<{
   const accent = ACCENT;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.6, delay }}
-      className="flex items-center gap-3 cursor-pointer group"
-      onClick={onClick}
-    >
+    <Reveal className="flex items-center gap-3 cursor-pointer group" y={0} duration={0.6} delay={delay} onClick={onClick}>
       {isLeft ? (
         <>
           {/* Text — strictly right-aligned */}
@@ -280,7 +260,7 @@ const DesktopFeatureItem: React.FC<{
           </div>
         </>
       )}
-    </motion.div>
+    </Reveal>
   );
 };
 
@@ -292,19 +272,11 @@ const MobileFeatureCard: React.FC<{
   getTitle: (f: Feature) => string;
   getShortDescription: (f: Feature) => string;
   onClick: () => void;
-  reduceMotion?: boolean;
-}> = ({ feature, delay, getTitle, getShortDescription, onClick, reduceMotion }) => {
+}> = ({ feature, delay, getTitle, getShortDescription, onClick }) => {
   const accent = ACCENT;
 
   return (
-    <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-      whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-      viewport={reduceMotion ? undefined : { once: true, margin: '-80px' }}
-      transition={reduceMotion ? undefined : { duration: 0.6, delay }}
-      className="flex items-start gap-3 p-4 rounded-2xl cursor-pointer bg-gray-50/80 dark:bg-surface-800/80 hover:bg-primary-50/60 dark:hover:bg-primary-900/10 transition-all duration-300 group ring-1 ring-gray-200/50 dark:ring-surface-700/50 hover:ring-primary-200/60 dark:hover:ring-primary-700/30"
-      onClick={onClick}
-    >
+    <Reveal className="flex items-start gap-3 p-4 rounded-2xl cursor-pointer bg-gray-50/80 dark:bg-surface-800/80 hover:bg-primary-50/60 dark:hover:bg-primary-900/10 transition-all duration-300 group ring-1 ring-gray-200/50 dark:ring-surface-700/50 hover:ring-primary-200/60 dark:hover:ring-primary-700/30" y={20} duration={0.6} delay={delay} onClick={onClick}>
       <div className={`w-12 h-12 rounded-full ${accent.bg} flex items-center justify-center flex-shrink-0 shadow-md ${accent.shadow}`}>
         <DynamicLucideIcon name={feature.iconName} size={22} className="text-white" />
       </div>
@@ -321,7 +293,7 @@ const MobileFeatureCard: React.FC<{
         size={16}
         className="text-gray-300 dark:text-neutral-600 flex-shrink-0 mt-1 group-hover:text-primary-400 dark:group-hover:text-primary-500 transition-colors"
       />
-    </motion.div>
+    </Reveal>
   );
 };
 
@@ -420,7 +392,6 @@ const FeatureFocus: React.FC = () => {
   } = useFeaturesViewModel();
 
   const settings = useAppSelector((state) => state.siteSettings.settings);
-  const reduceMotion = useReducedMotion();
 
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
 
@@ -498,24 +469,12 @@ const FeatureFocus: React.FC = () => {
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section heading */}
         <div className="text-center mb-14 lg:mb-16">
-          <motion.h2
-            initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            viewport={reduceMotion ? undefined : { once: true, margin: '-80px' }}
-            transition={reduceMotion ? undefined : { duration: 0.6 }}
-            className="text-4xl sm:text-5xl font-thin text-gray-800 dark:text-white"
-          >
+          <Reveal as="h2" className="text-4xl sm:text-5xl font-thin text-gray-800 dark:text-white" y={20} duration={0.6}>
             {sectionTitle}
-          </motion.h2>
-          <motion.p
-            initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            viewport={reduceMotion ? undefined : { once: true, margin: '-80px' }}
-            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.1 }}
-            className="text-gray-400 dark:text-neutral-500 mt-4 font-medium text-xs sm:text-sm uppercase tracking-[0.2em]"
-          >
+          </Reveal>
+          <Reveal as="p" className="text-gray-400 dark:text-neutral-500 mt-4 font-medium text-xs sm:text-sm uppercase tracking-[0.2em]" y={10} duration={0.6} delay={0.1}>
             {sectionSubtitle}
-          </motion.p>
+          </Reveal>
         </div>
 
         {/* Desktop: CSS Grid */}
@@ -587,7 +546,6 @@ const FeatureFocus: React.FC = () => {
                 delay={i * 0.08}
                 getTitle={getTitle}
                 getShortDescription={getShortDescription}
-                reduceMotion={reduceMotion}
                 onClick={() => {
                   setSelectedFeature(feature);
                 }}

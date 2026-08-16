@@ -6,7 +6,6 @@ import { toggleCart } from '../store/slices/uiSlice';
 import { addToCart } from '../store/slices/cartSlice';
 import { submitContactForm, clearSubmitSuccess, clearError } from '../store/slices/contactSlice';
 import { useAuthViewModel } from '../viewmodels/authViewModel';
-import useReducedMotion from '../hooks/useReducedMotion';
 import apiClient from '../models/api/apiClient';
 import Header from '../components/common/Header';
 import ShoppingCart from '../components/cart/ShoppingCart';
@@ -17,7 +16,7 @@ import { useVatRate } from '../hooks/useVatRate';
 import { netToGross } from '../utils/vat';
 
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { motion } from 'framer-motion';
+import Reveal from '../components/common/Reveal';
 // Inline SVG icons to avoid loading the 857KB lucide-react chunk
 const CircleCheck: React.FC<{ className?: string }> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
@@ -48,7 +47,6 @@ const Home: React.FC = () => {
   const language = useAppSelector((state) => state.ui.language);
   const { settings } = useAppSelector((state) => state.siteSettings);
   useAuthViewModel();
-  const reduceMotion = useReducedMotion();
   const vatRate = useVatRate();
   const teamMembers = useAppSelector((state) => state.team.members);
   const hasTeamMembers = teamMembers.length > 0;
@@ -273,20 +271,14 @@ const Home: React.FC = () => {
 
       <section id="portfolio" className="py-16 sm:py-20 lg:py-24 relative bg-slate-50/70 dark:bg-surface-900/30">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-8 sm:mb-10 lg:mb-14"
-            initial={reduceMotion ? false : { opacity: 0, y: 30 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            transition={reduceMotion ? undefined : { duration: 0.6 }}
-            viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-          >
+          <Reveal className="text-center mb-8 sm:mb-10 lg:mb-14" y={30} duration={0.6} margin="0px 0px -100px 0px">
             <h2 className="text-4xl sm:text-5xl font-thin text-gray-800 dark:text-white mb-3 sm:mb-4">
               {language === 'en' ? (settings?.portfolioTitle_en || 'Selected Work') : (settings?.portfolioTitle_sv || 'Utvalda Projekt')}
             </h2>
             <p className="font-medium text-xs sm:text-sm uppercase tracking-[0.2em] text-gray-400 dark:text-neutral-500">
               {language === 'en' ? (settings?.portfolioSubtitle_en || 'We build digital products that help brands grow.') : (settings?.portfolioSubtitle_sv || 'Vi bygger digitala produkter som hjälper varumärken att växa.')}
             </p>
-          </motion.div>
+          </Reveal>
 
           {isLoading ? (
             <div className="flex flex-col justify-center items-center h-64 gap-3">
@@ -303,13 +295,7 @@ const Home: React.FC = () => {
                 return (
                   <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
                     {/* Browser Frame — 60% */}
-                    <motion.div
-                      className="lg:col-span-3"
-                      initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
-                      whileInView={reduceMotion ? undefined : { opacity: 1, scale: 1 }}
-                      transition={reduceMotion ? undefined : { duration: 0.6 }}
-                      viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-                    >
+                    <Reveal className="lg:col-span-3" y={0} scale={0.95} duration={0.6} margin="0px 0px -100px 0px">
                       <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-xl hover:shadow-2xl [transform:perspective(1200px)_rotateY(-3deg)] md:hover:[transform:perspective(1200px)_rotateY(0deg)] transition-all duration-[400ms] ease-out">
                         {/* Chrome bar */}
                         <div className="h-9 bg-slate-100 dark:bg-slate-700 flex items-center relative">
@@ -332,58 +318,30 @@ const Home: React.FC = () => {
                           className="w-full object-cover"
                         />
                       </div>
-                    </motion.div>
+                    </Reveal>
 
                     {/* Project Info — 40% */}
                     <div className="lg:col-span-2 space-y-5">
-                      <motion.div
-                        initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                        whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                        transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.1 }}
-                        viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-                      >
+                      <Reveal y={20} duration={0.5} delay={0.1} margin="0px 0px -100px 0px">
                         <span className="inline-block rounded-full text-xs font-medium px-3 py-1 bg-primary-50 text-primary-600 dark:bg-primary-600/10 dark:text-primary-400 border border-primary-200 dark:border-primary-500/20">
                           {item.category}
                         </span>
-                      </motion.div>
-                      <motion.h3
-                        className="text-2xl font-thin text-gray-800 dark:text-white"
-                        initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                        whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                        transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.2 }}
-                        viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-                      >
+                      </Reveal>
+                      <Reveal as="h3" className="text-2xl font-thin text-gray-800 dark:text-white" y={20} duration={0.5} delay={0.2} margin="0px 0px -100px 0px">
                         {title}
-                      </motion.h3>
-                      <motion.p
-                        className="text-gray-500 dark:text-neutral-400 text-sm leading-relaxed line-clamp-3"
-                        initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                        whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                        transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.3 }}
-                        viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-                      >
+                      </Reveal>
+                      <Reveal as="p" className="text-gray-500 dark:text-neutral-400 text-sm leading-relaxed line-clamp-3" y={20} duration={0.5} delay={0.3} margin="0px 0px -100px 0px">
                         {description}
-                      </motion.p>
-                      <motion.div
-                        className="flex flex-wrap gap-2"
-                        initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                        whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                        transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.4 }}
-                        viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-                      >
+                      </Reveal>
+                      <Reveal className="flex flex-wrap gap-2" y={20} duration={0.5} delay={0.4} margin="0px 0px -100px 0px">
                         {item.techStack.map((tech: string, idx: number) => (
                           <span key={idx} className="rounded-full border border-slate-200 dark:border-slate-700 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                             {tech}
                           </span>
                         ))}
-                      </motion.div>
+                      </Reveal>
                       {item.projectUrl && (
-                        <motion.div
-                          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                          transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.5 }}
-                          viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-                        >
+                        <Reveal y={20} duration={0.5} delay={0.5} margin="0px 0px -100px 0px">
                           <a
                             href={item.projectUrl}
                             target="_blank"
@@ -398,7 +356,7 @@ const Home: React.FC = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                           </a>
-                        </motion.div>
+                        </Reveal>
                       )}
                     </div>
                   </div>
@@ -411,14 +369,7 @@ const Home: React.FC = () => {
                   const title = language === 'en' ? item.title_en : item.title_sv;
                   const description = language === 'en' ? item.description_en : item.description_sv;
                   return (
-                    <motion.div
-                      key={item.id}
-                      className="group"
-                      initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
-                      whileInView={reduceMotion ? undefined : { opacity: 1, scale: 1 }}
-                      transition={reduceMotion ? undefined : { duration: 0.5, delay: index * 0.1 }}
-                      viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-                    >
+                    <Reveal key={item.id} className="group" y={0} scale={0.95} duration={0.5} delay={index * 0.1} margin="0px 0px -100px 0px">
                       {/* Browser Frame */}
                       <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-xl group-hover:shadow-2xl [transform:perspective(1200px)_rotateY(-3deg)] md:group-hover:[transform:perspective(1200px)_rotateY(0deg)] transition-all duration-[400ms] ease-out mb-5">
                         <div className="h-9 bg-slate-100 dark:bg-slate-700 flex items-center relative">
@@ -467,7 +418,7 @@ const Home: React.FC = () => {
                           </a>
                         )}
                       </div>
-                    </motion.div>
+                    </Reveal>
                   );
                 })}
               </div>
@@ -488,20 +439,14 @@ const Home: React.FC = () => {
 
       <section id="services" className="py-16 sm:py-20 lg:py-24 relative bg-white dark:bg-surface-900 overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="text-center mb-10 sm:mb-14 lg:mb-16"
-            initial={reduceMotion ? false : { opacity: 0, y: 30 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            transition={reduceMotion ? undefined : { duration: 0.6 }}
-            viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-          >
+          <Reveal className="text-center mb-10 sm:mb-14 lg:mb-16" y={30} duration={0.6} margin="0px 0px -100px 0px">
             <h2 className="text-4xl sm:text-5xl font-thin text-gray-800 dark:text-white mb-3 sm:mb-4">
               {language === 'en' ? (settings?.servicesTitle_en || 'Expertise') : (settings?.servicesTitle_sv || 'Expertis')}
             </h2>
             <p className="font-medium text-xs sm:text-sm uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
               {language === 'en' ? (settings?.servicesSubtitle_en || 'High-end solutions for ambitious companies.') : (settings?.servicesSubtitle_sv || 'Högklassiga lösningar för ambitiösa företag.')}
             </p>
-          </motion.div>
+          </Reveal>
 
           {isLoading ? (
             <div className="flex flex-col justify-center items-center h-64 gap-3">
@@ -617,15 +562,9 @@ const Home: React.FC = () => {
                     )}
 
                     {/* Category subheader */}
-                    <motion.h3
-                      className="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-neutral-200 mb-8 pl-5 border-l-[4px] border-primary-500"
-                      initial={reduceMotion ? false : { opacity: 0, x: -20 }}
-                      whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
-                      transition={reduceMotion ? undefined : { duration: 0.5 }}
-                      viewport={reduceMotion ? undefined : { once: true, margin: "-50px" }}
-                    >
+                    <Reveal as="h3" className="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-neutral-200 mb-8 pl-5 border-l-[4px] border-primary-500" y={0} x={-20} duration={0.5} margin="0px 0px -50px 0px">
                       {categoryName}
-                    </motion.h3>
+                    </Reveal>
 
                     {/* Cards grid with optional pagination */}
                     <AutoCarousel
@@ -677,27 +616,15 @@ const Home: React.FC = () => {
 
       <section id="contact" className="py-16 sm:py-20 lg:py-24 relative overflow-hidden bg-gradient-to-b from-gray-50 to-gray-100/80 dark:from-surface-950 dark:to-surface-900">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            className="text-center mb-6 sm:mb-10"
-            initial={reduceMotion ? false : { opacity: 0, y: 30 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            transition={reduceMotion ? undefined : { duration: 0.6 }}
-            viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-          >
+          <Reveal className="text-center mb-6 sm:mb-10" y={30} duration={0.6} margin="0px 0px -100px 0px">
             <h2 className="text-4xl sm:text-5xl font-thin text-gray-800 dark:text-white mb-3 sm:mb-4">
               {language === 'en' ? (settings?.contactTitle_en || "Let's work together.") : (settings?.contactTitle_sv || "Låt oss samarbeta.")}
             </h2>
             <p className="font-medium text-xs sm:text-sm uppercase tracking-[0.2em] text-gray-400 dark:text-neutral-500">
               {language === 'en' ? (settings?.contactSubtitle_en || 'Ready to start your next project? Drop us a line.') : (settings?.contactSubtitle_sv || 'Redo att starta ditt nästa projekt? Hör av dig till oss.')}
             </p>
-          </motion.div>
-          <motion.div
-            className="bg-white p-5 sm:p-8 md:p-12 rounded-2xl border border-gray-200 shadow-light-xl dark:bg-surface-850 dark:border-surface-700 dark:shadow-dark-xl relative mx-1 sm:mx-0 overflow-hidden"
-            initial={reduceMotion ? false : { opacity: 0, y: 30 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.15 }}
-            viewport={reduceMotion ? undefined : { once: true, margin: "-100px" }}
-          >
+          </Reveal>
+          <Reveal className="bg-white p-5 sm:p-8 md:p-12 rounded-2xl border border-gray-200 shadow-light-xl dark:bg-surface-850 dark:border-surface-700 dark:shadow-dark-xl relative mx-1 sm:mx-0 overflow-hidden" y={30} duration={0.6} delay={0.15} margin="0px 0px -100px 0px">
             {/* Accent line at top */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-primary-400 to-accent-400"></div>
             {showSentAnimation && (
@@ -796,7 +723,7 @@ const Home: React.FC = () => {
                   : 'Skicka Meddelande'}
               </button>
             </form>
-          </motion.div>
+          </Reveal>
         </div>
       </section>
 
