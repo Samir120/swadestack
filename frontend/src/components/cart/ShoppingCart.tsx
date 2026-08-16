@@ -31,7 +31,10 @@ const ShoppingCart: React.FC = () => {
     decrementComponentQuantity,
   } = useCartViewModel();
 
-  const { getServiceName } = useServicesViewModel();
+  // Formatter only — the drawer renders names from its own cart items, so it needs
+  // nothing out of the services store. The drawer mounts on every page, so leaving the
+  // hook's auto-load on cost a /services request site-wide.
+  const { getServiceName } = useServicesViewModel({ autoLoad: false });
 
   // Prevent background scrolling when cart is open
   useEffect(() => {

@@ -410,26 +410,30 @@ const PCBuilder: React.FC = () => {
     const specs = motherboard.specifications as MotherboardSpecifications;
 
     switch (componentType) {
-      case 'ram':
+      case 'ram': {
         // Count actual sticks used, not just products (a 2x16GB kit uses 2 slots)
         const usedRamSlots = selectedComponents.rams?.reduce((acc, ram) => {
           const ramSpecs = ram.specifications as any;
           return acc + (ramSpecs.sticks || 1);
         }, 0) || 0;
         return Math.max(0, (specs.ramSlots || 4) - usedRamSlots);
-      case 'gpu':
+      }
+      case 'gpu': {
         // Count PCI slots occupied by each GPU (some GPUs take 2-3 slots)
         const usedPciSlots = selectedComponents.gpus?.reduce((acc, g) => acc + ((g.specifications as any).pciSlots || 1), 0) || 0;
         return Math.max(0, (specs.pciSlots || 2) - usedPciSlots);
-      case 'ssd':
+      }
+      case 'ssd': {
         const usedNvmeSlots = selectedComponents.ssds?.filter(s => s.slotType === 'nvme').length || 0;
         const usedSataSsds = selectedComponents.ssds?.filter(s => s.slotType === 'sata').length || 0;
         const usedSataByHdds = selectedComponents.hdds?.length || 0;
         return Math.max(0, (specs.nvmeSlots || 2) - usedNvmeSlots) + Math.max(0, (specs.sataSlots || 4) - usedSataSsds - usedSataByHdds);
-      case 'hdd':
+      }
+      case 'hdd': {
         const usedSataSlots = (selectedComponents.ssds?.filter(s => s.slotType === 'sata').length || 0) + (selectedComponents.hdds?.length || 0);
         return Math.max(0, (specs.sataSlots || 4) - usedSataSlots);
-      case 'fan':
+      }
+      case 'fan': {
         // Fans typically have more slots available in the case
         const pcCase = selectedComponents.case;
         if (pcCase) {
@@ -438,6 +442,7 @@ const PCBuilder: React.FC = () => {
           return Math.max(0, (caseSpecs.fanSlots || 6) - usedFanSlots);
         }
         return 6; // Default fan slots
+      }
       default:
         return 0;
     }

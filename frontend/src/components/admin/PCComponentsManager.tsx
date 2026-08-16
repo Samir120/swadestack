@@ -415,7 +415,7 @@ const PCComponentsManager: React.FC = () => {
           </div>
         );
 
-      case 'ram':
+      case 'ram': {
         const totalCapacity = (specs.capacity || 0) * (specs.sticks || 1);
         return (
           <div className="space-y-4">
@@ -487,6 +487,7 @@ const PCComponentsManager: React.FC = () => {
             </div>
           </div>
         );
+      }
 
       case 'gpu':
         return (

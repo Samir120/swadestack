@@ -38,10 +38,14 @@ const ComponentsShop: React.FC = () => {
     }).catch(() => {});
   }, []);
 
-  // Load manufacturers when category changes
+  // Load manufacturers when category changes.
+  // `actions` is deliberately not a dependency. Its identity is derived from `filters`,
+  // and the load effect below dispatches updateFilters on mount — which changed `actions`
+  // and re-ran this effect, issuing a second /pc-components/manufacturers request on every
+  // visit. loadManufacturers itself is useCallback([dispatch]) and never goes stale.
   useEffect(() => {
     actions.loadManufacturers(urlType ?? undefined);
-  }, [urlType, actions]);
+  }, [urlType]);
 
   // True only for the render that happens before the mount effect below dispatches
   // the first request. Without it the "no components found" state paints for one
@@ -62,23 +66,33 @@ const ComponentsShop: React.FC = () => {
     }
   }, [urlType, state.page, state.filters.manufacturer, state.filters.minPrice, state.filters.maxPrice, state.filters.inStock]);
 
+  // Tracks whether a search request has actually gone out, so the "cleared" effect below
+  // knows there is a filtered result set to undo. Set inside the debounce rather than on
+  // keystroke: typing and clearing again before the timer fires never queries the server,
+  // so it must not trigger a reload either.
+  const hasSearched = useRef(false);
+
   // Debounced search
   useEffect(() => {
     if (!searchQuery.trim()) return;
     const timer = setTimeout(() => {
+      hasSearched.current = true;
       actions.search(searchQuery.trim());
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery, actions]);
 
-  // When search is cleared, reload
+  // When a search is cleared, reload the unfiltered list.
+  // searchQuery is already '' on mount, so an unguarded effect duplicated the initial
+  // fetch that the load effect above had just issued.
   useEffect(() => {
-    if (searchQuery === '') {
-      if (urlType) {
-        actions.loadCategory(urlType);
-      } else {
-        actions.loadAll(state.page, state.limit);
-      }
+    if (searchQuery !== '') return;
+    if (!hasSearched.current) return;
+    hasSearched.current = false;
+    if (urlType) {
+      actions.loadCategory(urlType);
+    } else {
+      actions.loadAll(state.page, state.limit);
     }
   }, [searchQuery]);
 

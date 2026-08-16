@@ -14,7 +14,16 @@ import { netToGross } from '../utils/vat';
  * Connects View (Components) to Model (API)
  */
 
-export const useServicesViewModel = () => {
+/**
+ * @param options.autoLoad Fetch the service list on mount when the store is empty.
+ *   Defaults to true, so every existing caller keeps its current behaviour. Pass false
+ *   from components that only want the formatters — getServiceName and friends are pure
+ *   functions over a Service handed to them and read nothing from the store, so mounting
+ *   the hook for them otherwise cost a /services request on every page that renders the
+ *   cart drawer.
+ */
+export const useServicesViewModel = (options?: { autoLoad?: boolean }) => {
+  const autoLoad = options?.autoLoad !== false;
   const dispatch = useAppDispatch();
   const { services, currentService, total, isLoading, error } =
     useAppSelector((state) => state.services);
@@ -38,7 +47,7 @@ export const useServicesViewModel = () => {
    * Auto-load services on mount
    */
   useEffect(() => {
-    if (services.length === 0) {
+    if (autoLoad && services.length === 0) {
       loadServices();
     }
   }, []);
