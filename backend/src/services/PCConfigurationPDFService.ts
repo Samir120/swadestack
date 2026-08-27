@@ -605,6 +605,7 @@ export class PCConfigurationPDFService {
     try {
       // Launch headless browser using Puppeteer's bundled Chrome
       browser = await puppeteer.launch({
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
       });
