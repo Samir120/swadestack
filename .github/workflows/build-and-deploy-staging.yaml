@@ -74,16 +74,8 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           sed -i \
-            -E "s#(ghcr.io/samir120/swadestack-backend:)[a-f0-9]+#\1${IMAGE_TAG}#g" \
-            apps/swadestack/base/backend-deployment.yaml
-
-          sed -i \
-            -E "s#(ghcr.io/samir120/swadestack-backend:)[a-f0-9]+#\1${IMAGE_TAG}#g" \
-            apps/swadestack/base/migration-job.yaml
-
-          sed -i \
-            -E "s#(ghcr.io/samir120/swadestack-frontend:)[a-f0-9]+#\1${IMAGE_TAG}#g" \
-            apps/swadestack/base/frontend-deployment.yaml
+            -E "s#(newTag: )[a-f0-9]+#\1${IMAGE_TAG}#g" \
+            apps/swadestack/overlays/staging/kustomization.yaml
 
       - name: Verify image changes
         working-directory: swadestack-k8s
