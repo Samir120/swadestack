@@ -1,0 +1,113 @@
+name: Build and deploy staging
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: swadestack-staging
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ghcr.io/samir120/swadestack-backend
+  FRONTEND_IMAGE: ghcr.io/samir120/swadestack-frontend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout application
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v7
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  update-gitops:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitOps repository
+        uses: actions/checkout@v6
+        with:
+          repository: Samir120/swadestack-k8s
+          token: ${{ secrets.GITOPS_TOKEN }}
+          path: swadestack-k8s
+
+      - name: Update staging image tags
+        working-directory: swadestack-k8s
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          sed -i \
+            -E "s#(ghcr.io/samir120/swadestack-backend:)[a-f0-9]+#\1${IMAGE_TAG}#g" \
+            apps/swadestack/base/backend-deployment.yaml
+
+          sed -i \
+            -E "s#(ghcr.io/samir120/swadestack-backend:)[a-f0-9]+#\1${IMAGE_TAG}#g" \
+            apps/swadestack/base/migration-job.yaml
+
+          sed -i \
+            -E "s#(ghcr.io/samir120/swadestack-frontend:)[a-f0-9]+#\1${IMAGE_TAG}#g" \
+            apps/swadestack/base/frontend-deployment.yaml
+
+      - name: Verify image changes
+        working-directory: swadestack-k8s
+        run: |
+          grep -R "ghcr.io/samir120/swadestack-" \
+            apps/swadestack/base
+
+      - name: Commit and push GitOps change
+        working-directory: swadestack-k8s
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          git config user.name "swadestack-ci"
+          git config user.email "swadestack-ci@users.noreply.github.com"
+
+          git add \
+            apps/swadestack/base/backend-deployment.yaml \
+            apps/swadestack/base/frontend-deployment.yaml \
+            apps/swadestack/base/migration-job.yaml
+
+          if git diff --cached --quiet; then
+            echo "No GitOps changes required"
+            exit 0
+          fi
+
+          git commit -m "Deploy swadestack ${IMAGE_TAG} to staging"
+          git push origin main
