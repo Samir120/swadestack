@@ -77,11 +77,30 @@ jobs:
             -E "s#(newTag: )[a-f0-9]+#\1${IMAGE_TAG}#g" \
             apps/swadestack/overlays/staging/kustomization.yaml
 
-      - name: Verify image changes
+      - name: Validate GitOps manifests
         working-directory: swadestack-k8s
         run: |
-          grep -R "ghcr.io/samir120/swadestack-" \
-            apps/swadestack/base
+          if git grep -nE '^(<<<<<<<|=======|>>>>>>>)' -- apps/swadestack; then
+            echo "Merge conflict markers found"
+            exit 1
+          fi
+
+          kubectl kustomize apps/swadestack/overlays/staging >/dev/null
+
+      - name: Verify staging image update
+        working-directory: swadestack-k8s
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          grep -A8 '^images:' apps/swadestack/overlays/staging/kustomization.yaml
+
+          COUNT=$(grep -c "newTag: ${IMAGE_TAG}" \
+            apps/swadestack/overlays/staging/kustomization.yaml)
+
+          if [ "$COUNT" -ne 2 ]; then
+            echo "Expected both staging images to use ${IMAGE_TAG}"
+            exit 1
+          fi
 
       - name: Commit and push GitOps change
         working-directory: swadestack-k8s
@@ -91,10 +110,7 @@ jobs:
           git config user.name "swadestack-ci"
           git config user.email "swadestack-ci@users.noreply.github.com"
 
-          git add \
-            apps/swadestack/base/backend-deployment.yaml \
-            apps/swadestack/base/frontend-deployment.yaml \
-            apps/swadestack/base/migration-job.yaml
+          git add apps/swadestack/overlays/staging/kustomization.yaml
 
           if git diff --cached --quiet; then
             echo "No GitOps changes required"
