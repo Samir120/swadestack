@@ -1,0 +1,82 @@
+name: Promote staging to production
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitOps repository
+        uses: actions/checkout@v6
+        with:
+          repository: Samir120/swadestack-k8s
+          token: ${{ secrets.GITOPS_TOKEN }}
+          path: swadestack-k8s
+
+      - name: Read staging image SHA
+        working-directory: swadestack-k8s
+        run: |
+          STAGING_SHA=$(awk '
+            /name: ghcr.io\/samir120\/swadestack-backend/ {found=1}
+            found && /newTag:/ {
+              print $2
+              exit
+            }
+          ' apps/swadestack/overlays/staging/kustomization.yaml)
+
+          if [ -z "$STAGING_SHA" ]; then
+            echo "Could not determine staging SHA"
+            exit 1
+          fi
+
+          echo "STAGING_SHA=$STAGING_SHA" >> "$GITHUB_ENV"
+          echo "Promoting SHA: $STAGING_SHA"
+
+      - name: Update production image tags
+        working-directory: swadestack-k8s
+        run: |
+          sed -i \
+            -E "s#(newTag: )[a-f0-9]+#\1${STAGING_SHA}#g" \
+            apps/swadestack/overlays/production/kustomization.yaml
+
+      - name: Verify production image update
+        working-directory: swadestack-k8s
+        run: |
+          COUNT=$(grep -c "newTag: ${STAGING_SHA}" \
+            apps/swadestack/overlays/production/kustomization.yaml)
+
+          if [ "$COUNT" -ne 2 ]; then
+            echo "Expected both production images to use ${STAGING_SHA}"
+            exit 1
+          fi
+
+      - name: Validate production manifests
+        working-directory: swadestack-k8s
+        run: |
+          if git grep -nE '^(<<<<<<<|=======|>>>>>>>)' -- apps/swadestack; then
+            echo "Merge conflict markers found"
+            exit 1
+          fi
+
+          kubectl kustomize apps/swadestack/overlays/production >/dev/null
+
+      - name: Commit production promotion
+        working-directory: swadestack-k8s
+        run: |
+          git config user.name "swadestack-ci"
+          git config user.email "swadestack-ci@users.noreply.github.com"
+
+          git add apps/swadestack/overlays/production/kustomization.yaml
+
+          if git diff --cached --quiet; then
+            echo "Production already uses ${STAGING_SHA}"
+            exit 0
+          fi
+
+          git commit -m "Promote swadestack ${STAGING_SHA} to production"
+          git push origin main
