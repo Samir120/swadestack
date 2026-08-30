@@ -6,6 +6,11 @@ on:
 permissions:
   contents: read
 
+# Same lock as staging GitOps writer.
+concurrency:
+  group: swadestack-gitops-writer
+  cancel-in-progress: false
+
 jobs:
   promote:
     runs-on: ubuntu-latest
@@ -17,6 +22,7 @@ jobs:
           repository: Samir120/swadestack-k8s
           token: ${{ secrets.GITOPS_TOKEN }}
           path: swadestack-k8s
+          fetch-depth: 0
 
       - name: Read staging image SHA
         working-directory: swadestack-k8s
@@ -31,6 +37,11 @@ jobs:
 
           if [ -z "$STAGING_SHA" ]; then
             echo "Could not determine staging SHA"
+            exit 1
+          fi
+
+          if ! [[ "$STAGING_SHA" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "Invalid staging SHA: $STAGING_SHA"
             exit 1
           fi
 
@@ -79,4 +90,29 @@ jobs:
           fi
 
           git commit -m "Promote swadestack ${STAGING_SHA} to production"
-          git push origin main
+
+      - name: Rebase and push production promotion
+        working-directory: swadestack-k8s
+        run: |
+          for ATTEMPT in 1 2 3; do
+            echo "Push attempt ${ATTEMPT}/3"
+
+            git fetch origin main
+
+            if ! git rebase origin/main; then
+              echo "Rebase conflict detected. Refusing to overwrite remote GitOps changes."
+              git rebase --abort || true
+              exit 1
+            fi
+
+            if git push origin HEAD:main; then
+              echo "Production promotion pushed successfully"
+              exit 0
+            fi
+
+            echo "Remote changed before push; retrying..."
+            sleep $((ATTEMPT * 2))
+          done
+
+          echo "Failed to push production promotion after 3 attempts"
+          exit 1

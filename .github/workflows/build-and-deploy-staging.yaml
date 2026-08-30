@@ -9,9 +9,10 @@ permissions:
   contents: read
   packages: write
 
+# All workflows that write to swadestack-k8s/main share this lock.
 concurrency:
-  group: swadestack-staging
-  cancel-in-progress: true
+  group: swadestack-gitops-writer
+  cancel-in-progress: false
 
 env:
   BACKEND_IMAGE: ghcr.io/samir120/swadestack-backend
@@ -128,6 +129,7 @@ jobs:
           repository: Samir120/swadestack-k8s
           token: ${{ secrets.GITOPS_TOKEN }}
           path: swadestack-k8s
+          fetch-depth: 0
 
       - name: Update staging image tags
         working-directory: swadestack-k8s
@@ -164,7 +166,7 @@ jobs:
             exit 1
           fi
 
-      - name: Commit and push GitOps change
+      - name: Commit GitOps change
         working-directory: swadestack-k8s
         env:
           IMAGE_TAG: ${{ github.sha }}
@@ -180,4 +182,29 @@ jobs:
           fi
 
           git commit -m "Deploy swadestack ${IMAGE_TAG} to staging"
-          git push origin main
+
+      - name: Rebase and push GitOps change
+        working-directory: swadestack-k8s
+        run: |
+          for ATTEMPT in 1 2 3; do
+            echo "Push attempt ${ATTEMPT}/3"
+
+            git fetch origin main
+
+            if ! git rebase origin/main; then
+              echo "Rebase conflict detected. Refusing to overwrite remote GitOps changes."
+              git rebase --abort || true
+              exit 1
+            fi
+
+            if git push origin HEAD:main; then
+              echo "GitOps update pushed successfully"
+              exit 0
+            fi
+
+            echo "Remote changed before push; retrying..."
+            sleep $((ATTEMPT * 2))
+          done
+
+          echo "Failed to push GitOps update after 3 attempts"
+          exit 1
