@@ -47,11 +47,11 @@ export class EmailTemplateRenderer {
     // FIX: Check if the second argument is a string (locale).
     Handlebars.registerHelper('formatDate', function (date: Date | string, localeOrOptions: any) {
       const locale = typeof localeOrOptions === 'string' ? localeOrOptions : 'en';
-      
+
       if (!date) return ''; // Handle missing dates gracefully
 
       const dateObj = typeof date === 'string' ? new Date(date) : date;
-      
+
       return new Intl.DateTimeFormat(locale === 'sv' ? 'sv-SE' : 'en-US', {
         year: 'numeric',
         month: 'long',
@@ -74,43 +74,91 @@ export class EmailTemplateRenderer {
   /**
    * Load and compile template
    */
-  private async loadTemplate(templateType: EmailTemplateType, language: string): Promise<HandlebarsTemplateDelegate> {
-    const cacheKey = `${templateType}_${language}`;
+  private async loadTemplate(
+  templateType: EmailTemplateType,
+  language: string
+): Promise<HandlebarsTemplateDelegate> {
+  const cacheKey = `${templateType}_${language}`;
 
-    // Return cached template if available
-    if (this.templateCache[cacheKey]) {
-      return this.templateCache[cacheKey];
-    }
-
-    try {
-      // Load HTML template
-      const htmlPath = path.join(this.templatesPath, templateType, `${language}.html`);
-      const htmlContent = await fs.readFile(htmlPath, 'utf-8');
-
-      // Compile template
-      const compiled = Handlebars.compile(htmlContent);
-
-      // Cache the compiled template
-      this.templateCache[cacheKey] = compiled;
-
-      return compiled;
-    } catch (error) {
-      throw new Error(`Failed to load template ${templateType} for language ${language}: ${error}`);
-    }
+  if (this.templateCache[cacheKey]) {
+    return this.templateCache[cacheKey];
   }
+
+  const load = async (lang: string): Promise<HandlebarsTemplateDelegate> => {
+    const htmlPath = path.join(
+      this.templatesPath,
+      templateType,
+      `${lang}.html`
+    );
+
+    const htmlContent = await fs.readFile(htmlPath, 'utf-8');
+    return Handlebars.compile(htmlContent);
+  };
+
+  try {
+    const compiled = await load(language);
+    this.templateCache[cacheKey] = compiled;
+    return compiled;
+  } catch (error) {
+    if (language !== 'en') {
+      try {
+        const compiled = await load('en');
+
+        // Cache it for this requested language too.
+        this.templateCache[cacheKey] = compiled;
+
+        console.warn(
+          `Email template ${templateType}/${language}.html not found; falling back to en.html`
+        );
+
+        return compiled;
+      } catch (fallbackError) {
+        throw new Error(
+          `Failed to load template ${templateType} for language ${language}, ` +
+          `and English fallback also failed: ${fallbackError}`
+        );
+      }
+    }
+
+    throw new Error(
+      `Failed to load template ${templateType} for language ${language}: ${error}`
+    );
+  }
+}
 
   /**
    * Load text version of template
    */
-  private async loadTextTemplate(templateType: EmailTemplateType, language: string): Promise<string | null> {
+  private async loadTextTemplate(
+  templateType: EmailTemplateType,
+  language: string
+): Promise<string | null> {
+  const load = async (lang: string): Promise<string | null> => {
     try {
-      const textPath = path.join(this.templatesPath, templateType, `${language}.txt`);
+      const textPath = path.join(
+        this.templatesPath,
+        templateType,
+        `${lang}.txt`
+      );
+
       return await fs.readFile(textPath, 'utf-8');
-    } catch (error) {
-      // Text templates are optional
+    } catch {
       return null;
     }
+  };
+
+  const requested = await load(language);
+
+  if (requested !== null) {
+    return requested;
   }
+
+  if (language !== 'en') {
+    return await load('en');
+  }
+
+  return null;
+}
 
   /**
    * Fetch SiteSettings with 5-minute TTL cache
