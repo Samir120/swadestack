@@ -39,6 +39,10 @@ RUN apt-get update \
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 
+# Email templates are loaded at runtime from:
+# src/templates/emails/<template>/<language>.html
+COPY --from=build /app/src/templates ./src/templates
+
 COPY package*.json ./
 COPY config ./config
 COPY migrations ./migrations
