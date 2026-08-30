@@ -1269,22 +1269,33 @@ export class PCCompatibilityService {
         }
         break;
 
-      case 'psu':
+      case 'psu': {
         // Calculate required wattage from all components
         const allComponents = {
-          cpu: existingComponents.cpu ? await this.reconstructComponent(existingComponents.cpu) : null,
-          motherboard: existingComponents.motherboard ? await this.reconstructComponent(existingComponents.motherboard) : null,
+          cpu: existingComponents.cpu
+            ? await this.reconstructComponent(existingComponents.cpu)
+            : null,
+          motherboard: existingComponents.motherboard
+            ? await this.reconstructComponent(existingComponents.motherboard)
+            : null,
           rams: existingComponents.rams || [],
           gpus: existingComponents.gpus || [],
           ssds: existingComponents.ssds || [],
           hdds: existingComponents.hdds || [],
-          cooling: existingComponents.cooling ? await this.reconstructComponent(existingComponents.cooling) : null,
+          cooling: existingComponents.cooling
+            ? await this.reconstructComponent(existingComponents.cooling)
+            : null,
           fans: existingComponents.fans || [],
-          optical: existingComponents.optical ? await this.reconstructComponent(existingComponents.optical) : null,
+          optical: existingComponents.optical
+            ? await this.reconstructComponent(existingComponents.optical)
+            : null,
         };
+
         const totalDraw = await this.calculateTotalPowerDraw(allComponents);
         const recommendedWattage = totalDraw * 1.2;
+
         return await this.getSuggestedPSUs(recommendedWattage);
+      }
     }
 
     // Default: return similar components sorted by price

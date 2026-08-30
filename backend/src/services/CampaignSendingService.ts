@@ -378,13 +378,18 @@ export class CampaignSendingService {
       let sentCount = 0;
       let failedCount = 0;
 
-      while (true) {
+      let hasMore = true;
+
+      while (hasMore) {
         const logs = await NewsletterSendLog.findAll({
           where: { campaignId, status: 'queued' },
           limit: batchSize,
         });
 
-        if (logs.length === 0) break;
+        if (logs.length === 0) {
+            hasMore = false;
+            break;
+        }
 
         for (const log of logs) {
           try {

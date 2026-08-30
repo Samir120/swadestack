@@ -243,7 +243,7 @@ export class AuthService {
    * Verify user email with token
    */
   async verifyEmail(token: string): Promise<UserDTO> {
-    let user = await this.usersRepository.findByVerificationToken(token);
+    const user = await this.usersRepository.findByVerificationToken(token);
 
     // If token not found, user might already be verified - this is OK
     if (!user) {

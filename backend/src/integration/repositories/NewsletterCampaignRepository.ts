@@ -3,6 +3,7 @@ import NewsletterCampaign from '../../models/sequelize/NewsletterCampaign';
 import NewsletterCampaignStats from '../../models/sequelize/NewsletterCampaignStats';
 import User from '../../models/sequelize/User';
 import { CampaignStatus } from '../../models/sequelize/NewsletterCampaign';
+import { Op } from 'sequelize';
 
 export class NewsletterCampaignRepository extends BaseDAO<NewsletterCampaign> {
   constructor() {
@@ -20,7 +21,6 @@ export class NewsletterCampaignRepository extends BaseDAO<NewsletterCampaign> {
       where.status = options.status;
     }
     if (options?.search) {
-      const { Op } = require('sequelize');
       where[Op.or] = [
         { name: { [Op.iLike]: `%${options.search}%` } },
         { subject: { [Op.iLike]: `%${options.search}%` } },

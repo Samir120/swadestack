@@ -12,7 +12,7 @@ export const rateLimitMiddleware = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req: Request) => {
-    // @ts-ignore
+    // @ts-expect-error -- req.user is added by authentication middleware
     return req.user?.role === 'admin';
   },
 });
