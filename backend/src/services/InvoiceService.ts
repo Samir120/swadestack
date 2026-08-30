@@ -713,7 +713,7 @@ export class InvoiceService {
       const page = await browser.newPage();
 
       // Set content and wait for it to load
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setContent(html, { waitUntil: 'load' });
 
       // Generate PDF
       const pdfBuffer = await page.pdf({
@@ -1249,7 +1249,7 @@ export class InvoiceService {
       });
 
       const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setContent(html, { waitUntil: 'load' });
 
       const pdfBuffer = await page.pdf({
         format: 'A4',
@@ -1774,7 +1774,7 @@ export class InvoiceService {
       });
 
       const page = await browser.newPage();
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      await page.setContent(html, { waitUntil: 'load' });
 
       const pdfBuffer = await page.pdf({
         format: 'A4',
