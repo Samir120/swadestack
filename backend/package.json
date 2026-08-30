@@ -2,6 +2,9 @@
   "name": "portfolio-ecommerce-backend",
   "version": "1.0.0",
   "description": "Backend API for Portfolio E-Commerce Platform",
+  "engines": {
+      "node": ">=22.12.0"
+  },
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
@@ -28,7 +31,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^1.13.4",
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -40,10 +43,10 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^2.0.2",
-    "nodemailer": "^6.10.1",
+    "nodemailer": "^9.0.6",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
-    "puppeteer": "^24.36.0",
+    "puppeteer": "^25.9.0",
     "qrcode": "^1.5.4",
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.5",
